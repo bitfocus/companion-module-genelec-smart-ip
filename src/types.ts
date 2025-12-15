@@ -81,7 +81,7 @@ export interface NetworkConfig {
 
 export interface NetworkZoneResponse {
 	zone: number
-	name: boolean
+	name: string
 }
 
 export interface ProfileItem {
@@ -102,4 +102,18 @@ export interface ProfileRestore {
 
 export interface GenericResponse {
 	[key: string]: unknown
+}
+
+export interface SystemState {
+	deviceInfo?: DeviceInfoResponse
+	power?: DevicePowerResponse
+	led?: LEDResponse
+	network?: NetworkConfig
+	events?: EventsResponse
+	audioInputs?: AudioInputs
+	audioVolume?: AudioVolume
+	aoipInfo?: AoIPIdentityResponse
+	aoipNetwork?: AoIPNetworkResponse
+	zone?: NetworkZoneResponse
+	profiles?: ProfileListResponse
 }

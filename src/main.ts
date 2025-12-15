@@ -1,10 +1,11 @@
 import { InstanceBase, runEntrypoint, InstanceStatus, SomeCompanionConfigField } from '@companion-module/base'
 import { GetConfigFields, type ModuleConfig } from './config.js'
-import { UpdateVariableDefinitions } from './variables.js'
+import { UpdateVariableDefinitions, UpdateVariableValues } from './variables.js'
 import { UpgradeScripts } from './upgrades.js'
 import { UpdateActions } from './actions.js'
 import { UpdateFeedbacks } from './feedbacks.js'
 import { GenelecSpeaker } from './api.js'
+import { SystemState } from './types.js'
 export interface ModuleSecrets {
 	password: string
 }
@@ -12,6 +13,9 @@ export class GenelecSmartIPInstance extends InstanceBase<ModuleConfig, ModuleSec
 	config!: ModuleConfig
 	secrets!: ModuleSecrets
 	speaker!: GenelecSpeaker | null
+	systemInterval: NodeJS.Timeout | null = null
+	eventInterval: NodeJS.Timeout | null = null
+	previousState: SystemState = {}
 
 	constructor(internal: unknown) {
 		super(internal)
@@ -31,6 +35,8 @@ export class GenelecSmartIPInstance extends InstanceBase<ModuleConfig, ModuleSec
 
 	async destroy(): Promise<void> {
 		this.log('debug', 'destroy')
+		if (this.systemInterval) clearInterval(this.systemInterval)
+		if (this.eventInterval) clearInterval(this.eventInterval)
 	}
 
 	async configUpdated(config: ModuleConfig, secrets: ModuleSecrets): Promise<void> {
@@ -63,7 +69,27 @@ export class GenelecSmartIPInstance extends InstanceBase<ModuleConfig, ModuleSec
 			const password = this.secrets?.password
 			this.speaker = new GenelecSpeaker(this.config, password, this)
 		}
-		await this.speaker.sendRequest('GET', 'device/info')
+		await this.speaker.getSystemInfo()
+		//this.pollSystemInfo()
+		this.pollEvents()
+	}
+
+	pollSystemInfo(): void {
+		if (!this.speaker) return
+		if (this.systemInterval) clearInterval(this.systemInterval)
+		this.systemInterval = setInterval(() => {
+			void this.speaker?.getAllInfo()
+			UpdateVariableValues(this)
+		}, 2500)
+	}
+
+	pollEvents(): void {
+		if (!this.speaker) return
+		if (this.eventInterval) clearInterval(this.eventInterval)
+		this.eventInterval = setInterval(() => {
+			void this.speaker?.getEvents()
+			UpdateVariableValues(this)
+		}, 500)
 	}
 }
 

@@ -3,5 +3,245 @@ import type { GenelecSmartIPInstance } from './main.js'
 
 export function UpdateVariableDefinitions(self: GenelecSmartIPInstance): void {
 	const variables: CompanionVariableDefinition[] = []
+	variables.push(
+		// Device Info
+		{ variableId: 'fw_id', name: 'Firmware ID' },
+		{ variableId: 'build', name: 'Build Version' },
+		{ variableId: 'base_id', name: 'Base ID' },
+		{ variableId: 'hw_id', name: 'Hardware ID' },
+		{ variableId: 'model', name: 'Model' },
+		{ variableId: 'category', name: 'Category' },
+		{ variableId: 'technology', name: 'Technology' },
+		{ variableId: 'upgrade_id', name: 'Upgrade ID' },
+		{ variableId: 'api_ver', name: 'API Version' },
+
+		// Power
+		{ variableId: 'power_state', name: 'Power State' },
+		{ variableId: 'poe_allocated_pwr', name: 'PoE Allocated Power (W)' },
+		{ variableId: 'poe_pd_15w', name: 'PoE PD Limits Current Consumption to 15W' },
+
+		// Network
+		{ variableId: 'hostname', name: 'Hostname' },
+		{ variableId: 'ip_mode', name: 'IP Mode' },
+		{ variableId: 'ip_address', name: 'IP Address' },
+		{ variableId: 'subnet_mask', name: 'Subnet Mask' },
+		{ variableId: 'gateway', name: 'Network Gateway' },
+		{ variableId: 'multicast_ip', name: 'Multicast Control IP' },
+		{ variableId: 'multicast_port', name: 'Multicast Control Port' },
+
+		// Audio
+		{ variableId: 'master_volume', name: 'Master Volume' },
+		{ variableId: 'mute', name: 'Mute State' },
+		{ variableId: 'active_inputs', name: 'Active Inputs' },
+
+		// AoIP
+		{ variableId: 'aoip_id', name: 'AoIP ID' },
+		{ variableId: 'aoip_name', name: 'AoIP Name' },
+		{ variableId: 'aoip_fname', name: 'AoIP Friendly Name' },
+		{ variableId: 'aoip_mac', name: 'AoIP MAC Address' },
+		{ variableId: 'aoip_locked', name: 'AoIP Locked' },
+		{ variableId: 'aoip_ip', name: 'AoIP IP Address' },
+		{ variableId: 'aoip_mask', name: 'AoIP Subnet Mask' },
+		{ variableId: 'aoip_gw', name: 'AoIP Gateway' },
+
+		// Zone
+		{ variableId: 'zone_id', name: 'Zone ID' },
+		{ variableId: 'zone_name', name: 'Zone Name' },
+
+		// Profiles
+		{ variableId: 'profile_selected_id', name: 'Selected Profile ID' },
+		{ variableId: 'profile_startup_id', name: 'Startup Profile ID' },
+
+		// Events / Status
+		{ variableId: 'bass_level', name: 'Bass Output Level' },
+		{ variableId: 'tweeter_level', name: 'Tweeter Output Level' },
+		{ variableId: 'input_level', name: 'Input Level' },
+		{ variableId: 'cpu_temp', name: 'CPU Temperature' },
+		{ variableId: 'cpu_load', name: 'CPU Load' },
+		{ variableId: 'network_traffic', name: 'Network Traffic to CPU (kbps)' },
+		{ variableId: 'uptime', name: 'Uptime' },
+
+		// LEDs
+		{ variableId: 'led_intensity', name: 'LED Intensity (%)' },
+		{ variableId: 'rj45_leds', name: 'RJ45 LEDs' },
+		{ variableId: 'clip_led', name: 'Clip LED (applicable to subwoofer only)' },
+	)
 	self.setVariableDefinitions(variables)
+}
+
+export function UpdateVariableValues(self: GenelecSmartIPInstance): void {
+	if (!self.speaker) return
+
+	const state = self.speaker.state
+	const previousState = self.previousState
+
+	const newVariables: Record<string, string | number | boolean | undefined> = {}
+
+	// Device Info
+	if (state.deviceInfo) {
+		const newInfo = state.deviceInfo
+		const oldInfo = previousState.deviceInfo
+
+		if (newInfo.fwId !== oldInfo?.fwId) newVariables.fw_id = newInfo.fwId
+		if (newInfo.build !== oldInfo?.build) newVariables.build = newInfo.build
+		if (newInfo.baseId !== oldInfo?.baseId) newVariables.base_id = newInfo.baseId
+		if (newInfo.hwId !== oldInfo?.hwId) newVariables.hw_id = newInfo.hwId
+		if (newInfo.model !== oldInfo?.model) newVariables.model = newInfo.model
+		if (newInfo.category !== oldInfo?.category) newVariables.category = newInfo.category
+		if (newInfo.technology !== oldInfo?.technology) newVariables.technology = newInfo.technology
+		if (newInfo.upgradeId !== oldInfo?.upgradeId) newVariables.upgrade_id = newInfo.upgradeId
+		if (newInfo.apiVer !== oldInfo?.apiVer) newVariables.api_ver = newInfo.apiVer
+
+		previousState.deviceInfo = { ...newInfo }
+	}
+
+	// Power
+	if (state.power) {
+		const newPwr = state.power
+		const oldPwr = previousState.power
+
+		if (newPwr.state !== oldPwr?.state) newVariables.power_state = newPwr.state
+		if (newPwr.poeAllocatedPwr !== oldPwr?.poeAllocatedPwr) newVariables.poe_allocated_pwr = newPwr.poeAllocatedPwr
+		if (newPwr.poePd15W !== oldPwr?.poePd15W) newVariables.poe_pd_15w = newPwr.poePd15W
+
+		previousState.power = { ...newPwr }
+	}
+
+	// Network
+	if (state.network) {
+		const newNet = state.network
+		const oldNet = previousState.network
+
+		if (newNet.hostname !== oldNet?.hostname) newVariables.hostname = newNet.hostname
+		if (newNet.mode !== oldNet?.mode) newVariables.ip_mode = newNet.mode
+		if (newNet.ip !== oldNet?.ip) newVariables.ip_address = newNet.ip
+		if (newNet.mask !== oldNet?.mask) newVariables.subnet_mask = newNet.mask
+		if (newNet.gw !== oldNet?.gw) newVariables.gateway = newNet.gw
+		if (newNet.volIp !== oldNet?.volIp) newVariables.multicast_ip = newNet.volIp
+		if (newNet.volPort !== oldNet?.volPort) newVariables.multicast_port = newNet.volPort
+
+		previousState.network = { ...newNet }
+	}
+
+	// Audio
+	if (state.audioVolume) {
+		const newVol = state.audioVolume
+		const oldVol = previousState.audioVolume
+
+		if (newVol.level !== oldVol?.level) newVariables.master_volume = newVol.level
+		if (newVol.mute !== oldVol?.mute) newVariables.mute = newVol.mute ? 'Muted' : 'Unmuted'
+
+		previousState.audioVolume = { ...newVol }
+	}
+	if (state.audioInputs) {
+		const newIn = state.audioInputs
+		const oldIn = previousState.audioInputs
+
+		const newInputStr = newIn.input.join(', ')
+		const oldInputStr = oldIn?.input.join(', ')
+
+		if (newInputStr !== oldInputStr) newVariables.active_inputs = newInputStr.replace('A', 'Analog')
+
+		previousState.audioInputs = { ...newIn }
+	}
+
+	// AoIP
+	if (state.aoipInfo) {
+		const newAoip = state.aoipInfo
+		const oldAoip = previousState.aoipInfo
+
+		if (newAoip.id !== oldAoip?.id) newVariables.aoip_id = newAoip.id
+		if (newAoip.name !== oldAoip?.name) newVariables.aoip_name = newAoip.name
+		if (newAoip.fname !== oldAoip?.fname) newVariables.aoip_fname = newAoip.fname
+		if (newAoip.mac !== oldAoip?.mac) newVariables.aoip_mac = newAoip.mac
+		if (newAoip.locked !== oldAoip?.locked || oldAoip?.locked === undefined)
+			newVariables.aoip_locked = newAoip.locked === true ? 'Locked' : 'Unlocked'
+
+		previousState.aoipInfo = { ...newAoip }
+	}
+	if (state.aoipNetwork) {
+		const newAoipNet = state.aoipNetwork
+		const oldAoipNet = previousState.aoipNetwork
+
+		if (newAoipNet.ip !== oldAoipNet?.ip) newVariables.aoip_ip = newAoipNet.ip
+		if (newAoipNet.mask !== oldAoipNet?.mask) newVariables.aoip_mask = newAoipNet.mask
+		if (newAoipNet.gw !== oldAoipNet?.gw) newVariables.aoip_gw = newAoipNet.gw
+
+		previousState.aoipNetwork = { ...newAoipNet }
+	}
+
+	// Zone
+	if (state.zone) {
+		const newZone = state.zone
+		const oldZone = previousState.zone
+
+		if (newZone.zone !== oldZone?.zone) newVariables.zone_id = newZone.zone
+		if (newZone.name !== oldZone?.name) newVariables.zone_name = newZone.name
+
+		previousState.zone = { ...newZone }
+	}
+
+	// Profiles
+	if (state.profiles) {
+		const newProf = state.profiles
+		const oldProf = previousState.profiles
+
+		if (newProf.selected !== oldProf?.selected) newVariables.profile_selected_id = newProf.selected
+		if (newProf.startup !== oldProf?.startup) newVariables.profile_startup_id = newProf.startup
+
+		previousState.profiles = { ...newProf }
+	}
+
+	// Check events
+	if (state.events) {
+		const newEvents = state.events
+		const oldEvents = previousState.events
+
+		if (newEvents.bsLevel !== oldEvents?.bsLevel) {
+			newVariables.bass_level = newEvents.bsLevel != undefined ? Number(newEvents.bsLevel).toFixed(1) : undefined
+		}
+		if (newEvents.twLevel !== oldEvents?.twLevel) {
+			newVariables.tweeter_level = newEvents.twLevel != undefined ? Number(newEvents.twLevel).toFixed(1) : undefined
+		}
+		if (newEvents.inLevel !== oldEvents?.inLevel) {
+			newVariables.input_level = newEvents.inLevel != undefined ? Number(newEvents.inLevel).toFixed(1) : undefined
+		}
+		if (newEvents.cpuT !== oldEvents?.cpuT) {
+			newVariables.cpu_temp = newEvents.cpuT
+		}
+		if (newEvents.cpuLoad !== oldEvents?.cpuLoad) {
+			newVariables.cpu_load = newEvents.cpuLoad
+		}
+		if (newEvents.nwInKbps !== oldEvents?.nwInKbps) {
+			newVariables.network_traffic = newEvents.nwInKbps
+		}
+		if (newEvents.uptime !== oldEvents?.uptime) {
+			newVariables.uptime = newEvents.uptime
+		}
+
+		previousState.events = { ...newEvents }
+	}
+
+	// Check LED
+	if (state.led) {
+		const newLed = state.led
+		const oldLed = previousState.led
+
+		if (newLed.ledIntensity !== oldLed?.ledIntensity) {
+			newVariables.led_intensity = newLed.ledIntensity
+		}
+		if (newLed.rj45Leds !== oldLed?.rj45Leds) {
+			newVariables.rj45_leds = newLed.rj45Leds ? 'On' : 'Off'
+		}
+		if (newLed.hideClip !== oldLed?.hideClip) {
+			newVariables.clip_led = newLed.hideClip ? 'Off' : 'On'
+		}
+
+		previousState.led = { ...newLed }
+	}
+
+	if (Object.keys(newVariables).length > 0) {
+		console.log(newVariables)
+		self.setVariableValues(newVariables)
+	}
 }

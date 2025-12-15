@@ -13,6 +13,7 @@ import {
 	NetworkConfig,
 	NetworkZoneResponse,
 	ProfileListResponse,
+	SystemState,
 } from './types.js'
 import { InstanceStatus } from '@companion-module/base'
 
@@ -25,6 +26,8 @@ export class GenelecSpeaker {
 	private readonly user: string
 	private readonly password: string
 	private readonly self: GenelecSmartIPInstance
+
+	public state: SystemState = {}
 
 	constructor(config: ModuleConfig, password: string, self: GenelecSmartIPInstance) {
 		this.config = config
@@ -70,52 +73,98 @@ export class GenelecSpeaker {
 			this.self.updateStatus(InstanceStatus.Ok)
 		}
 		const data = (await response.json()) as T
-		console.log(data)
 		return data
 	}
 
 	async getSystemInfo(): Promise<DeviceInfoResponse | void> {
-		return this.sendRequest<DeviceInfoResponse>('GET', 'device/info')
+		const data = await this.sendRequest<DeviceInfoResponse>('GET', 'device/info')
+		if (data) {
+			this.state.deviceInfo = data
+		}
+		return data
 	}
 
 	async getPowerState(): Promise<DevicePowerResponse | void> {
-		return this.sendRequest<DevicePowerResponse>('GET', 'device/pwr')
+		const data = await this.sendRequest<DevicePowerResponse>('GET', 'device/pwr')
+		if (data) {
+			this.state.power = data
+		}
+		return data
 	}
 
 	async getLEDState(): Promise<LEDResponse | void> {
-		return this.sendRequest<LEDResponse>('GET', 'device/led')
+		const data = await this.sendRequest<LEDResponse>('GET', 'device/led')
+		if (data) {
+			this.state.led = data
+		}
+		return data
 	}
 
 	async getNetworkConfig(): Promise<NetworkConfig | void> {
-		return this.sendRequest<NetworkConfig>('GET', 'network/ipv4')
+		const data = await this.sendRequest<NetworkConfig>('GET', 'network/ipv4')
+		if (data) {
+			this.state.network = data
+		}
+		return data
 	}
 
 	async getEvents(): Promise<EventsResponse | void> {
-		return this.sendRequest<EventsResponse>('GET', 'events')
+		const data = await this.sendRequest<EventsResponse>('GET', 'events')
+		if (data) {
+			this.state.events = data
+		}
+		return data
 	}
 
 	async getInputs(): Promise<AudioInputs | void> {
-		return this.sendRequest<AudioInputs>('GET', 'audio/inputs')
+		const data = await this.sendRequest<AudioInputs>('GET', 'audio/inputs')
+		if (data) {
+			this.state.audioInputs = data
+		}
+		return data
 	}
 
 	async getVolume(): Promise<AudioVolume | void> {
-		return this.sendRequest<AudioVolume>('GET', 'audio/volume')
+		const data = await this.sendRequest<AudioVolume>('GET', 'audio/volume')
+		if (data) {
+			this.state.audioVolume = data
+		}
+		return data
 	}
 
 	async getAoipInfo(): Promise<AoIPIdentityResponse | void> {
-		return this.sendRequest<AoIPIdentityResponse>('GET', 'aoip/dante/identity')
+		const data = await this.sendRequest<AoIPIdentityResponse>('GET', 'aoip/dante/identity')
+		if (data) {
+			if (!data.locked) {
+				data.locked = false
+			}
+			this.state.aoipInfo = data
+		}
+		return data
 	}
 
 	async getAoipNetworkConfig(): Promise<AoIPNetworkResponse | void> {
-		return this.sendRequest<AoIPNetworkResponse>('GET', 'aoip/ipv4')
+		const data = await this.sendRequest<AoIPNetworkResponse>('GET', 'aoip/ipv4')
+		if (data) {
+			this.state.aoipNetwork = data
+		}
+		return data
 	}
 
 	async getZoneConfig(): Promise<NetworkZoneResponse | void> {
-		return this.sendRequest<NetworkZoneResponse>('GET', 'network/zone')
+		const data = await this.sendRequest<NetworkZoneResponse>('GET', 'network/zone')
+		if (data) {
+			this.state.zone = data
+		}
+		return data
 	}
 
 	async getProfileList(): Promise<ProfileListResponse | void> {
-		return this.sendRequest<ProfileListResponse>('GET', 'profile/list')
+		const data = await this.sendRequest<ProfileListResponse>('GET', 'profile/list')
+		if (data) {
+			this.state.profiles = data
+		}
+		return data
 	}
 
 	async fetchInitialInfo(): Promise<void> {
@@ -130,5 +179,12 @@ export class GenelecSpeaker {
 		await this.getAoipNetworkConfig()
 		await this.getZoneConfig()
 		await this.getProfileList()
+	}
+
+	async getAllInfo(): Promise<void> {
+		await this.getSystemInfo()
+		await this.getPowerState()
+		await this.getLEDState()
+		await this.getNetworkConfig()
 	}
 }
