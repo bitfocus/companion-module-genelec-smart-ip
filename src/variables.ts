@@ -241,7 +241,6 @@ export function UpdateVariableValues(self: GenelecSmartIPInstance): void {
 	}
 
 	if (Object.keys(newVariables).length > 0) {
-		console.log(newVariables)
 		self.setVariableValues(newVariables)
 	}
 }

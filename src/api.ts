@@ -26,6 +26,7 @@ export class GenelecSpeaker {
 	private readonly user: string
 	private readonly password: string
 	private readonly self: GenelecSmartIPInstance
+	private authHeader: string | null = null
 
 	public state: SystemState = {}
 
@@ -37,12 +38,16 @@ export class GenelecSpeaker {
 	}
 
 	generateBasicAuthHeader(): string {
+		if (this.authHeader) {
+			return this.authHeader
+		}
 		if (!this.user || !this.password) {
 			this.self.updateStatus(InstanceStatus.BadConfig)
 			this.self.log('error', 'Username or password is missing in configuration')
 		}
 		const credentials = `${this.user}:${this.password}`
-		return `Basic ${Buffer.from(credentials).toString('base64')}`
+		this.authHeader = `Basic ${Buffer.from(credentials).toString('base64')}`
+		return this.authHeader
 	}
 
 	async sendRequest<T = GenericResponse>(
@@ -60,7 +65,6 @@ export class GenelecSpeaker {
 			},
 			body: JSON.stringify(content),
 		})
-		console.log(`Request to ${url} returned status ${response.status}`)
 		if (!response.ok) {
 			if (response.status === 401) {
 				this.self.updateStatus(InstanceStatus.BadConfig)
@@ -168,23 +172,22 @@ export class GenelecSpeaker {
 	}
 
 	async fetchInitialInfo(): Promise<void> {
-		await this.getSystemInfo()
-		await this.getPowerState()
-		await this.getLEDState()
-		await this.getNetworkConfig()
-		await this.getEvents()
-		await this.getInputs()
-		await this.getVolume()
-		await this.getAoipInfo()
-		await this.getAoipNetworkConfig()
-		await this.getZoneConfig()
-		await this.getProfileList()
+		await Promise.allSettled([
+			this.getSystemInfo(),
+			this.getPowerState(),
+			this.getLEDState(),
+			this.getNetworkConfig(),
+			this.getEvents(),
+			this.getInputs(),
+			this.getVolume(),
+			this.getAoipInfo(),
+			this.getAoipNetworkConfig(),
+			this.getZoneConfig(),
+			this.getProfileList(),
+		])
 	}
 
 	async getAllInfo(): Promise<void> {
-		await this.getSystemInfo()
-		await this.getPowerState()
-		await this.getLEDState()
-		await this.getNetworkConfig()
+		await Promise.allSettled([this.getSystemInfo(), this.getPowerState(), this.getLEDState(), this.getNetworkConfig()])
 	}
 }
