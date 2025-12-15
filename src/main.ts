@@ -4,18 +4,25 @@ import { UpdateVariableDefinitions } from './variables.js'
 import { UpgradeScripts } from './upgrades.js'
 import { UpdateActions } from './actions.js'
 import { UpdateFeedbacks } from './feedbacks.js'
-
-export class GenelecSmartIPInstance extends InstanceBase<ModuleConfig> {
+import { GenelecSpeaker } from './api.js'
+export interface ModuleSecrets {
+	password: string
+}
+export class GenelecSmartIPInstance extends InstanceBase<ModuleConfig, ModuleSecrets> {
 	config!: ModuleConfig
+	secrets!: ModuleSecrets
+	speaker!: GenelecSpeaker | null
 
 	constructor(internal: unknown) {
 		super(internal)
 	}
 
-	async init(config: ModuleConfig): Promise<void> {
+	async init(config: ModuleConfig, _isFirstInit: boolean, secrets: ModuleSecrets): Promise<void> {
 		this.config = config
+		this.secrets = secrets
+		this.updateStatus(InstanceStatus.Connecting)
 
-		this.updateStatus(InstanceStatus.Ok)
+		await this.performLogin()
 
 		this.updateActions()
 		this.updateFeedbacks()
@@ -26,8 +33,13 @@ export class GenelecSmartIPInstance extends InstanceBase<ModuleConfig> {
 		this.log('debug', 'destroy')
 	}
 
-	async configUpdated(config: ModuleConfig): Promise<void> {
+	async configUpdated(config: ModuleConfig, secrets: ModuleSecrets): Promise<void> {
 		this.config = config
+		this.secrets = secrets
+		if (this.speaker) {
+			this.speaker = null
+		}
+		await this.performLogin()
 	}
 
 	getConfigFields(): SomeCompanionConfigField[] {
@@ -44,6 +56,14 @@ export class GenelecSmartIPInstance extends InstanceBase<ModuleConfig> {
 
 	updateVariableDefinitions(): void {
 		UpdateVariableDefinitions(this)
+	}
+
+	async performLogin(): Promise<void> {
+		if (!this.speaker) {
+			const password = this.secrets?.password
+			this.speaker = new GenelecSpeaker(this.config, password, this)
+		}
+		await this.speaker.sendRequest('GET', 'device/info')
 	}
 }
 

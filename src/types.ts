@@ -1,6 +1,6 @@
 export interface AoIPIdentityResponse {
 	id: string
-	name: string 
+	name: string
 	fname: string
 	mac: string
 	locked?: boolean
@@ -8,7 +8,7 @@ export interface AoIPIdentityResponse {
 
 export interface AoIPNetworkResponse {
 	ip: string
-	mask: string 
+	mask: string
 	gw: string
 }
 
@@ -23,7 +23,7 @@ export interface AudioVolume {
 
 export interface DeviceIDResponse {
 	barcode: string
-	mac: string 
+	mac: string
 	hwId: string
 	model: string
 	modId: string
@@ -31,7 +31,7 @@ export interface DeviceIDResponse {
 
 export interface DeviceInfoResponse {
 	fwId?: string
-	build?: string 
+	build?: string
 	baseId?: string
 	hwId?: string
 	model?: string
@@ -53,23 +53,23 @@ export interface DevicePowerResponse {
 }
 
 export interface EventsResponse {
-	bsLevel: number 
+	bsLevel: number
 	twLevel: number
 	inLevel: number
-	cpuT: number 
+	cpuT: number
 	nwInKbps: number
 	cpuLoad: number
 	uptime: string
 }
 
 export interface LEDResponse {
-	ledIntensity?: number 
+	ledIntensity?: number
 	rj45Leds?: boolean
 	hideClip?: boolean //Subwoofer only
 }
 
 export interface NetworkConfig {
-	hostname?: string 
+	hostname?: string
 	mode?: 'auto' | 'static'
 	ip?: string
 	mask?: string
@@ -80,7 +80,7 @@ export interface NetworkConfig {
 }
 
 export interface NetworkZoneResponse {
-	zone: number 
+	zone: number
 	name: boolean
 }
 
@@ -90,12 +90,16 @@ export interface ProfileItem {
 }
 
 export interface ProfileListResponse {
-	selected: number 
+	selected: number
 	startup: number
 	list: ProfileItem[]
 }
 
-export interface ProfileRestore{
+export interface ProfileRestore {
 	id: number
 	startup?: boolean
+}
+
+export interface GenericResponse {
+	[key: string]: unknown
 }

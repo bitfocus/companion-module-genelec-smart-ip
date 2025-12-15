@@ -25,9 +25,8 @@
 	"keywords": ["Speakers", "Monitors", "Audio"],
 	"bonjourQueries": {
 		"bonjourHost": {
-			"type": "_smart_ip._tcp",
-			"protocol": "tcp",
-			"port": 9000
+			"type": "smart_ip",
+			"protocol": "tcp"
 		}
 	}
 }
