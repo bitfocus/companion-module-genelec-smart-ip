@@ -23,7 +23,7 @@ export class GenelecSmartIPInstance extends InstanceBase<ModuleConfig, ModuleSec
 		this.updateStatus(InstanceStatus.Connecting)
 
 		await this.performLogin()
-
+		await this.speaker?.fetchInitialInfo()
 		this.updateActions()
 		this.updateFeedbacks()
 		this.updateVariableDefinitions()
