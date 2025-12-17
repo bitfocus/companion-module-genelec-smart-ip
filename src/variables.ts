@@ -235,10 +235,10 @@ export function UpdateVariableValues(self: GenelecSmartIPInstance): void {
 		const oldZone = previousState.zone
 
 		if (newZone.zone !== oldZone?.zone) {
-			newVariables.zone_id = newZone.zone
+			newVariables.zone_id = newZone.zone ?? 'None'
 		}
 		if (newZone.name !== oldZone?.name) {
-			newVariables.zone_name = newZone.name
+			newVariables.zone_name = newZone.name ?? 'None'
 		}
 
 		previousState.zone = { ...newZone }

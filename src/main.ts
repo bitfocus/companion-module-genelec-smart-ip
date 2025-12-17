@@ -86,7 +86,7 @@ export class GenelecSmartIPInstance extends InstanceBase<ModuleConfig, ModuleSec
 		this.systemInterval = setInterval(() => {
 			void this.speaker?.getAllInfo()
 			UpdateVariableValues(this)
-		}, 2000)
+		}, 5000)
 	}
 
 	pollEvents(): void {

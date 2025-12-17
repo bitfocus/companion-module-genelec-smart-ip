@@ -169,10 +169,18 @@ export class GenelecSpeaker {
 
 	async setVolume(data: Partial<AudioVolume>): Promise<void> {
 		await this.sendRequest('PUT', 'audio/volume', data)
-		this.state.audioVolume = data
-		this.self.setVariableValues({
-			volume: data.level != undefined ? Number(data.level.toFixed(1)) : undefined,
-		})
+		if (this.state.audioVolume && data.level !== undefined) {
+			this.state.audioVolume.level = data.level
+			this.self.setVariableValues({
+				volume: Number(data.level.toFixed(1)),
+			})
+		}
+		if (this.state.audioVolume && data.mute !== undefined) {
+			this.state.audioVolume.mute = data.mute
+			this.self.setVariableValues({
+				mute: data.mute ? 'Muted' : 'Unmuted',
+			})
+		}
 	}
 
 	async getAoipInfo(): Promise<AoIPIdentityResponse | void> {

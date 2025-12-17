@@ -4,6 +4,44 @@ import type { GenelecSmartIPInstance } from './main.js'
 export function UpdateActions(self: GenelecSmartIPInstance): void {
 	const actions: CompanionActionDefinitions = {}
 
+	const toggleChoices = [
+		{ id: 'toggle', label: 'Toggle' },
+		{ id: 'true', label: 'Enable' },
+		{ id: 'false', label: 'Disable' },
+	]
+
+	function createToggleAction(
+		actionId: string,
+		name: string,
+		getCurrentValue: () => boolean | undefined,
+		setValue: (value: boolean) => Promise<void>,
+		description?: string,
+	): void {
+		actions[actionId] = {
+			name: name,
+			options: [
+				{
+					type: 'dropdown',
+					label: 'Mode',
+					choices: toggleChoices,
+					default: 'toggle',
+					id: 'mode',
+				},
+			],
+			description: description ?? `Set the ${name.toLowerCase()}`,
+			callback: async (action) => {
+				const currentValue = getCurrentValue() ?? false
+				let newValue: boolean
+				if (action.options.mode === 'toggle') {
+					newValue = !currentValue
+				} else {
+					newValue = action.options.mode === 'true' ? true : false
+				}
+				await setValue(newValue)
+			},
+		}
+	}
+
 	const setChoices = [
 		{ id: 'increase', label: 'Increase' },
 		{ id: 'decrease', label: 'Decrease' },
@@ -17,6 +55,8 @@ export function UpdateActions(self: GenelecSmartIPInstance): void {
 		setValue: (value: number) => Promise<void>,
 		defaultValue: number = 0,
 		step: number = 1,
+		min: number = 0,
+		max: number = 100,
 		description?: string,
 	): void {
 		actions[actionId] = {
@@ -53,7 +93,7 @@ export function UpdateActions(self: GenelecSmartIPInstance): void {
 					newValue = value
 				}
 
-				newValue = Math.max(-200, Math.min(0, newValue))
+				newValue = Math.max(min, Math.min(max, newValue))
 
 				await setValue(newValue)
 			},
@@ -64,9 +104,43 @@ export function UpdateActions(self: GenelecSmartIPInstance): void {
 		'volume',
 		'Volume',
 		() => self.speaker?.state.audioVolume?.level,
-		async (value) => self.speaker?.setVolume({ level: value, mute: false }),
-		50,
-		1,
+		async (value) => self.speaker?.setVolume({ level: value }),
+		0,
+		5,
+		-200,
+		0,
+	)
+
+	createToggleAction(
+		'mute',
+		'Mute',
+		() => self.speaker?.state.audioVolume?.mute,
+		async (value) => self.speaker?.setVolume({ mute: value }),
+	)
+
+	createValueAction(
+		'ledIntensity',
+		'LED Intensity',
+		() => self.speaker?.state.led?.ledIntensity,
+		async (value) => self.speaker?.setLEDState({ ledIntensity: value }),
+		100,
+		5,
+		0,
+		100,
+	)
+
+	createToggleAction(
+		'rj45Led',
+		'RJ45 LEDs',
+		() => self.speaker?.state.led?.rj45Leds,
+		async (value) => self.speaker?.setLEDState({ rj45Leds: value }),
+	)
+
+	createToggleAction(
+		'clipLed',
+		'Clip LED',
+		() => self.speaker?.state.led?.hideClip,
+		async (value) => self.speaker?.setLEDState({ hideClip: !value }),
 	)
 
 	self.setActionDefinitions(actions)
