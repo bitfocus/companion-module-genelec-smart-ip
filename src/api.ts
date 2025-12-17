@@ -78,8 +78,13 @@ export class GenelecSpeaker {
 				this.self.updateStatus(InstanceStatus.Ok)
 			}
 		}
-		const data = (await response.json()) as T
-		return data
+
+		const contentLength = response.headers.get('Content-Length')
+		if (contentLength && parseInt(contentLength) > 0) {
+			const data = (await response.json()) as T
+			return data
+		}
+		return
 	}
 
 	async getSystemInfo(): Promise<DeviceInfoResponse | void> {
@@ -90,12 +95,20 @@ export class GenelecSpeaker {
 		return data
 	}
 
+	async setSystemInfo(data: Partial<DeviceInfoResponse>): Promise<void> {
+		await this.sendRequest('PUT', 'device/info', data)
+	}
+
 	async getPowerState(): Promise<DevicePowerResponse | void> {
 		const data = await this.sendRequest<DevicePowerResponse>('GET', 'device/pwr')
 		if (data) {
 			this.state.power = data
 		}
 		return data
+	}
+
+	async setPowerState(data: Partial<DevicePowerResponse>): Promise<void> {
+		await this.sendRequest('PUT', 'device/pwr', data)
 	}
 
 	async getLEDState(): Promise<LEDResponse | void> {
@@ -106,12 +119,20 @@ export class GenelecSpeaker {
 		return data
 	}
 
+	async setLEDState(data: Partial<LEDResponse>): Promise<void> {
+		await this.sendRequest('PUT', 'device/led', data)
+	}
+
 	async getNetworkConfig(): Promise<NetworkConfig | void> {
 		const data = await this.sendRequest<NetworkConfig>('GET', 'network/ipv4')
 		if (data) {
 			this.state.network = data
 		}
 		return data
+	}
+
+	async setNetworkConfig(data: Partial<NetworkConfig>): Promise<void> {
+		await this.sendRequest('PUT', 'network/ipv4', data)
 	}
 
 	async getEvents(): Promise<EventsResponse | void> {
@@ -122,6 +143,10 @@ export class GenelecSpeaker {
 		return data
 	}
 
+	async setEvents(data: Partial<EventsResponse>): Promise<void> {
+		await this.sendRequest('PUT', 'events', data)
+	}
+
 	async getInputs(): Promise<AudioInputs | void> {
 		const data = await this.sendRequest<AudioInputs>('GET', 'audio/inputs')
 		if (data) {
@@ -130,12 +155,24 @@ export class GenelecSpeaker {
 		return data
 	}
 
+	async setInputs(data: Partial<AudioInputs>): Promise<void> {
+		await this.sendRequest('PUT', 'audio/inputs', data)
+	}
+
 	async getVolume(): Promise<AudioVolume | void> {
 		const data = await this.sendRequest<AudioVolume>('GET', 'audio/volume')
 		if (data) {
 			this.state.audioVolume = data
 		}
 		return data
+	}
+
+	async setVolume(data: Partial<AudioVolume>): Promise<void> {
+		await this.sendRequest('PUT', 'audio/volume', data)
+		this.state.audioVolume = data
+		this.self.setVariableValues({
+			volume: data.level != undefined ? Number(data.level.toFixed(1)) : undefined,
+		})
 	}
 
 	async getAoipInfo(): Promise<AoIPIdentityResponse | void> {
@@ -149,12 +186,20 @@ export class GenelecSpeaker {
 		return data
 	}
 
+	async setAoipInfo(data: Partial<AoIPIdentityResponse>): Promise<void> {
+		await this.sendRequest('PUT', 'aoip/dante/identity', data)
+	}
+
 	async getAoipNetworkConfig(): Promise<AoIPNetworkResponse | void> {
 		const data = await this.sendRequest<AoIPNetworkResponse>('GET', 'aoip/ipv4')
 		if (data) {
 			this.state.aoipNetwork = data
 		}
 		return data
+	}
+
+	async setAoipNetworkConfig(data: Partial<AoIPNetworkResponse>): Promise<void> {
+		await this.sendRequest('PUT', 'aoip/ipv4', data)
 	}
 
 	async getZoneConfig(): Promise<NetworkZoneResponse | void> {
@@ -165,12 +210,20 @@ export class GenelecSpeaker {
 		return data
 	}
 
+	async setZoneConfig(data: Partial<NetworkZoneResponse>): Promise<void> {
+		await this.sendRequest('PUT', 'network/zone', data)
+	}
+
 	async getProfileList(): Promise<ProfileListResponse | void> {
 		const data = await this.sendRequest<ProfileListResponse>('GET', 'profile/list')
 		if (data) {
 			this.state.profiles = data
 		}
 		return data
+	}
+
+	async setProfileList(data: Partial<ProfileListResponse>): Promise<void> {
+		await this.sendRequest('PUT', 'profile/list', data)
 	}
 
 	async fetchInitialInfo(): Promise<void> {
@@ -190,6 +243,12 @@ export class GenelecSpeaker {
 	}
 
 	async getAllInfo(): Promise<void> {
-		await Promise.allSettled([this.getSystemInfo(), this.getPowerState(), this.getLEDState(), this.getNetworkConfig()])
+		await Promise.allSettled([
+			this.getSystemInfo(),
+			this.getVolume(),
+			this.getPowerState(),
+			this.getLEDState(),
+			this.getNetworkConfig(),
+		])
 	}
 }

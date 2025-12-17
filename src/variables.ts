@@ -30,7 +30,7 @@ export function UpdateVariableDefinitions(self: GenelecSmartIPInstance): void {
 		{ variableId: 'multicast_port', name: 'Multicast Control Port' },
 
 		// Audio
-		{ variableId: 'master_volume', name: 'Master Volume' },
+		{ variableId: 'volume', name: 'Master Volume' },
 		{ variableId: 'mute', name: 'Mute State' },
 		{ variableId: 'active_inputs', name: 'Active Inputs' },
 
@@ -82,15 +82,33 @@ export function UpdateVariableValues(self: GenelecSmartIPInstance): void {
 		const newInfo = state.deviceInfo
 		const oldInfo = previousState.deviceInfo
 
-		if (newInfo.fwId !== oldInfo?.fwId) newVariables.fw_id = newInfo.fwId
-		if (newInfo.build !== oldInfo?.build) newVariables.build = newInfo.build
-		if (newInfo.baseId !== oldInfo?.baseId) newVariables.base_id = newInfo.baseId
-		if (newInfo.hwId !== oldInfo?.hwId) newVariables.hw_id = newInfo.hwId
-		if (newInfo.model !== oldInfo?.model) newVariables.model = newInfo.model
-		if (newInfo.category !== oldInfo?.category) newVariables.category = newInfo.category
-		if (newInfo.technology !== oldInfo?.technology) newVariables.technology = newInfo.technology
-		if (newInfo.upgradeId !== oldInfo?.upgradeId) newVariables.upgrade_id = newInfo.upgradeId
-		if (newInfo.apiVer !== oldInfo?.apiVer) newVariables.api_ver = newInfo.apiVer
+		if (newInfo.fwId !== oldInfo?.fwId) {
+			newVariables.fw_id = newInfo.fwId
+		}
+		if (newInfo.build !== oldInfo?.build) {
+			newVariables.build = newInfo.build
+		}
+		if (newInfo.baseId !== oldInfo?.baseId) {
+			newVariables.base_id = newInfo.baseId
+		}
+		if (newInfo.hwId !== oldInfo?.hwId) {
+			newVariables.hw_id = newInfo.hwId
+		}
+		if (newInfo.model !== oldInfo?.model) {
+			newVariables.model = newInfo.model
+		}
+		if (newInfo.category !== oldInfo?.category) {
+			newVariables.category = newInfo.category
+		}
+		if (newInfo.technology !== oldInfo?.technology) {
+			newVariables.technology = newInfo.technology
+		}
+		if (newInfo.upgradeId !== oldInfo?.upgradeId) {
+			newVariables.upgrade_id = newInfo.upgradeId
+		}
+		if (newInfo.apiVer !== oldInfo?.apiVer) {
+			newVariables.api_ver = newInfo.apiVer
+		}
 
 		previousState.deviceInfo = { ...newInfo }
 	}
@@ -100,9 +118,15 @@ export function UpdateVariableValues(self: GenelecSmartIPInstance): void {
 		const newPwr = state.power
 		const oldPwr = previousState.power
 
-		if (newPwr.state !== oldPwr?.state) newVariables.power_state = newPwr.state
-		if (newPwr.poeAllocatedPwr !== oldPwr?.poeAllocatedPwr) newVariables.poe_allocated_pwr = newPwr.poeAllocatedPwr
-		if (newPwr.poePd15W !== oldPwr?.poePd15W) newVariables.poe_pd_15w = newPwr.poePd15W
+		if (newPwr.state !== oldPwr?.state) {
+			newVariables.power_state = newPwr.state
+		}
+		if (newPwr.poeAllocatedPwr !== oldPwr?.poeAllocatedPwr) {
+			newVariables.poe_allocated_pwr = newPwr.poeAllocatedPwr
+		}
+		if (newPwr.poePd15W !== oldPwr?.poePd15W) {
+			newVariables.poe_pd_15w = newPwr.poePd15W
+		}
 
 		previousState.power = { ...newPwr }
 	}
@@ -112,13 +136,27 @@ export function UpdateVariableValues(self: GenelecSmartIPInstance): void {
 		const newNet = state.network
 		const oldNet = previousState.network
 
-		if (newNet.hostname !== oldNet?.hostname) newVariables.hostname = newNet.hostname
-		if (newNet.mode !== oldNet?.mode) newVariables.ip_mode = newNet.mode
-		if (newNet.ip !== oldNet?.ip) newVariables.ip_address = newNet.ip
-		if (newNet.mask !== oldNet?.mask) newVariables.subnet_mask = newNet.mask
-		if (newNet.gw !== oldNet?.gw) newVariables.gateway = newNet.gw
-		if (newNet.volIp !== oldNet?.volIp) newVariables.multicast_ip = newNet.volIp
-		if (newNet.volPort !== oldNet?.volPort) newVariables.multicast_port = newNet.volPort
+		if (newNet.hostname !== oldNet?.hostname) {
+			newVariables.hostname = newNet.hostname
+		}
+		if (newNet.mode !== oldNet?.mode) {
+			newVariables.ip_mode = newNet.mode
+		}
+		if (newNet.ip !== oldNet?.ip) {
+			newVariables.ip_address = newNet.ip
+		}
+		if (newNet.mask !== oldNet?.mask) {
+			newVariables.subnet_mask = newNet.mask
+		}
+		if (newNet.gw !== oldNet?.gw) {
+			newVariables.gateway = newNet.gw
+		}
+		if (newNet.volIp !== oldNet?.volIp) {
+			newVariables.multicast_ip = newNet.volIp
+		}
+		if (newNet.volPort !== oldNet?.volPort) {
+			newVariables.multicast_port = newNet.volPort
+		}
 
 		previousState.network = { ...newNet }
 	}
@@ -128,8 +166,12 @@ export function UpdateVariableValues(self: GenelecSmartIPInstance): void {
 		const newVol = state.audioVolume
 		const oldVol = previousState.audioVolume
 
-		if (newVol.level !== oldVol?.level) newVariables.master_volume = newVol.level
-		if (newVol.mute !== oldVol?.mute) newVariables.mute = newVol.mute ? 'Muted' : 'Unmuted'
+		if (newVol.level !== oldVol?.level) {
+			newVariables.volume = newVol.level != undefined ? Number(newVol.level.toFixed(1)) : undefined
+		}
+		if (newVol.mute !== oldVol?.mute) {
+			newVariables.mute = newVol.mute ? 'Muted' : 'Unmuted'
+		}
 
 		previousState.audioVolume = { ...newVol }
 	}
@@ -140,7 +182,9 @@ export function UpdateVariableValues(self: GenelecSmartIPInstance): void {
 		const newInputStr = newIn.input.join(', ')
 		const oldInputStr = oldIn?.input.join(', ')
 
-		if (newInputStr !== oldInputStr) newVariables.active_inputs = newInputStr.replace('A', 'Analog')
+		if (newInputStr !== oldInputStr) {
+			newVariables.active_inputs = newInputStr.replace('A', 'Analog')
+		}
 
 		previousState.audioInputs = { ...newIn }
 	}
@@ -150,12 +194,21 @@ export function UpdateVariableValues(self: GenelecSmartIPInstance): void {
 		const newAoip = state.aoipInfo
 		const oldAoip = previousState.aoipInfo
 
-		if (newAoip.id !== oldAoip?.id) newVariables.aoip_id = newAoip.id
-		if (newAoip.name !== oldAoip?.name) newVariables.aoip_name = newAoip.name
-		if (newAoip.fname !== oldAoip?.fname) newVariables.aoip_fname = newAoip.fname
-		if (newAoip.mac !== oldAoip?.mac) newVariables.aoip_mac = newAoip.mac
-		if (newAoip.locked !== oldAoip?.locked || oldAoip?.locked === undefined)
+		if (newAoip.id !== oldAoip?.id) {
+			newVariables.aoip_id = newAoip.id
+		}
+		if (newAoip.name !== oldAoip?.name) {
+			newVariables.aoip_name = newAoip.name
+		}
+		if (newAoip.fname !== oldAoip?.fname) {
+			newVariables.aoip_fname = newAoip.fname
+		}
+		if (newAoip.mac !== oldAoip?.mac) {
+			newVariables.aoip_mac = newAoip.mac
+		}
+		if (newAoip.locked !== oldAoip?.locked || oldAoip?.locked === undefined) {
 			newVariables.aoip_locked = newAoip.locked === true ? 'Locked' : 'Unlocked'
+		}
 
 		previousState.aoipInfo = { ...newAoip }
 	}
@@ -163,9 +216,15 @@ export function UpdateVariableValues(self: GenelecSmartIPInstance): void {
 		const newAoipNet = state.aoipNetwork
 		const oldAoipNet = previousState.aoipNetwork
 
-		if (newAoipNet.ip !== oldAoipNet?.ip) newVariables.aoip_ip = newAoipNet.ip
-		if (newAoipNet.mask !== oldAoipNet?.mask) newVariables.aoip_mask = newAoipNet.mask
-		if (newAoipNet.gw !== oldAoipNet?.gw) newVariables.aoip_gw = newAoipNet.gw
+		if (newAoipNet.ip !== oldAoipNet?.ip) {
+			newVariables.aoip_ip = newAoipNet.ip
+		}
+		if (newAoipNet.mask !== oldAoipNet?.mask) {
+			newVariables.aoip_mask = newAoipNet.mask
+		}
+		if (newAoipNet.gw !== oldAoipNet?.gw) {
+			newVariables.aoip_gw = newAoipNet.gw
+		}
 
 		previousState.aoipNetwork = { ...newAoipNet }
 	}
@@ -175,8 +234,12 @@ export function UpdateVariableValues(self: GenelecSmartIPInstance): void {
 		const newZone = state.zone
 		const oldZone = previousState.zone
 
-		if (newZone.zone !== oldZone?.zone) newVariables.zone_id = newZone.zone
-		if (newZone.name !== oldZone?.name) newVariables.zone_name = newZone.name
+		if (newZone.zone !== oldZone?.zone) {
+			newVariables.zone_id = newZone.zone
+		}
+		if (newZone.name !== oldZone?.name) {
+			newVariables.zone_name = newZone.name
+		}
 
 		previousState.zone = { ...newZone }
 	}
@@ -186,8 +249,12 @@ export function UpdateVariableValues(self: GenelecSmartIPInstance): void {
 		const newProf = state.profiles
 		const oldProf = previousState.profiles
 
-		if (newProf.selected !== oldProf?.selected) newVariables.profile_selected_id = newProf.selected
-		if (newProf.startup !== oldProf?.startup) newVariables.profile_startup_id = newProf.startup
+		if (newProf.selected !== oldProf?.selected) {
+			newVariables.profile_selected_id = newProf.selected
+		}
+		if (newProf.startup !== oldProf?.startup) {
+			newVariables.profile_startup_id = newProf.startup
+		}
 
 		previousState.profiles = { ...newProf }
 	}
