@@ -74,7 +74,9 @@ export class GenelecSpeaker {
 			throw new Error(`HTTP error!  status: ${response.status}`)
 		}
 		if (response.status === 200) {
-			this.self.updateStatus(InstanceStatus.Ok)
+			if (this.self.lastStatus !== InstanceStatus.Ok) {
+				this.self.updateStatus(InstanceStatus.Ok)
+			}
 		}
 		const data = (await response.json()) as T
 		return data

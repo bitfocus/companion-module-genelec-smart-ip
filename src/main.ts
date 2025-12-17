@@ -16,6 +16,7 @@ export class GenelecSmartIPInstance extends InstanceBase<ModuleConfig, ModuleSec
 	systemInterval: NodeJS.Timeout | null = null
 	eventInterval: NodeJS.Timeout | null = null
 	previousState: SystemState = {}
+	public lastStatus: InstanceStatus = InstanceStatus.Disconnected
 
 	constructor(internal: unknown) {
 		super(internal)
@@ -25,9 +26,14 @@ export class GenelecSmartIPInstance extends InstanceBase<ModuleConfig, ModuleSec
 		this.config = config
 		this.secrets = secrets
 		this.updateStatus(InstanceStatus.Connecting)
-
-		await this.performLogin()
-		await this.speaker?.fetchInitialInfo()
+		if (!this.config.bonjourHost && !this.config.customHost) {
+			this.updateStatus(InstanceStatus.BadConfig)
+			return
+		}
+		setImmediate(() => {
+			void this.performLogin()
+			void this.speaker?.fetchInitialInfo()
+		})
 		this.updateActions()
 		this.updateFeedbacks()
 		this.updateVariableDefinitions()
@@ -90,6 +96,11 @@ export class GenelecSmartIPInstance extends InstanceBase<ModuleConfig, ModuleSec
 			void this.speaker?.getEvents()
 			UpdateVariableValues(this)
 		}, 500)
+	}
+
+	updateStatus(status: InstanceStatus, message?: string | null): void {
+		this.lastStatus = status
+		super.updateStatus(status, message)
 	}
 }
 
