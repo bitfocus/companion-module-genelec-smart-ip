@@ -13,7 +13,7 @@ export class GenelecSmartIPInstance extends InstanceBase<ModuleConfig, ModuleSec
 	config!: ModuleConfig
 	secrets!: ModuleSecrets
 	speaker!: GenelecSpeaker | null
-	systemInterval: NodeJS.Timeout | null = null
+	deviceStatesInterval: NodeJS.Timeout | null = null
 	eventInterval: NodeJS.Timeout | null = null
 	previousState: SystemState = {}
 	public lastStatus: InstanceStatus = InstanceStatus.Disconnected
@@ -32,7 +32,6 @@ export class GenelecSmartIPInstance extends InstanceBase<ModuleConfig, ModuleSec
 		}
 		setImmediate(() => {
 			void this.performLogin()
-			void this.speaker?.fetchInitialInfo()
 		})
 		this.updateActions()
 		this.updateFeedbacks()
@@ -41,8 +40,15 @@ export class GenelecSmartIPInstance extends InstanceBase<ModuleConfig, ModuleSec
 
 	async destroy(): Promise<void> {
 		this.log('debug', 'destroy')
-		if (this.systemInterval) clearInterval(this.systemInterval)
-		if (this.eventInterval) clearInterval(this.eventInterval)
+		if (this.speaker) {
+			this.speaker = null
+		}
+		if (this.deviceStatesInterval) {
+			clearInterval(this.deviceStatesInterval)
+		}
+		if (this.eventInterval) {
+			clearInterval(this.eventInterval)
+		}
 	}
 
 	async configUpdated(config: ModuleConfig, secrets: ModuleSecrets): Promise<void> {
@@ -75,27 +81,37 @@ export class GenelecSmartIPInstance extends InstanceBase<ModuleConfig, ModuleSec
 			const password = this.secrets?.password
 			this.speaker = new GenelecSpeaker(this.config, password, this)
 		}
-		await this.speaker.getSystemInfo()
-		this.pollSystemInfo()
-		this.pollEvents()
+		const deviceInfo = await this.speaker.getDeviceInfo()
+		if (deviceInfo) {
+			this.updateStatus(InstanceStatus.Ok)
+			await this.speaker?.getDeviceStates()
+			this.pollDeviceStates()
+			this.pollEvents()
+		} else {
+			this.updateStatus(InstanceStatus.Disconnected)
+		}
 	}
 
-	pollSystemInfo(): void {
+	pollDeviceStates(): void {
 		if (!this.speaker) return
-		if (this.systemInterval) clearInterval(this.systemInterval)
-		this.systemInterval = setInterval(() => {
-			void this.speaker?.getAllInfo()
+		if (this.deviceStatesInterval) {
+			clearInterval(this.deviceStatesInterval)
+		}
+		this.deviceStatesInterval = setInterval(() => {
+			void this.speaker?.getDeviceStates()
 			UpdateVariableValues(this)
-		}, 5000)
+		}, 10000)
 	}
 
 	pollEvents(): void {
 		if (!this.speaker) return
-		if (this.eventInterval) clearInterval(this.eventInterval)
+		if (this.eventInterval) {
+			clearInterval(this.eventInterval)
+		}
 		this.eventInterval = setInterval(() => {
 			void this.speaker?.getEvents()
 			UpdateVariableValues(this)
-		}, 500)
+		}, 1000)
 	}
 
 	updateStatus(status: InstanceStatus, message?: string | null): void {

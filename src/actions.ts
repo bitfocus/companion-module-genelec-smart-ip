@@ -33,7 +33,7 @@ export function UpdateActions(self: GenelecSmartIPInstance): void {
 				const currentValue = getCurrentValue() ?? false
 				let newValue: boolean
 				if (action.options.mode === 'toggle') {
-					newValue = actionId === 'hideLed' ? !currentValue : currentValue
+					newValue = !currentValue
 				} else {
 					newValue = action.options.mode === 'true' ? true : false
 				}
@@ -136,12 +136,29 @@ export function UpdateActions(self: GenelecSmartIPInstance): void {
 		async (value) => self.speaker?.setLEDState({ rj45Leds: value }),
 	)
 
-	createToggleAction(
-		'clipLed',
-		'Clip LED',
-		() => self.speaker?.state.led?.hideClip,
-		async (value) => self.speaker?.setLEDState({ hideClip: !value }),
-	)
+	actions['clipLed'] = {
+		name: 'Clip LED',
+		options: [
+			{
+				type: 'dropdown',
+				label: 'Mode',
+				choices: toggleChoices,
+				default: 'toggle',
+				id: 'mode',
+			},
+		],
+		description: `Set the hide state of the clip LED`,
+		callback: async (action) => {
+			const currentValue = self.speaker?.state.led?.hideClip ?? false
+			let newValue: boolean
+			if (action.options.mode === 'toggle') {
+				newValue = !currentValue
+			} else {
+				newValue = action.options.mode === 'true' ? false : true
+			}
+			await self.speaker?.setLEDState({ hideClip: newValue })
+		},
+	}
 
 	self.setActionDefinitions(actions)
 }

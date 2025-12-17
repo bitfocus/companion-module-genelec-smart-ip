@@ -87,7 +87,7 @@ export class GenelecSpeaker {
 		return
 	}
 
-	async getSystemInfo(): Promise<DeviceInfoResponse | void> {
+	async getDeviceInfo(): Promise<DeviceInfoResponse | void> {
 		const data = await this.sendRequest<DeviceInfoResponse>('GET', 'device/info')
 		if (data) {
 			this.state.deviceInfo = data
@@ -112,7 +112,6 @@ export class GenelecSpeaker {
 		if (data) {
 			this.state.led = data
 		}
-		console.log(data)
 		return data
 	}
 
@@ -214,7 +213,7 @@ export class GenelecSpeaker {
 
 	async fetchInitialInfo(): Promise<void> {
 		await Promise.allSettled([
-			this.getSystemInfo(),
+			this.getDeviceInfo(),
 			this.getPowerState(),
 			this.getLEDState(),
 			this.getNetworkConfig(),
@@ -228,13 +227,7 @@ export class GenelecSpeaker {
 		])
 	}
 
-	async getAllInfo(): Promise<void> {
-		await Promise.allSettled([
-			this.getSystemInfo(),
-			this.getVolume(),
-			this.getPowerState(),
-			this.getLEDState(),
-			this.getNetworkConfig(),
-		])
+	async getDeviceStates(): Promise<void> {
+		await Promise.allSettled([this.getPowerState(), this.getLEDState(), this.getInputs(), this.getVolume()])
 	}
 }
