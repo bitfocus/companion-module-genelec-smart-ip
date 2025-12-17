@@ -33,7 +33,7 @@ export function UpdateActions(self: GenelecSmartIPInstance): void {
 				const currentValue = getCurrentValue() ?? false
 				let newValue: boolean
 				if (action.options.mode === 'toggle') {
-					newValue = !currentValue
+					newValue = actionId === 'hideLed' ? !currentValue : currentValue
 				} else {
 					newValue = action.options.mode === 'true' ? true : false
 				}

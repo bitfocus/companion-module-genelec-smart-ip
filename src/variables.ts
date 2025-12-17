@@ -18,7 +18,7 @@ export function UpdateVariableDefinitions(self: GenelecSmartIPInstance): void {
 		// Power
 		{ variableId: 'power_state', name: 'Power State' },
 		{ variableId: 'poe_allocated_pwr', name: 'PoE Allocated Power (W)' },
-		{ variableId: 'poe_pd_15w', name: 'PoE PD Limits Current Consumption to 15W' },
+		{ variableId: 'poe_pd_limit', name: 'PoE PD Limit Status' },
 
 		// Network
 		{ variableId: 'hostname', name: 'Hostname' },
@@ -30,7 +30,7 @@ export function UpdateVariableDefinitions(self: GenelecSmartIPInstance): void {
 		{ variableId: 'multicast_port', name: 'Multicast Control Port' },
 
 		// Audio
-		{ variableId: 'volume', name: 'Master Volume' },
+		{ variableId: 'volume', name: 'Volume' },
 		{ variableId: 'mute', name: 'Mute State' },
 		{ variableId: 'active_inputs', name: 'Active Inputs' },
 
@@ -56,8 +56,8 @@ export function UpdateVariableDefinitions(self: GenelecSmartIPInstance): void {
 		{ variableId: 'bass_level', name: 'Bass Output Level' },
 		{ variableId: 'tweeter_level', name: 'Tweeter Output Level' },
 		{ variableId: 'input_level', name: 'Input Level' },
-		{ variableId: 'cpu_temp', name: 'CPU Temperature' },
-		{ variableId: 'cpu_load', name: 'CPU Load' },
+		{ variableId: 'cpu_temp', name: 'CPU Temperature (°C)' },
+		{ variableId: 'cpu_load', name: 'CPU Load (%)' },
 		{ variableId: 'network_traffic', name: 'Network Traffic to CPU (kbps)' },
 		{ variableId: 'uptime', name: 'Uptime' },
 
@@ -125,7 +125,7 @@ export function UpdateVariableValues(self: GenelecSmartIPInstance): void {
 			newVariables.poe_allocated_pwr = newPwr.poeAllocatedPwr
 		}
 		if (newPwr.poePd15W !== oldPwr?.poePd15W) {
-			newVariables.poe_pd_15w = newPwr.poePd15W
+			newVariables.poe_pd_limit = newPwr.poePd15W ? 'Limited to 15W' : 'Not Limited'
 		}
 
 		previousState.power = { ...newPwr }
@@ -140,7 +140,7 @@ export function UpdateVariableValues(self: GenelecSmartIPInstance): void {
 			newVariables.hostname = newNet.hostname
 		}
 		if (newNet.mode !== oldNet?.mode) {
-			newVariables.ip_mode = newNet.mode
+			newVariables.ip_mode = newNet.mode === 'auto' ? 'DHCP' : 'Static'
 		}
 		if (newNet.ip !== oldNet?.ip) {
 			newVariables.ip_address = newNet.ip
