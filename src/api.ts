@@ -95,10 +95,6 @@ export class GenelecSpeaker {
 		return data
 	}
 
-	async setSystemInfo(data: Partial<DeviceInfoResponse>): Promise<void> {
-		await this.sendRequest('PUT', 'device/info', data)
-	}
-
 	async getPowerState(): Promise<DevicePowerResponse | void> {
 		const data = await this.sendRequest<DevicePowerResponse>('GET', 'device/pwr')
 		if (data) {
@@ -116,11 +112,13 @@ export class GenelecSpeaker {
 		if (data) {
 			this.state.led = data
 		}
+		console.log(data)
 		return data
 	}
 
 	async setLEDState(data: Partial<LEDResponse>): Promise<void> {
 		await this.sendRequest('PUT', 'device/led', data)
+		await this.getLEDState()
 	}
 
 	async getNetworkConfig(): Promise<NetworkConfig | void> {
@@ -131,20 +129,12 @@ export class GenelecSpeaker {
 		return data
 	}
 
-	async setNetworkConfig(data: Partial<NetworkConfig>): Promise<void> {
-		await this.sendRequest('PUT', 'network/ipv4', data)
-	}
-
 	async getEvents(): Promise<EventsResponse | void> {
 		const data = await this.sendRequest<EventsResponse>('GET', 'events')
 		if (data) {
 			this.state.events = data
 		}
 		return data
-	}
-
-	async setEvents(data: Partial<EventsResponse>): Promise<void> {
-		await this.sendRequest('PUT', 'events', data)
 	}
 
 	async getInputs(): Promise<AudioInputs | void> {
@@ -194,20 +184,12 @@ export class GenelecSpeaker {
 		return data
 	}
 
-	async setAoipInfo(data: Partial<AoIPIdentityResponse>): Promise<void> {
-		await this.sendRequest('PUT', 'aoip/dante/identity', data)
-	}
-
 	async getAoipNetworkConfig(): Promise<AoIPNetworkResponse | void> {
 		const data = await this.sendRequest<AoIPNetworkResponse>('GET', 'aoip/ipv4')
 		if (data) {
 			this.state.aoipNetwork = data
 		}
 		return data
-	}
-
-	async setAoipNetworkConfig(data: Partial<AoIPNetworkResponse>): Promise<void> {
-		await this.sendRequest('PUT', 'aoip/ipv4', data)
 	}
 
 	async getZoneConfig(): Promise<NetworkZoneResponse | void> {
@@ -228,10 +210,6 @@ export class GenelecSpeaker {
 			this.state.profiles = data
 		}
 		return data
-	}
-
-	async setProfileList(data: Partial<ProfileListResponse>): Promise<void> {
-		await this.sendRequest('PUT', 'profile/list', data)
 	}
 
 	async fetchInitialInfo(): Promise<void> {
