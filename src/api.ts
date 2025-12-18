@@ -142,6 +142,7 @@ export class GenelecSpeaker {
 		if (data) {
 			this.state.led = data
 		}
+		this.self.checkFeedbacks('clipLed', 'rj45Led')
 		return data
 	}
 

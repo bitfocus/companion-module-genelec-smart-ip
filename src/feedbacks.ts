@@ -89,6 +89,32 @@ export function UpdateFeedbacks(self: GenelecSmartIPInstance): void {
 		},
 	}
 
+	feedbacks['clipLed'] = {
+		type: 'boolean',
+		name: 'Clip LED',
+		options: [],
+		description: `Enabled if the clip LED is currently on`,
+		callback: async () => {
+			return self.speaker?.state.led?.hideClip === false
+		},
+		defaultStyle: {
+			bgcolor: combineRgb(0, 200, 0),
+		},
+	}
+
+	feedbacks['rj45Led'] = {
+		type: 'boolean',
+		name: 'RJ45 LED',
+		options: [],
+		description: `Enabled if the RJ45 LED is currently on`,
+		callback: async () => {
+			return self.speaker?.state.led?.rj45Leds === true
+		},
+		defaultStyle: {
+			bgcolor: combineRgb(0, 200, 0),
+		},
+	}
+
 	function createComparisonFeedback(feedbackId: string, name: string, getCurrentValue: () => number | undefined): void {
 		feedbacks[feedbackId] = {
 			type: 'boolean',

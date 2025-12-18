@@ -42,7 +42,7 @@ export function UpdateVariableDefinitions(self: GenelecSmartIPInstance): void {
 		{ variableId: 'aoip_locked', name: 'AoIP Locked' },
 		{ variableId: 'aoip_ip', name: 'AoIP IP Address' },
 		{ variableId: 'aoip_mask', name: 'AoIP Subnet Mask' },
-		{ variableId: 'aoip_gw', name: 'AoIP Gateway' },
+		{ variableId: 'aoip_gateway', name: 'AoIP Gateway' },
 
 		// Zone
 		{ variableId: 'zone_id', name: 'Zone ID' },
@@ -228,7 +228,7 @@ export function UpdateVariableValues(self: GenelecSmartIPInstance): void {
 			newVariables.aoip_mask = newAoipNet.mask
 		}
 		if (newAoipNet.gw !== oldAoipNet?.gw) {
-			newVariables.aoip_gw = newAoipNet.gw
+			newVariables.aoip_gateway = newAoipNet.gw
 		}
 
 		previousState.aoipNetwork = { ...newAoipNet }

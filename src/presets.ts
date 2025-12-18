@@ -328,7 +328,7 @@ export function UpdatePresets(self: GenelecSmartIPInstance): void {
 
 	presets[`systemInfoCPULoad`] = {
 		type: 'button',
-		category: 'Speaker Info',
+		category: 'Diagnostics',
 		name: 'System Info',
 		style: {
 			bgcolor: Color.darkGray,
@@ -346,54 +346,50 @@ export function UpdatePresets(self: GenelecSmartIPInstance): void {
 		feedbacks: [],
 	}
 
-	presets[`systemInfoCPUTemp`] = {
-		type: 'button',
-		category: 'Speaker Info',
-		name: 'System Info',
-		style: {
-			bgcolor: Color.darkGray,
-			color: Color.white,
-			text: 'CPU TEMP\\n$(genelec:cpu_temp)°C',
-			size: 14,
-			show_topbar: false,
-		},
-		steps: [
-			{
-				down: [],
-				up: [],
+	const diagnostics = [
+		{ id: 'cpu_load', label: 'CPU Load', suffix: '%' },
+		{ id: 'cpu_temp', label: 'CPU Temp', suffix: '°C' },
+		{ id: 'network_traffic', label: 'Network Traffic', suffix: 'Kbps' },
+		{ id: 'uptime', label: 'Uptime' },
+		{ id: 'fw_id', label: 'Firmware ID' },
+		{ id: 'build', label: 'Build' },
+		{ id: 'base_id', label: 'Base ID' },
+		{ id: 'hw_id', label: 'Hardware ID' },
+		{ id: 'model', label: 'Model' },
+	]
+	for (const info of diagnostics) {
+		presets[`systemInfo${info.id}`] = {
+			type: 'button',
+			category: 'Diagnostics',
+			name: `${info.label}`,
+			options: {
+				rotaryActions: true,
 			},
-		],
-		feedbacks: [],
+			style: {
+				bgcolor: Color.lightGray,
+				color: Color.white,
+				text: `${info.label}\n$(genelec:${info.id})${info.suffix ? ` ${info.suffix}` : ''}`,
+				size: 14,
+				show_topbar: false,
+			},
+			steps: [
+				{
+					down: [],
+					up: [],
+				},
+			],
+			feedbacks: [],
+		}
 	}
 
-	presets[`systemInfoNetwork`] = {
+	presets[`levelsInput`] = {
 		type: 'button',
-		category: 'Speaker Info',
-		name: 'System Info',
+		category: 'Levels',
+		name: 'Input',
 		style: {
 			bgcolor: Color.darkGray,
 			color: Color.white,
-			text: 'NTWRK TRAFFIC\\n$(genelec:network_traffic) kbps',
-			size: 14,
-			show_topbar: false,
-		},
-		steps: [
-			{
-				down: [],
-				up: [],
-			},
-		],
-		feedbacks: [],
-	}
-
-	presets[`systemInfoUptime`] = {
-		type: 'button',
-		category: 'Speaker Info',
-		name: 'System Info',
-		style: {
-			bgcolor: Color.darkGray,
-			color: Color.white,
-			text: 'UPTIME\\n$(genelec:uptime)',
+			text: 'INPUT\\n$(genelec:input_level)',
 			size: 13,
 			show_topbar: false,
 		},
@@ -446,15 +442,259 @@ export function UpdatePresets(self: GenelecSmartIPInstance): void {
 		feedbacks: [],
 	}
 
-	presets[`levelsInput`] = {
+	const inputs = [
+		{ id: 'Analog', label: 'Analog', inputs: ['A'] },
+		{ id: 'AoIP01', label: 'AoIP 01', inputs: ['AoIP01'] },
+		{ id: 'AoIP02', label: 'AoIP 02', inputs: ['AoIP02'] },
+		{ id: 'AnalogAoIP1', label: 'Analog + AoIP 01', inputs: ['A', 'AoIP01'] },
+		{ id: 'AnalogAoIP2', label: 'Analog + AoIP 02', inputs: ['A', 'AoIP02'] },
+		{ id: 'AoIP1AoIP2', label: 'AoIP 01 + AoIP 02', inputs: ['AoIP01', 'AoIP02'] },
+		{ id: 'AnalogAoIP1AoIP2', label: 'Analog + AoIP 01 + AoIP 02', inputs: ['A', 'AoIP01', 'AoIP02'] },
+		{ id: 'None', label: 'Remove All Inputs', inputs: [] },
+	]
+	for (const input of inputs) {
+		presets[`inputSelection${input.id}`] = {
+			type: 'button',
+			category: 'Inputs Active',
+			name: `Inputs Active ${input.id}`,
+			options: {
+				rotaryActions: true,
+			},
+			style: {
+				bgcolor: Color.lightGray,
+				color: Color.white,
+				text: `${input.label}`,
+				size: 14,
+				show_topbar: false,
+			},
+			steps: [
+				{
+					down: [
+						{
+							actionId: 'inputsActive',
+							options: {
+								inputs: input.inputs,
+							},
+						},
+					],
+					up: [],
+				},
+			],
+			feedbacks: [
+				{
+					feedbackId: 'inputsActive',
+					options: {
+						inputs: input.inputs,
+					},
+					style: {
+						bgcolor: Color.green,
+					},
+				},
+			],
+		}
+	}
+
+	const AoIPInfo = [
+		{ id: 'aoip_id', label: 'AoIP ID' },
+		{ id: 'aoip_name', label: 'AoIP Name' },
+		{ id: 'aoip_fname', label: 'AoIP Friendly Name' },
+		{ id: 'aoip_ip', label: 'AoIP IP' },
+		{ id: 'aoip_mac', label: 'AoIP MAC' },
+		{ id: 'aoip_mask', label: 'AoIP Subnet' },
+		{ id: 'aoip_gateway', label: 'AoIP Gateway' },
+		{ id: 'aoip_locked', label: 'AoIP Locked' },
+	]
+	for (const info of AoIPInfo) {
+		presets[`aoipInfo${info.id}`] = {
+			type: 'button',
+			category: 'AoIP Info',
+			name: `${info.label}`,
+			options: {
+				rotaryActions: true,
+			},
+			style: {
+				bgcolor: Color.lightGray,
+				color: Color.white,
+				text: `${info.label}\\n$(genelec:${info.id})`,
+				size: 14,
+				show_topbar: false,
+			},
+			steps: [
+				{
+					down: [],
+					up: [],
+				},
+			],
+			feedbacks: [],
+		}
+	}
+
+	const networkInfo = [
+		{ id: 'hostname', label: 'Hostname' },
+		{ id: 'ip_mode', label: 'IP Mode' },
+		{ id: 'subnet_mask', label: 'Subnet Mask' },
+		{ id: 'gateway', label: 'Gateway' },
+		{ id: 'multicast_ip', label: 'Multicast IP' },
+		{ id: 'multicast_port', label: 'Multicast Port' },
+	]
+	for (const info of networkInfo) {
+		presets[`networkInfo${info.id}`] = {
+			type: 'button',
+			category: 'Network Info',
+			name: `${info.label}`,
+			options: {
+				rotaryActions: true,
+			},
+			style: {
+				bgcolor: Color.lightGray,
+				color: Color.white,
+				text: `${info.label}\\n$(genelec:${info.id})`,
+				size: 14,
+				show_topbar: false,
+			},
+			steps: [
+				{
+					down: [],
+					up: [],
+				},
+			],
+			feedbacks: [],
+		}
+	}
+
+	presets[`powerToggle`] = {
 		type: 'button',
-		category: 'Levels',
-		name: 'Input',
+		category: 'Power',
+		name: `Power Toggle`,
+		options: {
+			rotaryActions: true,
+		},
 		style: {
-			bgcolor: Color.darkGray,
+			bgcolor: Color.lightGray,
 			color: Color.white,
-			text: 'INPUT\\n$(genelec:input_level)',
-			size: 13,
+			text: `Power\nToggle`,
+			size: 14,
+			show_topbar: false,
+		},
+		steps: [
+			{
+				down: [
+					{
+						actionId: 'power',
+						options: {
+							mode: 'toggle',
+						},
+					},
+				],
+				up: [],
+			},
+		],
+		feedbacks: [
+			{
+				feedbackId: 'power',
+				options: {
+					mode: 'ACTIVE',
+				},
+				style: {
+					bgcolor: Color.green,
+				},
+			},
+		],
+	}
+
+	presets[`powerOn`] = {
+		type: 'button',
+		category: 'Power',
+		name: `Power Toggle`,
+		options: {
+			rotaryActions: true,
+		},
+		style: {
+			bgcolor: Color.lightGray,
+			color: Color.white,
+			text: `Power\nOn`,
+			size: 14,
+			show_topbar: false,
+		},
+		steps: [
+			{
+				down: [
+					{
+						actionId: 'power',
+						options: {
+							mode: 'ACTIVE',
+						},
+					},
+				],
+				up: [],
+			},
+		],
+		feedbacks: [
+			{
+				feedbackId: 'power',
+				options: {
+					mode: 'ACTIVE',
+				},
+				style: {
+					bgcolor: Color.green,
+				},
+			},
+		],
+	}
+
+	presets[`powerStandby`] = {
+		type: 'button',
+		category: 'Power',
+		name: `Power Toggle`,
+		options: {
+			rotaryActions: true,
+		},
+		style: {
+			bgcolor: Color.lightGray,
+			color: Color.white,
+			text: `Standby Mode`,
+			size: 14,
+			show_topbar: false,
+		},
+		steps: [
+			{
+				down: [
+					{
+						actionId: 'power',
+						options: {
+							mode: 'STANDBY',
+						},
+					},
+				],
+				up: [],
+			},
+		],
+		feedbacks: [
+			{
+				feedbackId: 'power',
+				isInverted: true,
+				options: {
+					mode: 'STANDBY',
+				},
+				style: {
+					bgcolor: Color.red,
+				},
+			},
+		],
+	}
+
+	presets[`zoneId`] = {
+		type: 'button',
+		category: 'Zone Info',
+		name: `Zone Info`,
+		options: {
+			rotaryActions: true,
+		},
+		style: {
+			bgcolor: Color.lightGray,
+			color: Color.white,
+			text: `Zone ID\n$(genelec:zone_id)`,
+			size: 14,
 			show_topbar: false,
 		},
 		steps: [
@@ -464,6 +704,243 @@ export function UpdatePresets(self: GenelecSmartIPInstance): void {
 			},
 		],
 		feedbacks: [],
+	}
+
+	presets[`zoneName`] = {
+		type: 'button',
+		category: 'Zone Info',
+		name: `Zone Info`,
+		options: {
+			rotaryActions: true,
+		},
+		style: {
+			bgcolor: Color.lightGray,
+			color: Color.white,
+			text: `Zone Name\n$(genelec:zone_name)`,
+			size: 14,
+			show_topbar: false,
+		},
+		steps: [
+			{
+				down: [],
+				up: [],
+			},
+		],
+		feedbacks: [],
+	}
+
+	presets[`clipLedToggle`] = {
+		type: 'button',
+		category: 'LEDs',
+		name: `Clip LED Toggle`,
+		options: {
+			rotaryActions: true,
+		},
+		style: {
+			bgcolor: Color.lightGray,
+			color: Color.white,
+			text: `Clip LED Toggle`,
+			size: 14,
+			show_topbar: false,
+		},
+		steps: [
+			{
+				down: [
+					{
+						actionId: 'clipLed',
+						options: {
+							mode: 'toggle',
+						},
+					},
+				],
+				up: [],
+			},
+		],
+		feedbacks: [],
+	}
+
+	presets[`clipLedOn`] = {
+		type: 'button',
+		category: 'LEDs',
+		name: `LED Toggle`,
+		options: {
+			rotaryActions: true,
+		},
+		style: {
+			bgcolor: Color.lightGray,
+			color: Color.white,
+			text: `Clip LED On`,
+			size: 14,
+			show_topbar: false,
+		},
+		steps: [
+			{
+				down: [
+					{
+						actionId: 'clipLed',
+						options: {
+							mode: 'true',
+						},
+					},
+				],
+				up: [],
+			},
+		],
+		feedbacks: [
+			{
+				feedbackId: 'clipLed',
+				options: {},
+				style: {
+					bgcolor: Color.green,
+				},
+			},
+		],
+	}
+
+	presets[`clipLedOff`] = {
+		type: 'button',
+		category: 'LEDs',
+		name: `LED Toggle`,
+		options: {
+			rotaryActions: true,
+		},
+		style: {
+			bgcolor: Color.lightGray,
+			color: Color.white,
+			text: `Clip LED Off`,
+			size: 14,
+			show_topbar: false,
+		},
+		steps: [
+			{
+				down: [
+					{
+						actionId: 'clipLed',
+						options: {
+							mode: 'false',
+						},
+					},
+				],
+				up: [],
+			},
+		],
+		feedbacks: [
+			{
+				feedbackId: 'clipLed',
+				isInverted: true,
+				options: {},
+				style: {
+					bgcolor: Color.green,
+				},
+			},
+		],
+	}
+
+	presets[`rj45LedToggle`] = {
+		type: 'button',
+		category: 'LEDs',
+		name: `RJ45 LED Toggle`,
+		options: {
+			rotaryActions: true,
+		},
+		style: {
+			bgcolor: Color.lightGray,
+			color: Color.white,
+			text: `RJ45 LED Toggle`,
+			size: 14,
+			show_topbar: false,
+		},
+		steps: [
+			{
+				down: [
+					{
+						actionId: 'rj45Led',
+						options: {
+							mode: 'toggle',
+						},
+					},
+				],
+				up: [],
+			},
+		],
+		feedbacks: [],
+	}
+
+	presets[`rj45LedOn`] = {
+		type: 'button',
+		category: 'LEDs',
+		name: `RJ45 LED On`,
+		options: {
+			rotaryActions: true,
+		},
+		style: {
+			bgcolor: Color.lightGray,
+			color: Color.white,
+			text: `RJ45 LED On`,
+			size: 14,
+			show_topbar: false,
+		},
+		steps: [
+			{
+				down: [
+					{
+						actionId: 'rj45Led',
+						options: {
+							mode: 'true',
+						},
+					},
+				],
+				up: [],
+			},
+		],
+		feedbacks: [
+			{
+				feedbackId: 'rj45Led',
+				options: {},
+				style: {
+					bgcolor: Color.green,
+				},
+			},
+		],
+	}
+
+	presets[`rj45LedOff`] = {
+		type: 'button',
+		category: 'LEDs',
+		name: `RJ45 LED Off`,
+		options: {
+			rotaryActions: true,
+		},
+		style: {
+			bgcolor: Color.lightGray,
+			color: Color.white,
+			text: `RJ45 LED Off`,
+			size: 14,
+			show_topbar: false,
+		},
+		steps: [
+			{
+				down: [
+					{
+						actionId: 'rj45Led',
+						options: {
+							mode: 'false',
+						},
+					},
+				],
+				up: [],
+			},
+		],
+		feedbacks: [
+			{
+				feedbackId: 'rj45Led',
+				isInverted: true,
+				options: {},
+				style: {
+					bgcolor: Color.green,
+				},
+			},
+		],
 	}
 
 	self.setPresetDefinitions(presets)
