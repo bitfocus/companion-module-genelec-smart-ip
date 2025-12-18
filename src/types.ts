@@ -63,6 +63,9 @@ export interface EventsResponse {
 }
 
 export interface LEDResponse {
+	take?: boolean
+	flash?: boolean
+	color?: string
 	ledIntensity?: number
 	rj45Leds?: boolean
 	hideClip?: boolean //Subwoofer only

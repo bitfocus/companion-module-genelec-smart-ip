@@ -137,12 +137,16 @@ export class GenelecSpeaker {
 		}, 1000)
 	}
 
+	async bootDevice(): Promise<void> {
+		await this.sendRequest<void>('PUT', 'device/boot', { boot: true })
+	}
+
 	async getLEDState(): Promise<LEDResponse | void> {
 		const data = await this.sendRequest<LEDResponse>('GET', 'device/led')
 		if (data) {
 			this.state.led = data
 		}
-		this.self.checkFeedbacks('clipLed', 'rj45Led')
+		this.self.checkFeedbacks('blinkLed', 'clipLed', 'rj45Led')
 		return data
 	}
 
@@ -238,6 +242,7 @@ export class GenelecSpeaker {
 
 	async setZoneConfig(data: Partial<NetworkZoneResponse>): Promise<void> {
 		await this.sendRequest('PUT', 'network/zone', data)
+		await this.bootDevice()
 	}
 
 	async getProfileList(): Promise<ProfileListResponse | void> {

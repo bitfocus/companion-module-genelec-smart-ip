@@ -729,6 +729,55 @@ export function UpdatePresets(self: GenelecSmartIPInstance): void {
 		feedbacks: [],
 	}
 
+	presets[`blinkLED`] = {
+		type: 'button',
+		category: 'LEDs',
+		name: `Blink LED`,
+		options: {
+			rotaryActions: true,
+		},
+		style: {
+			bgcolor: Color.lightGray,
+			color: Color.white,
+			text: `Blink LED`,
+			size: 14,
+			show_topbar: false,
+		},
+		steps: [
+			{
+				down: [
+					{
+						actionId: 'blinkLed',
+						options: {
+							blink: true,
+						},
+					},
+				],
+				up: [],
+			},
+			{
+				down: [
+					{
+						actionId: 'blinkLed',
+						options: {
+							blink: false,
+						},
+					},
+				],
+				up: [],
+			},
+		],
+		feedbacks: [
+			{
+				feedbackId: 'blinkLed',
+				options: {},
+				style: {
+					bgcolor: Color.green,
+				},
+			},
+		],
+	}
+
 	presets[`clipLedToggle`] = {
 		type: 'button',
 		category: 'LEDs',

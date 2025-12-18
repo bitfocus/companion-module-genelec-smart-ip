@@ -1,5 +1,6 @@
 import type { CompanionActionDefinitions } from '@companion-module/base'
 import type { GenelecSmartIPInstance } from './main.js'
+import { LEDResponse } from './types.js'
 
 export function UpdateActions(self: GenelecSmartIPInstance): void {
 	const actions: CompanionActionDefinitions = {}
@@ -161,6 +162,58 @@ export function UpdateActions(self: GenelecSmartIPInstance): void {
 			await self.speaker?.setLEDState({ hideClip: newValue })
 		},
 	}
+
+	actions['blinkLed'] = {
+		name: 'Identify / Blink LED',
+		options: [
+			{
+				type: 'checkbox',
+				label: 'Enable',
+				default: true,
+				id: 'blink',
+			},
+		],
+		description: `Identify the device by blinking the LED yellow for 10 seconds`,
+		callback: async (action) => {
+			let data: LEDResponse = {
+				take: false,
+				flash: false,
+			}
+			if (action.options.blink) {
+				data = {
+					take: true,
+					flash: true,
+					color: 'YELLOW',
+				}
+			}
+			await self.speaker?.setLEDState(data)
+		},
+	}
+
+	/* 	actions['zoneConfig'] = {
+			name: 'Set Zone Config',
+			options: [
+				{
+					type: 'textinput',
+					label: 'Zone Number',
+					default: '',
+					id: 'zoneNumber',
+					useVariables: true,
+				},
+				{
+					type: 'textinput',
+					label: 'Zone Name',
+					default: '',
+					id: 'zoneName',
+					useVariables: true,
+				},
+			],
+			description: `Set the zone config`,
+			callback: async (action) => {
+				const zoneNumber = action.options.zoneNumber as string
+				await self.speaker?.setZoneConfig({ zone: parseInt(zoneNumber), name: action.options.zoneName as string })
+			},
+		} */
 
 	actions['inputsActive'] = {
 		name: 'Set Inputs Active',
