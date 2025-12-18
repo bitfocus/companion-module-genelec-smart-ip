@@ -183,7 +183,12 @@ export function UpdateVariableValues(self: GenelecSmartIPInstance): void {
 		const oldInputStr = oldIn?.input.join(', ')
 
 		if (newInputStr !== oldInputStr) {
-			newVariables.active_inputs = newInputStr.replace('A', 'Analog')
+			if (newIn.input.length === 0) {
+				newVariables.active_inputs = 'No Inputs'
+			} else {
+				const inputs = newIn.input.map((i) => (i === 'A' ? 'Analog' : i)).join(', ')
+				newVariables.active_inputs = inputs
+			}
 		}
 
 		previousState.audioInputs = { ...newIn }

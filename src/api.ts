@@ -158,6 +158,7 @@ export class GenelecSpeaker {
 		if (data) {
 			this.state.audioInputs = data
 		}
+		this.self.checkFeedbacks('inputsActive')
 		return data
 	}
 

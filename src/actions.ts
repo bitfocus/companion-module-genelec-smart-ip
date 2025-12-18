@@ -162,6 +162,34 @@ export function UpdateActions(self: GenelecSmartIPInstance): void {
 		},
 	}
 
+	actions['inputsActive'] = {
+		name: 'Set Inputs Active',
+		options: [
+			{
+				type: 'multidropdown',
+				id: 'inputs',
+				label: 'Inputs',
+				default: ['AoIP01', 'AoIP02'],
+				choices: [
+					{ id: 'A', label: 'Analog' },
+					{ id: 'AoIP01', label: 'AoIP 01' },
+					{ id: 'AoIP02', label: 'AoIP 02' },
+				],
+			},
+		],
+		description: `Set the inputs active state`,
+		callback: async (action) => {
+			const inputs: string[] = []
+			const actionInputs: string[] = action.options.inputs as string[]
+			if (actionInputs.length > 0) {
+				actionInputs.forEach((input) => {
+					inputs.push(input)
+				})
+			}
+			await self.speaker?.setInputs({ input: inputs })
+		},
+	}
+
 	actions['power'] = {
 		name: 'Set Power State',
 		options: [

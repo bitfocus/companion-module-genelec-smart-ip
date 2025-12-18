@@ -46,6 +46,7 @@ export function UpdatePresets(self: GenelecSmartIPInstance): void {
 			type: 'button',
 			category,
 			name: `${namePrefix} Increase`,
+
 			style: {
 				bgcolor: Color.lightGray,
 				color: Color.white,
@@ -393,7 +394,7 @@ export function UpdatePresets(self: GenelecSmartIPInstance): void {
 			bgcolor: Color.darkGray,
 			color: Color.white,
 			text: 'UPTIME\\n$(genelec:uptime)',
-			size: 14,
+			size: 13,
 			show_topbar: false,
 		},
 		steps: [
