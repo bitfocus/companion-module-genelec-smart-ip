@@ -37,6 +37,10 @@ export class GenelecSpeaker {
 		this.self = self
 	}
 
+	get isStandby(): boolean {
+		return this.state.power?.state === 'STANDBY' || this.state.power?.state === 'ISS_SLEEP'
+	}
+
 	generateBasicAuthHeader(): string {
 		if (this.authHeader) {
 			return this.authHeader
@@ -70,8 +74,12 @@ export class GenelecSpeaker {
 				this.self.updateStatus(InstanceStatus.BadConfig)
 				this.self.log('error', 'Authentication failed: Invalid username or password')
 				return
+			} else if (response.status === 503) {
+				this.self.log('debug', 'Device is in standby mode')
+				return
+			} else {
+				this.self.log('debug', 'HTTP error!  status: ' + response.status)
 			}
-			throw new Error(`HTTP error!  status: ${response.status}`)
 		}
 		if (response.status === 200) {
 			if (this.self.lastStatus !== InstanceStatus.Ok) {
@@ -109,6 +117,9 @@ export class GenelecSpeaker {
 
 	async setPowerState(data: Partial<DevicePowerResponse>): Promise<void> {
 		await this.sendRequest('PUT', 'device/pwr', data)
+		setTimeout(() => {
+			void this.getPowerState()
+		}, 1000)
 	}
 
 	async getLEDState(): Promise<LEDResponse | void> {
@@ -133,6 +144,7 @@ export class GenelecSpeaker {
 	}
 
 	async getEvents(): Promise<EventsResponse | void> {
+		if (this.isStandby) return
 		const data = await this.sendRequest<EventsResponse>('GET', 'events')
 		if (data) {
 			this.state.events = data
@@ -162,6 +174,7 @@ export class GenelecSpeaker {
 	}
 
 	async setVolume(data: Partial<AudioVolume>): Promise<void> {
+		if (this.isStandby) return
 		await this.sendRequest('PUT', 'audio/volume', data)
 		if (this.state.audioVolume && data.level !== undefined) {
 			this.state.audioVolume.level = data.level
@@ -234,6 +247,10 @@ export class GenelecSpeaker {
 	}
 
 	async getDeviceStates(): Promise<void> {
-		await Promise.allSettled([this.getPowerState(), this.getLEDState(), this.getInputs(), this.getVolume()])
+		await this.getPowerState()
+
+		if (this.isStandby) return
+
+		await Promise.allSettled([this.getLEDState(), this.getInputs(), this.getVolume()])
 	}
 }
