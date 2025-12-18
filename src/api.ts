@@ -61,14 +61,29 @@ export class GenelecSpeaker {
 	): Promise<T | void> {
 		const host = this.config.bonjourHost ?? this.config.customHost + ':9000'
 		const url = `http://${host}/public/v1/${endpoint}`
-		const response = await fetch(url, {
-			method: type,
-			headers: {
-				'Content-Type': 'application/json',
-				Authorization: this.generateBasicAuthHeader(),
-			},
-			body: JSON.stringify(content),
-		})
+		let response: Response
+		try {
+			response = await fetch(url, {
+				method: type,
+				headers: {
+					'Content-Type': 'application/json',
+					Authorization: this.generateBasicAuthHeader(),
+				},
+				body: JSON.stringify(content),
+			})
+		} catch (error: any) {
+			const errorCode = error.cause?.code ?? 'Unknown error'
+			if (errorCode === 'EHOSTDOWN' || errorCode === 'ECONNREFUSED' || errorCode === 'ETIMEDOUT') {
+				this.self.updateStatus(InstanceStatus.ConnectionFailure, `${errorCode}`)
+				if (this.self.lastStatus !== InstanceStatus.ConnectionFailure) {
+					this.self.log('warn', `Unable to connect to device ${errorCode}`)
+				}
+			} else {
+				this.self.log('debug', `Unable to connect to device: ${error.message} ${errorCode} ${url}`)
+			}
+			return
+		}
+
 		if (!response.ok) {
 			if (response.status === 401) {
 				this.self.updateStatus(InstanceStatus.BadConfig)

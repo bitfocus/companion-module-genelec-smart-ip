@@ -19,6 +19,7 @@ export class GenelecSmartIPInstance extends InstanceBase<ModuleConfig, ModuleSec
 	speaker!: GenelecSpeaker | null
 	deviceStatesInterval: NodeJS.Timeout | null = null
 	eventInterval: NodeJS.Timeout | null = null
+	reconnectInterval: NodeJS.Timeout | null = null
 	previousState: SystemState = {}
 	public lastStatus: InstanceStatus = InstanceStatus.Disconnected
 
@@ -53,6 +54,9 @@ export class GenelecSmartIPInstance extends InstanceBase<ModuleConfig, ModuleSec
 		}
 		if (this.eventInterval) {
 			clearInterval(this.eventInterval)
+		}
+		if (this.reconnectInterval) {
+			clearInterval(this.reconnectInterval)
 		}
 	}
 
@@ -92,14 +96,38 @@ export class GenelecSmartIPInstance extends InstanceBase<ModuleConfig, ModuleSec
 		}
 		const deviceInfo = await this.speaker.getDeviceInfo()
 		if (deviceInfo) {
+			if (this.reconnectInterval) {
+				clearInterval(this.reconnectInterval)
+				this.reconnectInterval = null
+			}
 			this.updateStatus(InstanceStatus.Ok)
 			await this.speaker?.fetchInitialInfo()
 
 			this.pollDeviceStates()
 			this.pollEvents()
 		} else {
-			this.updateStatus(InstanceStatus.Disconnected)
+			this.stopPolling()
+			this.reconnectPoll()
 		}
+	}
+
+	stopPolling(): void {
+		if (this.deviceStatesInterval) {
+			clearInterval(this.deviceStatesInterval)
+			this.deviceStatesInterval = null
+		}
+		if (this.eventInterval) {
+			clearInterval(this.eventInterval)
+			this.eventInterval = null
+		}
+	}
+
+	reconnectPoll(): void {
+		if (this.reconnectInterval) return
+		this.reconnectInterval = setInterval(() => {
+			console.log('Reconnecting...')
+			void this.performLogin()
+		}, 10000)
 	}
 
 	pollDeviceStates(): void {
