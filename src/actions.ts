@@ -160,5 +160,32 @@ export function UpdateActions(self: GenelecSmartIPInstance): void {
 		},
 	}
 
+	actions['power'] = {
+		name: 'Set Power State',
+		options: [
+			{
+				type: 'dropdown',
+				label: 'Mode',
+				choices: [
+					{ id: 'toggle', label: 'Toggle' },
+					{ id: 'ACTIVE', label: 'Active' },
+					{ id: 'STANDBY', label: 'Standby' },
+				],
+				default: 'toggle',
+				id: 'mode',
+			},
+		],
+		description: `Set the power state of the speaker`,
+		callback: async (action) => {
+			if (action.options.mode === 'toggle') {
+				await self.speaker?.setPowerState({
+					state: self.speaker?.state.power?.state === 'STANDBY' ? 'ACTIVE' : 'STANDBY',
+				})
+			} else {
+				await self.speaker?.setPowerState({ state: action.options.mode as 'STANDBY' | 'ACTIVE' })
+			}
+		},
+	}
+
 	self.setActionDefinitions(actions)
 }

@@ -100,6 +100,10 @@ export class GenelecSpeaker {
 		if (data) {
 			this.state.power = data
 		}
+		this.self.setVariableValues({
+			power: data?.state ?? '',
+		})
+		this.self.checkFeedbacks('power')
 		return data
 	}
 
@@ -153,6 +157,7 @@ export class GenelecSpeaker {
 		if (data) {
 			this.state.audioVolume = data
 		}
+		this.self.checkFeedbacks('mute')
 		return data
 	}
 
@@ -170,6 +175,7 @@ export class GenelecSpeaker {
 				mute: data.mute ? 'Muted' : 'Unmuted',
 			})
 		}
+		this.self.checkFeedbacks('mute')
 	}
 
 	async getAoipInfo(): Promise<AoIPIdentityResponse | void> {
