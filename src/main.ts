@@ -1,11 +1,15 @@
 import { InstanceBase, runEntrypoint, InstanceStatus, SomeCompanionConfigField } from '@companion-module/base'
 import { GetConfigFields, type ModuleConfig } from './config.js'
+
+import { UpdateActions } from './actions.js'
+import { UpdatePresets } from './presets.js'
+import { UpdateFeedbacks } from './feedbacks.js'
 import { UpdateVariableDefinitions, UpdateVariableValues } from './variables.js'
 import { UpgradeScripts } from './upgrades.js'
-import { UpdateActions } from './actions.js'
-import { UpdateFeedbacks } from './feedbacks.js'
+
 import { GenelecSpeaker } from './api.js'
 import { SystemState } from './types.js'
+
 export interface ModuleSecrets {
 	password: string
 }
@@ -36,6 +40,7 @@ export class GenelecSmartIPInstance extends InstanceBase<ModuleConfig, ModuleSec
 		this.updateActions()
 		this.updateFeedbacks()
 		this.updateVariableDefinitions()
+		this.updatePresets()
 	}
 
 	async destroy(): Promise<void> {
@@ -70,6 +75,10 @@ export class GenelecSmartIPInstance extends InstanceBase<ModuleConfig, ModuleSec
 
 	updateFeedbacks(): void {
 		UpdateFeedbacks(this)
+	}
+
+	updatePresets(): void {
+		UpdatePresets(this)
 	}
 
 	updateVariableDefinitions(): void {

@@ -149,6 +149,7 @@ export class GenelecSpeaker {
 		if (data) {
 			this.state.events = data
 		}
+		this.self.checkFeedbacks('bassLevel', 'tweeterLevel', 'inputLevel')
 		return data
 	}
 
@@ -169,7 +170,7 @@ export class GenelecSpeaker {
 		if (data) {
 			this.state.audioVolume = data
 		}
-		this.self.checkFeedbacks('mute')
+		this.self.checkFeedbacks('mute', 'volume')
 		return data
 	}
 
@@ -188,7 +189,7 @@ export class GenelecSpeaker {
 				mute: data.mute ? 'Muted' : 'Unmuted',
 			})
 		}
-		this.self.checkFeedbacks('mute')
+		this.self.checkFeedbacks('mute', 'volume')
 	}
 
 	async getAoipInfo(): Promise<AoIPIdentityResponse | void> {
@@ -251,6 +252,14 @@ export class GenelecSpeaker {
 
 		if (this.isStandby) return
 
-		await Promise.allSettled([this.getLEDState(), this.getInputs(), this.getVolume()])
+		await Promise.allSettled([
+			this.getLEDState(),
+			this.getInputs(),
+			this.getVolume(),
+			this.getAoipInfo(),
+			this.getAoipNetworkConfig(),
+			this.getZoneConfig(),
+			this.getProfileList(),
+		])
 	}
 }

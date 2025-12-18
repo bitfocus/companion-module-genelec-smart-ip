@@ -89,8 +89,10 @@ export function UpdateActions(self: GenelecSmartIPInstance): void {
 					newValue = currentValue + value
 				} else if (action.options.adjustment === 'decrease') {
 					newValue = currentValue - value
-				} else {
+				} else if (action.options.adjustment === 'set') {
 					newValue = value
+				} else {
+					return
 				}
 
 				newValue = Math.max(min, Math.min(max, newValue))
