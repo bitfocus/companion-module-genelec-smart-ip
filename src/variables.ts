@@ -274,7 +274,7 @@ export function UpdateVariableValues(self: GenelecSmartIPInstance): void {
 			newVariables.input_level = newEvents.inLevel != undefined ? Number(newEvents.inLevel).toFixed(1) : undefined
 		}
 		if (newEvents.cpuT !== oldEvents?.cpuT) {
-			newVariables.cpu_temp = newEvents.cpuT
+			newVariables.cpu_temp = newEvents.cpuT.toFixed(1)
 		}
 		if (newEvents.cpuLoad !== oldEvents?.cpuLoad) {
 			newVariables.cpu_load = newEvents.cpuLoad

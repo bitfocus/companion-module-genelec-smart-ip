@@ -84,7 +84,8 @@ export class GenelecSmartIPInstance extends InstanceBase<ModuleConfig, ModuleSec
 		const deviceInfo = await this.speaker.getDeviceInfo()
 		if (deviceInfo) {
 			this.updateStatus(InstanceStatus.Ok)
-			await this.speaker?.getDeviceStates()
+			await this.speaker?.fetchInitialInfo()
+
 			this.pollDeviceStates()
 			this.pollEvents()
 		} else {
