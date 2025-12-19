@@ -89,7 +89,8 @@ export interface NetworkZoneResponse {
 
 export interface ProfileItem {
 	id: number
-	name: string
+	name?: string
+	startup?: boolean
 }
 
 export interface ProfileListResponse {

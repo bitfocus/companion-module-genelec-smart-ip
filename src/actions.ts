@@ -270,5 +270,38 @@ export function UpdateActions(self: GenelecSmartIPInstance): void {
 		},
 	}
 
+	actions['profileSelect'] = {
+		name: 'Select Profile',
+		options: [
+			{
+				type: 'dropdown',
+				label: 'Profile',
+				choices: [
+					{ id: 0, label: 'Default Profile' },
+					{ id: 1, label: 'Profile 1' },
+					{ id: 2, label: 'Profile 2' },
+					{ id: 3, label: 'Profile 3' },
+					{ id: 4, label: 'Profile 4' },
+					{ id: 5, label: 'Profile 5' },
+				],
+				default: 0,
+				id: 'profile',
+			},
+			{
+				type: 'checkbox',
+				label: 'Use on Startup',
+				default: false,
+				id: 'startup',
+			},
+		],
+		description: `Set the current profile for the speaker`,
+		callback: async (action) => {
+			await self.speaker?.setProfile({
+				id: action.options.profile as number,
+				startup: action.options.startup as boolean,
+			})
+		},
+	}
+
 	self.setActionDefinitions(actions)
 }

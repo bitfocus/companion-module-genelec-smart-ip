@@ -30,7 +30,7 @@ export function UpdateVariableDefinitions(self: GenelecSmartIPInstance): void {
 		{ variableId: 'multicast_port', name: 'Multicast Control Port' },
 
 		// Audio
-		{ variableId: 'volume', name: 'Volume' },
+		{ variableId: 'volume', name: 'Volume (dB)' },
 		{ variableId: 'mute', name: 'Mute State' },
 		{ variableId: 'active_inputs', name: 'Active Inputs' },
 
@@ -49,13 +49,13 @@ export function UpdateVariableDefinitions(self: GenelecSmartIPInstance): void {
 		{ variableId: 'zone_name', name: 'Zone Name' },
 
 		// Profiles
-		{ variableId: 'profile_selected_id', name: 'Selected Profile ID' },
-		{ variableId: 'profile_startup_id', name: 'Startup Profile ID' },
+		{ variableId: 'profile_selected', name: 'Selected Profile Number' },
+		{ variableId: 'profile_startup', name: 'Startup Profile Number' },
 
 		// Events / Status
-		{ variableId: 'bass_level', name: 'Bass Output Level' },
-		{ variableId: 'tweeter_level', name: 'Tweeter Output Level' },
-		{ variableId: 'input_level', name: 'Input Level' },
+		{ variableId: 'bass_level', name: 'Bass Output Level (dBFS)' },
+		{ variableId: 'tweeter_level', name: 'Tweeter Output Level (dBFS)' },
+		{ variableId: 'input_level', name: 'Input Level (dBFS)' },
 		{ variableId: 'cpu_temp', name: 'CPU Temperature (°C)' },
 		{ variableId: 'cpu_load', name: 'CPU Load (%)' },
 		{ variableId: 'network_traffic', name: 'Network Traffic to CPU (kbps)' },
@@ -255,10 +255,10 @@ export function UpdateVariableValues(self: GenelecSmartIPInstance): void {
 		const oldProf = previousState.profiles
 
 		if (newProf.selected !== oldProf?.selected) {
-			newVariables.profile_selected_id = newProf.selected
+			newVariables.profile_selected = newProf.selected
 		}
 		if (newProf.startup !== oldProf?.startup) {
-			newVariables.profile_startup_id = newProf.startup
+			newVariables.profile_startup = newProf.startup
 		}
 
 		previousState.profiles = { ...newProf }

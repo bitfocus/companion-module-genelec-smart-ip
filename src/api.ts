@@ -13,6 +13,7 @@ import {
 	NetworkConfig,
 	NetworkZoneResponse,
 	ProfileListResponse,
+	ProfileItem,
 	SystemState,
 } from './types.js'
 import { InstanceStatus } from '@companion-module/base'
@@ -250,7 +251,13 @@ export class GenelecSpeaker {
 		if (data) {
 			this.state.profiles = data
 		}
+		this.self.checkFeedbacks('profileSelected', 'profileStartup')
 		return data
+	}
+
+	async setProfile(data: Partial<ProfileItem>): Promise<void> {
+		await this.sendRequest('PUT', 'profile/restore', data)
+		await this.getProfileList()
 	}
 
 	async fetchInitialInfo(): Promise<void> {

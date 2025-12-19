@@ -89,6 +89,62 @@ export function UpdateFeedbacks(self: GenelecSmartIPInstance): void {
 		},
 	}
 
+	feedbacks['profileSelected'] = {
+		type: 'boolean',
+		name: 'Profile Selected',
+		description: 'Enabled if the selected profile is currently active',
+		options: [
+			{
+				type: 'dropdown',
+				id: 'profile',
+				label: 'Profile',
+				default: 0,
+				choices: [
+					{ id: 0, label: 'Default Profile' },
+					{ id: 1, label: 'Profile 1' },
+					{ id: 2, label: 'Profile 2' },
+					{ id: 3, label: 'Profile 3' },
+					{ id: 4, label: 'Profile 4' },
+					{ id: 5, label: 'Profile 5' },
+				],
+			},
+		],
+		callback: async (feedback) => {
+			return self.speaker?.state.profiles?.selected === feedback.options.profile
+		},
+		defaultStyle: {
+			bgcolor: combineRgb(0, 200, 0),
+		},
+	}
+
+	feedbacks['profileStartup'] = {
+		type: 'boolean',
+		name: 'Profile Startup',
+		description: 'Enabled if the selected profile is set as the startup profile',
+		options: [
+			{
+				type: 'dropdown',
+				id: 'profile',
+				label: 'Profile',
+				default: 0,
+				choices: [
+					{ id: 0, label: 'Default Profile' },
+					{ id: 1, label: 'Profile 1' },
+					{ id: 2, label: 'Profile 2' },
+					{ id: 3, label: 'Profile 3' },
+					{ id: 4, label: 'Profile 4' },
+					{ id: 5, label: 'Profile 5' },
+				],
+			},
+		],
+		callback: async (feedback) => {
+			return self.speaker?.state.profiles?.startup === feedback.options.profile
+		},
+		defaultStyle: {
+			bgcolor: combineRgb(0, 200, 0),
+		},
+	}
+
 	feedbacks['clipLed'] = {
 		type: 'boolean',
 		name: 'Clip LED',

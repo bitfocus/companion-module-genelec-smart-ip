@@ -992,5 +992,70 @@ export function UpdatePresets(self: GenelecSmartIPInstance): void {
 		],
 	}
 
+	presets[`profileCurrent`] = {
+		type: 'button',
+		category: 'Profiles',
+		name: `Profile Current`,
+		options: {
+			rotaryActions: true,
+		},
+		style: {
+			bgcolor: Color.lightGray,
+			color: Color.white,
+			text: `Current Profile:\\n$(genelec:profile_selected)`,
+			size: 14,
+			show_topbar: false,
+		},
+		steps: [
+			{
+				down: [],
+				up: [],
+			},
+		],
+		feedbacks: [],
+	}
+
+	for (let value = 0; value <= 5; value += 1) {
+		presets[`profileSelect${value}`] = {
+			type: 'button',
+			category: 'Profiles',
+			name: `Profile Select ${value}`,
+			options: {
+				rotaryActions: true,
+			},
+			style: {
+				bgcolor: Color.lightGray,
+				color: Color.white,
+				text: `Profile\\n${value === 0 ? 'Default' : value}`,
+				size: 14,
+				show_topbar: false,
+			},
+			steps: [
+				{
+					down: [
+						{
+							actionId: 'profileSelect',
+							options: {
+								profile: value,
+							},
+						},
+					],
+					up: [],
+				},
+			],
+			feedbacks: [
+				{
+					feedbackId: 'profileSelected',
+					options: {
+						profile: value,
+					},
+					style: {
+						bgcolor: Color.green,
+					},
+				},
+			],
+		}
+	}
+
 	self.setPresetDefinitions(presets)
 }
