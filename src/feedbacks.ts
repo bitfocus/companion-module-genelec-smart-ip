@@ -52,7 +52,6 @@ export function UpdateFeedbacks(self: GenelecSmartIPInstance): void {
 			const requiredInputs = feedback.options.inputs as string[]
 			const currentInputs = self.speaker?.state.audioInputs?.input
 
-			if (!requiredInputs || requiredInputs.length === 0) return false
 			if (!currentInputs) return false
 
 			return requiredInputs.length === currentInputs.length && requiredInputs.every((i) => currentInputs.includes(i))
@@ -191,6 +190,13 @@ export function UpdateFeedbacks(self: GenelecSmartIPInstance): void {
 	createComparisonFeedback('bassLevel', 'Bass Level', () => self.speaker?.state.events?.bsLevel)
 	createComparisonFeedback('tweeterLevel', 'Tweeter Level', () => self.speaker?.state.events?.twLevel)
 	createComparisonFeedback('inputLevel', 'Input Level', () => self.speaker?.state.events?.inLevel)
+	createComparisonFeedback('sleepDelay', 'Sleep Delay', () => self.speaker?.state.deviceISS?.sleepDelay)
+	createComparisonFeedback('sleepThreshold', 'Sleep Threshold', () => self.speaker?.state.deviceISS?.threshold)
+	createComparisonFeedback(
+		'sleepLedIntensity',
+		'Sleep LED Intensity',
+		() => self.speaker?.state.deviceISS?.ledIntensity,
+	)
 
 	self.setFeedbackDefinitions(feedbacks)
 }

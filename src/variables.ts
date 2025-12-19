@@ -129,6 +129,8 @@ export function UpdateVariableValues(self: GenelecSmartIPInstance): void {
 
 		if (newPwr.state !== oldPwr?.state) {
 			newVariables.power_state = newPwr.state
+				? newPwr.state.charAt(0).toUpperCase() + newPwr.state.slice(1).toLowerCase()
+				: undefined
 		}
 		if (newPwr.poeAllocatedPwr !== oldPwr?.poeAllocatedPwr) {
 			newVariables.poe_allocated_pwr = newPwr.poeAllocatedPwr
@@ -195,7 +197,7 @@ export function UpdateVariableValues(self: GenelecSmartIPInstance): void {
 			if (newIn.input.length === 0) {
 				newVariables.active_inputs = 'No Inputs'
 			} else {
-				const inputs = newIn.input.map((i) => (i === 'A' ? 'Analog' : i)).join(', ')
+				const inputs = newIn.input.map((i) => (i === 'A' ? 'Analog' : i)).join(' + ')
 				newVariables.active_inputs = inputs
 			}
 		}

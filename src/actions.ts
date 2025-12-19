@@ -54,7 +54,7 @@ export function UpdateActions(self: GenelecSmartIPInstance): void {
 		name: string,
 		getCurrentValue: () => number | undefined,
 		setValue: (value: number) => Promise<void>,
-		defaultValue: number = 0,
+		_defaultValue: number = 0,
 		step: number = 1,
 		min: number = 0,
 		max: number = 100,
@@ -80,7 +80,8 @@ export function UpdateActions(self: GenelecSmartIPInstance): void {
 			],
 			description: description ?? `Set or adjust the ${name.toLowerCase()}`,
 			callback: async (action) => {
-				const currentValue = getCurrentValue() ?? defaultValue
+				const currentValue = getCurrentValue()
+				if (currentValue === undefined) return
 				let newValue: number
 				const value = parseFloat(action.options.value as string)
 

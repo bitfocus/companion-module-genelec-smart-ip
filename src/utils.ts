@@ -6,6 +6,7 @@ export const Color = {
 	darkGray: combineRgb(36, 36, 36),
 	lightGray: combineRgb(110, 110, 110),
 	red: combineRgb(200, 0, 0),
+	orange: combineRgb(255, 128, 0),
 	green: combineRgb(0, 200, 0),
 	//Genelec Brand Colors
 	genelecGreen: 0x00865b,

@@ -14,7 +14,6 @@ export function UpdatePresets(self: GenelecSmartIPInstance): void {
 		displayText: string,
 		options?: {
 			adjustmentValue?: string | number
-			valueIcon?: string
 			valueSize?: number | string
 			headerName?: string
 			actionOptions?: (adjustment: 'increase' | 'decrease') => CompanionOptionValues
@@ -41,10 +40,8 @@ export function UpdatePresets(self: GenelecSmartIPInstance): void {
 			style: {
 				bgcolor: Color.genelecDarkGray,
 				color: Color.white,
-				text: displayText,
-				size: 14,
-				alignment: 'center:bottom' as const,
-				png64: 'icons.circlePlus',
+				text: '+',
+				size: 'auto',
 				show_topbar: false,
 			},
 			steps: [
@@ -72,14 +69,12 @@ export function UpdatePresets(self: GenelecSmartIPInstance): void {
 			category,
 			name: `${namePrefix} Value`,
 			style: {
-				bgcolor: Color.darkGray,
+				bgcolor: Color.genelecDarkGray,
 				color: Color.white,
-				text: `${displayText}\\n$(bolin-ptz:${variableId})`,
+				text: `${displayText}\\n$(genelec:${variableId})`,
 				size: valueSize as never,
 				show_topbar: false,
-				...(options?.valueIcon && { png64: options.valueIcon }),
-				...(typeof valueSize === 'number' &&
-					valueSize === 14 && { alignment: options?.valueIcon ? 'center:bottom' : 'center:center' }),
+				...(typeof valueSize === 'number' && valueSize === 14 && { alignment: 'center:center' }),
 			},
 			steps: [
 				{
@@ -98,10 +93,8 @@ export function UpdatePresets(self: GenelecSmartIPInstance): void {
 			style: {
 				bgcolor: Color.genelecDarkGray,
 				color: Color.white,
-				text: displayText,
-				size: 14,
-				alignment: 'center:bottom' as const,
-				png64: 'icons.circleMinus',
+				text: '-',
+				size: 'auto',
 				show_topbar: false,
 			},
 			steps: [
@@ -126,28 +119,62 @@ export function UpdatePresets(self: GenelecSmartIPInstance): void {
 
 	createAdjustmentPresets('volume', 'Volume', 'Volume', 'volume', 'volume', 'Volume', {
 		adjustmentValue: 1,
-		valueIcon: '',
 		valueSize: 14,
 		headerName: 'Volume Adjustment - Buttons',
 	})
+
+	createAdjustmentPresets('sleepDelay', 'Sleep', 'Sleep Delay', 'sleepDelay', 'sleep_delay', 'Sleep Delay', {
+		adjustmentValue: 1,
+		valueSize: 14,
+		headerName: 'Sleep Delay Adjustment - Buttons',
+	})
+
+	createAdjustmentPresets(
+		'sleepThreshold',
+		'Sleep',
+		'Sleep Threshold',
+		'sleepThreshold',
+		'sleep_threshold',
+		'Sleep Threshold',
+		{
+			adjustmentValue: 1,
+			valueSize: 14,
+			headerName: 'Sleep Threshold Adjustment - Buttons',
+		},
+	)
+
+	createAdjustmentPresets(
+		'sleepLedIntensity',
+		'Sleep',
+		'Sleep LED Intensity',
+		'sleepLedIntensity',
+		'sleep_led_intensity',
+		'Sleep LED Intensity',
+		{
+			adjustmentValue: 1,
+			valueSize: 14,
+			headerName: 'Sleep LED Intensity Adjustment',
+		},
+	)
+
 	presets['volumeAdjustmentRotaryHeader'] = {
 		type: 'text',
 		category: 'Volume',
 		name: 'Volume Adjustment - Dials',
-		text: 'For use on devices with rotary dials',
+		text: '(For use on devices with rotary dials)',
 	}
 
 	presets[`volumeAdjustmentRotary`] = {
 		type: 'button',
 		category: 'Volume',
-		name: 'Volume Adjustment Rotary',
+		name: 'Volume Dial',
 		options: {
 			rotaryActions: true,
 		},
 		style: {
 			bgcolor: Color.genelecDarkGray,
 			color: Color.white,
-			text: 'Volume Adjustment Rotary',
+			text: 'Volume Dial',
 			size: 14,
 			show_topbar: false,
 		},
@@ -181,11 +208,11 @@ export function UpdatePresets(self: GenelecSmartIPInstance): void {
 	presets[`volumeSetButtons`] = {
 		type: 'text',
 		category: 'Volume',
-		name: 'Volume Set - Buttons',
-		text: 'Jump to a specific volume level',
+		name: 'Volume Set Values',
+		text: '(Jump to a specific volume level)',
 	}
 
-	for (let value = -200; value <= 0; value += 10) {
+	for (let value = 0; value >= -200; value -= 10) {
 		presets[`volumeSet${value}`] = {
 			type: 'button',
 			category: 'Volume',
@@ -196,7 +223,7 @@ export function UpdatePresets(self: GenelecSmartIPInstance): void {
 			style: {
 				bgcolor: Color.genelecDarkGray,
 				color: Color.white,
-				text: `Volume\\n${value}`,
+				text: `SET Volume\\n\\n${value} dB`,
 				size: 14,
 				show_topbar: false,
 			},
@@ -228,7 +255,51 @@ export function UpdatePresets(self: GenelecSmartIPInstance): void {
 			],
 		}
 	}
-
+	presets[`muteStatus`] = {
+		type: 'button',
+		category: 'Mute',
+		name: `Mute Status`,
+		options: {
+			rotaryActions: true,
+		},
+		style: {
+			bgcolor: Color.genelecDarkGray,
+			color: Color.white,
+			text: `MUTE STATUS $(genelec:mute)`,
+			size: 14,
+			show_topbar: false,
+		},
+		steps: [
+			{
+				down: [
+					{
+						actionId: 'mute',
+						options: {
+							mode: 'toggle',
+						},
+					},
+				],
+				up: [],
+			},
+		],
+		feedbacks: [
+			{
+				feedbackId: 'mute',
+				options: {},
+				style: {
+					bgcolor: Color.red,
+				},
+			},
+			{
+				feedbackId: 'mute',
+				isInverted: true,
+				options: {},
+				style: {
+					bgcolor: Color.genelecGreen,
+				},
+			},
+		],
+	}
 	presets[`muteToggle`] = {
 		type: 'button',
 		category: 'Mute',
@@ -261,7 +332,15 @@ export function UpdatePresets(self: GenelecSmartIPInstance): void {
 				feedbackId: 'mute',
 				options: {},
 				style: {
-					bgcolor: Color.red,
+					text: 'UNMUTE',
+				},
+			},
+			{
+				feedbackId: 'mute',
+				isInverted: true,
+				options: {},
+				style: {
+					text: 'MUTE',
 				},
 			},
 		],
@@ -342,62 +421,6 @@ export function UpdatePresets(self: GenelecSmartIPInstance): void {
 		],
 	}
 
-	presets[`systemInfoCPULoad`] = {
-		type: 'button',
-		category: 'Diagnostics',
-		name: 'System Info',
-		style: {
-			bgcolor: Color.genelecDarkGray,
-			color: Color.white,
-			text: 'CPU LOAD\\n$(genelec:cpu_load)%',
-			size: 14,
-			show_topbar: false,
-		},
-		steps: [
-			{
-				down: [],
-				up: [],
-			},
-		],
-		feedbacks: [],
-	}
-
-	const diagnostics = [
-		{ id: 'cpu_load', label: 'CPU Load', suffix: '%' },
-		{ id: 'cpu_temp', label: 'CPU Temp', suffix: '°C' },
-		{ id: 'network_traffic', label: 'Network Traffic', suffix: 'Kbps' },
-		{ id: 'uptime', label: 'Uptime' },
-		{ id: 'fw_id', label: 'Firmware ID' },
-		{ id: 'build', label: 'Build' },
-		{ id: 'base_id', label: 'Base ID' },
-		{ id: 'hw_id', label: 'Hardware ID' },
-		{ id: 'model', label: 'Model' },
-	]
-	for (const info of diagnostics) {
-		presets[`systemInfo${info.id}`] = {
-			type: 'button',
-			category: 'Diagnostics',
-			name: `${info.label}`,
-			options: {
-				rotaryActions: true,
-			},
-			style: {
-				bgcolor: Color.genelecDarkGray,
-				color: Color.white,
-				text: `${info.label}\n$(genelec:${info.id})${info.suffix ? ` ${info.suffix}` : ''}`,
-				size: 14,
-				show_topbar: false,
-			},
-			steps: [
-				{
-					down: [],
-					up: [],
-				},
-			],
-			feedbacks: [],
-		}
-	}
-
 	presets[`levelsInput`] = {
 		type: 'button',
 		category: 'Levels',
@@ -457,7 +480,41 @@ export function UpdatePresets(self: GenelecSmartIPInstance): void {
 		],
 		feedbacks: [],
 	}
+	presets[`inputsStatusHeader`] = {
+		type: 'text',
+		category: 'Inputs',
+		name: 'Input Status',
+		text: '',
+	}
+	presets[`inputsActive`] = {
+		type: 'button',
+		category: 'Inputs',
+		name: `Inputs Active`,
+		options: {
+			rotaryActions: true,
+		},
+		style: {
+			bgcolor: Color.genelecDarkGray,
+			color: Color.white,
+			text: `INPUTS\n$(genelec:active_inputs)`,
+			size: 12,
+			show_topbar: false,
+		},
+		steps: [
+			{
+				down: [],
+				up: [],
+			},
+		],
+		feedbacks: [],
+	}
 
+	presets[`inputsSelectorHeader`] = {
+		type: 'text',
+		category: 'Inputs',
+		name: 'Select Inputs',
+		text: '',
+	}
 	const inputs = [
 		{ id: 'Analog', label: 'Analog', inputs: ['A'] },
 		{ id: 'AoIP01', label: 'AoIP 01', inputs: ['AoIP01'] },
@@ -471,8 +528,8 @@ export function UpdatePresets(self: GenelecSmartIPInstance): void {
 	for (const input of inputs) {
 		presets[`inputSelection${input.id}`] = {
 			type: 'button',
-			category: 'Inputs Active',
-			name: `Inputs Active ${input.id}`,
+			category: 'Inputs',
+			name: `Inputs ${input.id}`,
 			options: {
 				rotaryActions: true,
 			},
@@ -510,85 +567,142 @@ export function UpdatePresets(self: GenelecSmartIPInstance): void {
 		}
 	}
 
-	const AoIPInfo = [
-		{ id: 'aoip_id', label: 'AoIP ID' },
-		{ id: 'aoip_name', label: 'AoIP Name' },
-		{ id: 'aoip_fname', label: 'AoIP Friendly Name' },
-		{ id: 'aoip_ip', label: 'AoIP IP' },
-		{ id: 'aoip_mac', label: 'AoIP MAC' },
-		{ id: 'aoip_mask', label: 'AoIP Subnet' },
-		{ id: 'aoip_gateway', label: 'AoIP Gateway' },
-		{ id: 'aoip_locked', label: 'AoIP Locked' },
-	]
-	for (const info of AoIPInfo) {
-		presets[`aoipInfo${info.id}`] = {
-			type: 'button',
-			category: 'AoIP Info',
-			name: `${info.label}`,
-			options: {
-				rotaryActions: true,
-			},
-			style: {
-				bgcolor: Color.genelecDarkGray,
-				color: Color.white,
-				text: `${info.label}\\n$(genelec:${info.id})`,
-				size: 14,
-				show_topbar: false,
-			},
-			steps: [
-				{
-					down: [],
-					up: [],
-				},
-			],
-			feedbacks: [],
-		}
+	presets['profileCurrentHeader'] = {
+		type: 'text',
+		category: 'Profiles',
+		name: 'Profile Status',
+		text: '',
 	}
 
-	const networkInfo = [
-		{ id: 'hostname', label: 'Hostname' },
-		{ id: 'ip_mode', label: 'IP Mode' },
-		{ id: 'subnet_mask', label: 'Subnet Mask' },
-		{ id: 'gateway', label: 'Gateway' },
-		{ id: 'multicast_ip', label: 'Multicast IP' },
-		{ id: 'multicast_port', label: 'Multicast Port' },
-	]
-	for (const info of networkInfo) {
-		presets[`networkInfo${info.id}`] = {
-			type: 'button',
-			category: 'Network Info',
-			name: `${info.label}`,
-			options: {
-				rotaryActions: true,
-			},
-			style: {
-				bgcolor: Color.genelecDarkGray,
-				color: Color.white,
-				text: `${info.label}\\n$(genelec:${info.id})`,
-				size: 14,
-				show_topbar: false,
-			},
-			steps: [
-				{
-					down: [],
-					up: [],
-				},
-			],
-			feedbacks: [],
-		}
-	}
-
-	presets[`powerToggle`] = {
+	presets[`profileCurrent`] = {
 		type: 'button',
-		category: 'Power',
-		name: `Power Toggle`,
+		category: 'Profiles',
+		name: `Profile Current`,
 		options: {
 			rotaryActions: true,
 		},
 		style: {
 			bgcolor: Color.genelecDarkGray,
 			color: Color.white,
-			text: `Power\nToggle`,
+			text: `CURRENT PROFILE\\n$(genelec:profile_selected)`,
+			size: 12,
+			show_topbar: false,
+		},
+		steps: [
+			{
+				down: [],
+				up: [],
+			},
+		],
+		feedbacks: [],
+	}
+
+	presets['profileSelectHeader'] = {
+		type: 'text',
+		category: 'Profiles',
+		name: 'Select Profile',
+		text: '',
+	}
+
+	for (let value = 0; value <= 5; value += 1) {
+		presets[`profileSelect${value}`] = {
+			type: 'button',
+			category: 'Profiles',
+			name: `Profile Select ${value}`,
+			options: {
+				rotaryActions: true,
+			},
+			style: {
+				bgcolor: Color.genelecDarkGray,
+				color: Color.white,
+				text: `SELECT Profile\\n${value === 0 ? 'Default' : value}`,
+				size: 14,
+				show_topbar: false,
+			},
+			steps: [
+				{
+					down: [
+						{
+							actionId: 'profileSelect',
+							options: {
+								profile: value,
+							},
+						},
+					],
+					up: [],
+				},
+			],
+			feedbacks: [
+				{
+					feedbackId: 'profileSelected',
+					options: {
+						profile: value,
+					},
+					style: {
+						bgcolor: Color.genelecGreen,
+					},
+				},
+			],
+		}
+	}
+
+	presets[`zoneId`] = {
+		type: 'button',
+		category: 'Zone Info',
+		name: `Zone Info`,
+		options: {
+			rotaryActions: true,
+		},
+		style: {
+			bgcolor: Color.genelecDarkGray,
+			color: Color.white,
+			text: `ZONE ID\n$(genelec:zone_id)`,
+			size: 14,
+			show_topbar: false,
+		},
+		steps: [
+			{
+				down: [],
+				up: [],
+			},
+		],
+		feedbacks: [],
+	}
+
+	presets[`zoneName`] = {
+		type: 'button',
+		category: 'Zone Info',
+		name: `Zone Info`,
+		options: {
+			rotaryActions: true,
+		},
+		style: {
+			bgcolor: Color.genelecDarkGray,
+			color: Color.white,
+			text: `ZONE NAME\n$(genelec:zone_name)`,
+			size: 14,
+			show_topbar: false,
+		},
+		steps: [
+			{
+				down: [],
+				up: [],
+			},
+		],
+		feedbacks: [],
+	}
+
+	presets[`powerStatus`] = {
+		type: 'button',
+		category: 'Power',
+		name: `Power Status`,
+		options: {
+			rotaryActions: true,
+		},
+		style: {
+			bgcolor: Color.genelecDarkGray,
+			color: Color.white,
+			text: `POWER STATUS\n$(genelec:power_state)`,
 			size: 14,
 			show_topbar: false,
 		},
@@ -615,20 +729,80 @@ export function UpdatePresets(self: GenelecSmartIPInstance): void {
 					bgcolor: Color.genelecGreen,
 				},
 			},
+			{
+				feedbackId: 'power',
+				isInverted: true,
+				options: {
+					mode: 'ACTIVE',
+				},
+				style: {
+					bgcolor: Color.orange,
+				},
+			},
 		],
 	}
 
-	presets[`powerOn`] = {
+	presets[`powerToggle`] = {
 		type: 'button',
 		category: 'Power',
-		name: `Power Toggle`,
+		name: `Wake Speaker`,
 		options: {
 			rotaryActions: true,
 		},
 		style: {
 			bgcolor: Color.genelecDarkGray,
 			color: Color.white,
-			text: `Power\nOn`,
+			text: `Wake`,
+			size: 14,
+			show_topbar: false,
+		},
+		steps: [
+			{
+				down: [
+					{
+						actionId: 'power',
+						options: {
+							mode: 'toggle',
+						},
+					},
+				],
+				up: [],
+			},
+		],
+		feedbacks: [
+			{
+				feedbackId: 'power',
+				options: {
+					mode: 'ACTIVE',
+				},
+				style: {
+					text: 'STANDBY',
+				},
+			},
+			{
+				feedbackId: 'power',
+				isInverted: true,
+				options: {
+					mode: 'ACTIVE',
+				},
+				style: {
+					text: 'WAKE',
+				},
+			},
+		],
+	}
+
+	presets[`powerOn`] = {
+		type: 'button',
+		category: 'Power',
+		name: `Wake Speaker`,
+		options: {
+			rotaryActions: true,
+		},
+		style: {
+			bgcolor: Color.genelecDarkGray,
+			color: Color.white,
+			text: `Wake`,
 			size: 14,
 			show_topbar: false,
 		},
@@ -661,14 +835,14 @@ export function UpdatePresets(self: GenelecSmartIPInstance): void {
 	presets[`powerStandby`] = {
 		type: 'button',
 		category: 'Power',
-		name: `Power Toggle`,
+		name: `Speaker Standby`,
 		options: {
 			rotaryActions: true,
 		},
 		style: {
 			bgcolor: Color.genelecDarkGray,
 			color: Color.white,
-			text: `Standby Mode`,
+			text: `Standby`,
 			size: 14,
 			show_topbar: false,
 		},
@@ -693,58 +867,122 @@ export function UpdatePresets(self: GenelecSmartIPInstance): void {
 					mode: 'STANDBY',
 				},
 				style: {
-					bgcolor: Color.red,
+					bgcolor: Color.orange,
 				},
 			},
 		],
 	}
 
-	presets[`zoneId`] = {
-		type: 'button',
-		category: 'Zone Info',
-		name: `Zone Info`,
-		options: {
-			rotaryActions: true,
-		},
-		style: {
-			bgcolor: Color.genelecDarkGray,
-			color: Color.white,
-			text: `Zone ID\n$(genelec:zone_id)`,
-			size: 14,
-			show_topbar: false,
-		},
-		steps: [
-			{
-				down: [],
-				up: [],
+	const diagnostics = [
+		{ id: 'cpu_load', label: 'CPU LOAD', suffix: '%' },
+		{ id: 'cpu_temp', label: 'CPU TEMP', suffix: '°C' },
+		{ id: 'network_traffic', label: 'NETWORK TRAFFIC', suffix: 'Kbps' },
+		{ id: 'uptime', label: 'UPTIME' },
+		{ id: 'fw_id', label: 'FIRMWARE' },
+		{ id: 'build', label: 'BUILD' },
+		{ id: 'base_id', label: 'BASE ID' },
+		{ id: 'hw_id', label: 'HW ID' },
+		{ id: 'model', label: 'MODEL' },
+	]
+	for (const info of diagnostics) {
+		presets[`systemInfo${info.id}`] = {
+			type: 'button',
+			category: 'Diagnostics',
+			name: `${info.label}`,
+			options: {
+				rotaryActions: true,
 			},
-		],
-		feedbacks: [],
+			style: {
+				bgcolor: Color.genelecDarkGray,
+				color: Color.white,
+				text: `${info.label}\n$(genelec:${info.id})${info.suffix ? ` ${info.suffix}` : ''}`,
+				size: 12,
+				show_topbar: false,
+			},
+			steps: [
+				{
+					down: [],
+					up: [],
+				},
+			],
+			feedbacks: [],
+		}
 	}
 
-	presets[`zoneName`] = {
-		type: 'button',
-		category: 'Zone Info',
-		name: `Zone Info`,
-		options: {
-			rotaryActions: true,
-		},
-		style: {
-			bgcolor: Color.genelecDarkGray,
-			color: Color.white,
-			text: `Zone Name\n$(genelec:zone_name)`,
-			size: 14,
-			show_topbar: false,
-		},
-		steps: [
-			{
-				down: [],
-				up: [],
+	const AoIPInfo = [
+		{ id: 'aoip_id', label: 'AoIP ID' },
+		{ id: 'aoip_name', label: 'AoIP NAME' },
+		{ id: 'aoip_fname', label: 'AoIP FRIENDLY NAME' },
+		{ id: 'aoip_ip', label: 'AoIP IP' },
+		{ id: 'aoip_mac', label: 'AoIP MAC' },
+		{ id: 'aoip_mask', label: 'AoIP SUBNET' },
+		{ id: 'aoip_gateway', label: 'AoIP GATEWAY' },
+		{ id: 'aoip_locked', label: 'AoIP LOCK STATUS' },
+	]
+	for (const info of AoIPInfo) {
+		presets[`aoipInfo${info.id}`] = {
+			type: 'button',
+			category: 'AoIP Info',
+			name: `${info.label}`,
+			options: {
+				rotaryActions: true,
 			},
-		],
-		feedbacks: [],
+			style: {
+				bgcolor: Color.genelecDarkGray,
+				color: Color.white,
+				text: `${info.label}\\n$(genelec:${info.id})`,
+				size: 12,
+				show_topbar: false,
+			},
+			steps: [
+				{
+					down: [],
+					up: [],
+				},
+			],
+			feedbacks: [],
+		}
 	}
 
+	const networkInfo = [
+		{ id: 'hostname', label: 'HOSTNAME' },
+		{ id: 'ip_mode', label: 'IP MODE' },
+		{ id: 'subnet_mask', label: 'SUBNET MASK' },
+		{ id: 'gateway', label: 'GATEWAY' },
+		{ id: 'multicast_ip', label: 'MULTICAST IP' },
+		{ id: 'multicast_port', label: 'MULTICAST PORT' },
+	]
+	for (const info of networkInfo) {
+		presets[`networkInfo${info.id}`] = {
+			type: 'button',
+			category: 'Network Info',
+			name: `${info.label}`,
+			options: {
+				rotaryActions: true,
+			},
+			style: {
+				bgcolor: Color.genelecDarkGray,
+				color: Color.white,
+				text: `${info.label}\\n$(genelec:${info.id})`,
+				size: 12,
+				show_topbar: false,
+			},
+			steps: [
+				{
+					down: [],
+					up: [],
+				},
+			],
+			feedbacks: [],
+		}
+	}
+
+	presets['blinkHeader'] = {
+		type: 'text',
+		category: 'LEDs',
+		name: 'Blink LED',
+		text: '',
+	}
 	presets[`blinkLED`] = {
 		type: 'button',
 		category: 'LEDs',
@@ -755,7 +993,7 @@ export function UpdatePresets(self: GenelecSmartIPInstance): void {
 		style: {
 			bgcolor: Color.genelecDarkGray,
 			color: Color.white,
-			text: `Blink LED`,
+			text: `Blink LED Toggle`,
 			size: 14,
 			show_topbar: false,
 		},
@@ -785,7 +1023,70 @@ export function UpdatePresets(self: GenelecSmartIPInstance): void {
 		],
 		feedbacks: [],
 	}
-
+	presets[`blinkLEDOn`] = {
+		type: 'button',
+		category: 'LEDs',
+		name: `Blink LED`,
+		options: {
+			rotaryActions: true,
+		},
+		style: {
+			bgcolor: Color.genelecDarkGray,
+			color: Color.white,
+			text: `Blink LED On`,
+			size: 14,
+			show_topbar: false,
+		},
+		steps: [
+			{
+				down: [
+					{
+						actionId: 'blinkLed',
+						options: {
+							blink: true,
+						},
+					},
+				],
+				up: [],
+			},
+		],
+		feedbacks: [],
+	}
+	presets[`blinkLEDOff`] = {
+		type: 'button',
+		category: 'LEDs',
+		name: `Blink LED`,
+		options: {
+			rotaryActions: true,
+		},
+		style: {
+			bgcolor: Color.genelecDarkGray,
+			color: Color.white,
+			text: `Blink LED Off`,
+			size: 14,
+			show_topbar: false,
+		},
+		steps: [
+			{
+				down: [
+					{
+						actionId: 'blinkLed',
+						options: {
+							blink: false,
+						},
+					},
+				],
+				up: [],
+			},
+		],
+		feedbacks: [],
+	}
+	presets['clipLedHeader'] = {
+		type: 'text',
+		category: 'LEDs',
+		name: 'Clip LED',
+		text: '',
+	}
 	presets[`clipLedToggle`] = {
 		type: 'button',
 		category: 'LEDs',
@@ -796,7 +1097,7 @@ export function UpdatePresets(self: GenelecSmartIPInstance): void {
 		style: {
 			bgcolor: Color.genelecDarkGray,
 			color: Color.white,
-			text: `Clip LED Toggle`,
+			text: `CLIP LED STATUTS $(genelec:clip_led)`,
 			size: 14,
 			show_topbar: false,
 		},
@@ -813,7 +1114,23 @@ export function UpdatePresets(self: GenelecSmartIPInstance): void {
 				up: [],
 			},
 		],
-		feedbacks: [],
+		feedbacks: [
+			{
+				feedbackId: 'clipLed',
+				options: {},
+				style: {
+					bgcolor: Color.genelecGreen,
+				},
+			},
+			{
+				feedbackId: 'clipLed',
+				isInverted: true,
+				options: {},
+				style: {
+					bgcolor: Color.red,
+				},
+			},
+		],
 	}
 
 	presets[`clipLedOn`] = {
@@ -892,6 +1209,12 @@ export function UpdatePresets(self: GenelecSmartIPInstance): void {
 			},
 		],
 	}
+	presets['rj45LedHeader'] = {
+		type: 'text',
+		category: 'LEDs',
+		name: 'RJ45 LED',
+		text: '',
+	}
 
 	presets[`rj45LedToggle`] = {
 		type: 'button',
@@ -903,7 +1226,7 @@ export function UpdatePresets(self: GenelecSmartIPInstance): void {
 		style: {
 			bgcolor: Color.genelecDarkGray,
 			color: Color.white,
-			text: `RJ45 LED Toggle`,
+			text: `RJ45 LED STATUS $(genelec:rj45_leds)`,
 			size: 14,
 			show_topbar: false,
 		},
@@ -920,7 +1243,23 @@ export function UpdatePresets(self: GenelecSmartIPInstance): void {
 				up: [],
 			},
 		],
-		feedbacks: [],
+		feedbacks: [
+			{
+				feedbackId: 'rj45Led',
+				options: {},
+				style: {
+					bgcolor: Color.genelecGreen,
+				},
+			},
+			{
+				feedbackId: 'rj45Led',
+				isInverted: true,
+				options: {},
+				style: {
+					bgcolor: Color.red,
+				},
+			},
+		],
 	}
 
 	presets[`rj45LedOn`] = {
@@ -998,71 +1337,6 @@ export function UpdatePresets(self: GenelecSmartIPInstance): void {
 				},
 			},
 		],
-	}
-
-	presets[`profileCurrent`] = {
-		type: 'button',
-		category: 'Profiles',
-		name: `Profile Current`,
-		options: {
-			rotaryActions: true,
-		},
-		style: {
-			bgcolor: Color.genelecDarkGray,
-			color: Color.white,
-			text: `Current Profile:\\n$(genelec:profile_selected)`,
-			size: 14,
-			show_topbar: false,
-		},
-		steps: [
-			{
-				down: [],
-				up: [],
-			},
-		],
-		feedbacks: [],
-	}
-
-	for (let value = 0; value <= 5; value += 1) {
-		presets[`profileSelect${value}`] = {
-			type: 'button',
-			category: 'Profiles',
-			name: `Profile Select ${value}`,
-			options: {
-				rotaryActions: true,
-			},
-			style: {
-				bgcolor: Color.genelecDarkGray,
-				color: Color.white,
-				text: `Profile\\n${value === 0 ? 'Default' : value}`,
-				size: 14,
-				show_topbar: false,
-			},
-			steps: [
-				{
-					down: [
-						{
-							actionId: 'profileSelect',
-							options: {
-								profile: value,
-							},
-						},
-					],
-					up: [],
-				},
-			],
-			feedbacks: [
-				{
-					feedbackId: 'profileSelected',
-					options: {
-						profile: value,
-					},
-					style: {
-						bgcolor: Color.genelecGreen,
-					},
-				},
-			],
-		}
 	}
 
 	self.setPresetDefinitions(presets)
