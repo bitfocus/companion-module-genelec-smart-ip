@@ -34,6 +34,10 @@ export function UpdateVariableDefinitions(self: GenelecSmartIPInstance): void {
 		{ variableId: 'mute', name: 'Mute State' },
 		{ variableId: 'active_inputs', name: 'Active Inputs' },
 
+		//Audio Settings
+		{ variableId: 'audio_delay', name: 'Audio Delay' },
+		{ variableId: 'audio_sensitivity', name: 'Audio Sensitivity' },
+
 		// AoIP
 		{ variableId: 'aoip_id', name: 'AoIP ID' },
 		{ variableId: 'aoip_name', name: 'AoIP Name' },
@@ -333,6 +337,24 @@ export function UpdateVariableValues(self: GenelecSmartIPInstance): void {
 		}
 
 		previousState.deviceISS = { ...newIss }
+	}
+
+	//Audio Settings
+	if (state.audioDelay) {
+		const newDelay = state.audioDelay
+		const oldDelay = previousState.audioDelay
+
+		if (newDelay.node !== oldDelay?.node) {
+			newVariables.audio_delay = newDelay.node
+		}
+	}
+	if (state.audioSensitivity) {
+		const newSensitivity = state.audioSensitivity
+		const oldSensitivity = previousState.audioSensitivity
+
+		if (newSensitivity.node !== oldSensitivity?.node) {
+			newVariables.audio_sensitivity = newSensitivity.node
+		}
 	}
 
 	if (Object.keys(newVariables).length > 0) {

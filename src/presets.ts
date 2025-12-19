@@ -767,15 +767,7 @@ export function UpdatePresets(self: GenelecSmartIPInstance): void {
 				up: [],
 			},
 		],
-		feedbacks: [
-			{
-				feedbackId: 'blinkLed',
-				options: {},
-				style: {
-					bgcolor: Color.green,
-				},
-			},
-		],
+		feedbacks: [],
 	}
 
 	presets[`clipLedToggle`] = {

@@ -31,33 +31,6 @@ export function UpdateFeedbacks(self: GenelecSmartIPInstance): void {
 		},
 	}
 
-	feedbacks['inputActive'] = {
-		type: 'boolean',
-		name: 'Input Active',
-		options: [
-			{
-				type: 'multidropdown',
-				id: 'inputs',
-				label: 'Inputs',
-				default: ['AoIP01', 'AoIP02'],
-				choices: [
-					{ id: 'A', label: 'Analog' },
-					{ id: 'AoIP01', label: 'AoIP 01' },
-					{ id: 'AoIP02', label: 'AoIP 02' },
-				],
-			},
-		],
-		description: `Enabled if the speaker is currently muted`,
-		callback: async (feedback) => {
-			const inputs = feedback.options.inputs
-
-			return self.speaker?.state.audioInputs?.input === inputs
-		},
-		defaultStyle: {
-			bgcolor: combineRgb(200, 0, 0),
-		},
-	}
-
 	feedbacks['inputsActive'] = {
 		type: 'boolean',
 		name: 'Inputs Active',
@@ -82,7 +55,7 @@ export function UpdateFeedbacks(self: GenelecSmartIPInstance): void {
 			if (!requiredInputs || requiredInputs.length === 0) return false
 			if (!currentInputs) return false
 
-			return requiredInputs.every((i) => currentInputs.includes(i))
+			return requiredInputs.length === currentInputs.length && requiredInputs.every((i) => currentInputs.includes(i))
 		},
 		defaultStyle: {
 			bgcolor: combineRgb(0, 200, 0),

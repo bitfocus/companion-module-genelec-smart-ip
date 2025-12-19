@@ -237,6 +237,7 @@ export class GenelecSpeaker {
 
 	async setInputs(data: Partial<AudioInputs>): Promise<void> {
 		await this.sendRequest('PUT', 'audio/inputs', data)
+		await this.getInputs()
 	}
 
 	async getVolume(): Promise<AudioVolume | void> {
