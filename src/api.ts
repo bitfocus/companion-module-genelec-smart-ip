@@ -31,6 +31,7 @@ export class GenelecSpeaker {
 	private readonly password: string
 	private readonly self: GenelecSmartIPInstance
 	private authHeader: string | null = null
+	private requestQueue: Promise<any> = Promise.resolve()
 
 	public state: SystemState = {}
 
@@ -59,6 +60,28 @@ export class GenelecSpeaker {
 	}
 
 	async sendRequest<T = GenericResponse>(
+		type: string,
+		endpoint: string,
+		content?: Record<string, unknown>,
+		apiPath?: boolean,
+		bypassQueue?: boolean,
+	): Promise<T | void> {
+		if (bypassQueue) {
+			return this._executeRequest<T>(type, endpoint, content, apiPath)
+		}
+
+		// Queue the request to prevent overloading the device web server
+		this.requestQueue = this.requestQueue.then(async () => {
+			const response = await this._executeRequest<T>(type, endpoint, content, apiPath)
+			// Add a small delay between requests as requested by the user
+			await new Promise((resolve) => setTimeout(resolve, 100))
+			return response
+		})
+
+		return this.requestQueue
+	}
+
+	private async _executeRequest<T = GenericResponse>(
 		type: string,
 		endpoint: string,
 		content?: Record<string, unknown>,
@@ -239,7 +262,7 @@ export class GenelecSpeaker {
 
 	async setVolume(data: Partial<AudioVolume>): Promise<void> {
 		if (this.isStandby) return
-		await this.sendRequest('PUT', 'audio/volume', data)
+		//Don't wait to update variables, bypass queue would make them lag to user
 		if (this.state.audioVolume && data.level !== undefined) {
 			this.state.audioVolume.level = data.level
 			this.self.setVariableValues({
@@ -252,6 +275,7 @@ export class GenelecSpeaker {
 				mute: data.mute ? 'Muted' : 'Unmuted',
 			})
 		}
+		await this.sendRequest('PUT', 'audio/volume', data)
 		this.self.checkFeedbacks('mute', 'volume')
 	}
 
@@ -314,9 +338,9 @@ export class GenelecSpeaker {
 			this.getAoipNetworkConfig(),
 			this.getZoneConfig(),
 			this.getProfileList(),
-			/* 		this.getAudioSensitivity(),
-					this.getAudioDelay(),
-					this.getDeviceISS(), */
+			this.getAudioSensitivity(),
+			this.getAudioDelay(),
+			this.getDeviceISS(),
 		])
 	}
 
@@ -333,9 +357,9 @@ export class GenelecSpeaker {
 			this.getAoipNetworkConfig(),
 			this.getZoneConfig(),
 			this.getProfileList(),
-			/* this.getAudioSensitivity(),
+			this.getAudioSensitivity(),
 			this.getAudioDelay(),
-			this.getDeviceISS(), */
+			this.getDeviceISS(),
 		])
 	}
 }

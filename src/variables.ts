@@ -66,10 +66,10 @@ export function UpdateVariableDefinitions(self: GenelecSmartIPInstance): void {
 		{ variableId: 'rj45_leds', name: 'RJ45 LEDs' },
 		{ variableId: 'clip_led', name: 'Clip LED (applicable to subwoofer only)' },
 
-		/* //Device ISS
+		//Device ISS
 		{ variableId: 'sleep_delay', name: 'Sleep Delay (seconds)' },
 		{ variableId: 'sleep_threshold', name: 'Sleep Threshold (dB)' },
-		{ variableId: 'sleep_led_intensity', name: 'Sleep LED Intensity (%)' }, */
+		{ variableId: 'sleep_led_intensity', name: 'Sleep LED Intensity (%)' },
 	)
 	self.setVariableDefinitions(variables)
 }
@@ -316,24 +316,24 @@ export function UpdateVariableValues(self: GenelecSmartIPInstance): void {
 
 		previousState.led = { ...newLed }
 	}
-	/* 
-		//Device ISS
-		if (state.deviceISS) {
-			const newIss = state.deviceISS
-			const oldIss = previousState.deviceISS
-	
-			if (newIss.sleepDelay !== oldIss?.sleepDelay) {
-				newVariables.sleep_delay = newIss.sleepDelay
-			}
-			if (newIss.threshold !== oldIss?.threshold) {
-				newVariables.sleep_threshold = newIss.threshold
-			}
-			if (newIss.ledIntensity !== oldIss?.ledIntensity) {
-				newVariables.sleep_led_intensity = newIss.ledIntensity
-			}
-	
-			previousState.deviceISS = { ...newIss }
-		} */
+
+	//Device ISS
+	if (state.deviceISS) {
+		const newIss = state.deviceISS
+		const oldIss = previousState.deviceISS
+
+		if (newIss.sleepDelay !== oldIss?.sleepDelay) {
+			newVariables.sleep_delay = newIss.sleepDelay
+		}
+		if (newIss.threshold !== oldIss?.threshold) {
+			newVariables.sleep_threshold = newIss.threshold
+		}
+		if (newIss.ledIntensity !== oldIss?.ledIntensity) {
+			newVariables.sleep_led_intensity = newIss.ledIntensity
+		}
+
+		previousState.deviceISS = { ...newIss }
+	}
 
 	if (Object.keys(newVariables).length > 0) {
 		self.setVariableValues(newVariables)
