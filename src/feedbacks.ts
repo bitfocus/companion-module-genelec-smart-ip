@@ -1,5 +1,5 @@
 import type { CompanionFeedbackDefinitions } from '@companion-module/base'
-import { combineRgb } from '@companion-module/base'
+import { Color } from './utils.js'
 import type { GenelecSmartIPInstance } from './main.js'
 
 export function UpdateFeedbacks(self: GenelecSmartIPInstance): void {
@@ -14,7 +14,7 @@ export function UpdateFeedbacks(self: GenelecSmartIPInstance): void {
 			return self.speaker?.state.power?.state === 'ACTIVE'
 		},
 		defaultStyle: {
-			bgcolor: combineRgb(0, 200, 0),
+			bgcolor: Color.genelecGreen,
 		},
 	}
 
@@ -27,7 +27,7 @@ export function UpdateFeedbacks(self: GenelecSmartIPInstance): void {
 			return self.speaker?.state.audioVolume?.mute === true
 		},
 		defaultStyle: {
-			bgcolor: combineRgb(200, 0, 0),
+			bgcolor: Color.red,
 		},
 	}
 
@@ -58,7 +58,7 @@ export function UpdateFeedbacks(self: GenelecSmartIPInstance): void {
 			return requiredInputs.length === currentInputs.length && requiredInputs.every((i) => currentInputs.includes(i))
 		},
 		defaultStyle: {
-			bgcolor: combineRgb(0, 200, 0),
+			bgcolor: Color.genelecGreen,
 		},
 	}
 
@@ -86,7 +86,7 @@ export function UpdateFeedbacks(self: GenelecSmartIPInstance): void {
 			return self.speaker?.state.profiles?.selected === feedback.options.profile
 		},
 		defaultStyle: {
-			bgcolor: combineRgb(0, 200, 0),
+			bgcolor: Color.genelecGreen,
 		},
 	}
 
@@ -114,7 +114,7 @@ export function UpdateFeedbacks(self: GenelecSmartIPInstance): void {
 			return self.speaker?.state.profiles?.startup === feedback.options.profile
 		},
 		defaultStyle: {
-			bgcolor: combineRgb(0, 200, 0),
+			bgcolor: Color.genelecGreen,
 		},
 	}
 
@@ -127,7 +127,7 @@ export function UpdateFeedbacks(self: GenelecSmartIPInstance): void {
 			return self.speaker?.state.led?.hideClip === false
 		},
 		defaultStyle: {
-			bgcolor: combineRgb(0, 200, 0),
+			bgcolor: Color.genelecGreen,
 		},
 	}
 
@@ -140,7 +140,7 @@ export function UpdateFeedbacks(self: GenelecSmartIPInstance): void {
 			return self.speaker?.state.led?.rj45Leds === true
 		},
 		defaultStyle: {
-			bgcolor: combineRgb(0, 200, 0),
+			bgcolor: Color.genelecGreen,
 		},
 	}
 
@@ -182,7 +182,7 @@ export function UpdateFeedbacks(self: GenelecSmartIPInstance): void {
 				return false
 			},
 			defaultStyle: {
-				bgcolor: combineRgb(200, 0, 0),
+				bgcolor: Color.red,
 			},
 		}
 	}

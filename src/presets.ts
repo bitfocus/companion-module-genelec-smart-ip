@@ -1,18 +1,9 @@
 import { GenelecSmartIPInstance } from './main.js'
-import { combineRgb } from '@companion-module/base'
+import { Color } from './utils.js'
 import { CompanionPresetDefinitions, type CompanionOptionValues } from '@companion-module/base'
 
 export function UpdatePresets(self: GenelecSmartIPInstance): void {
 	const presets: CompanionPresetDefinitions = {}
-
-	const Color = {
-		black: combineRgb(0, 0, 0),
-		white: combineRgb(255, 255, 255),
-		darkGray: combineRgb(36, 36, 36),
-		lightGray: combineRgb(110, 110, 110),
-		red: combineRgb(200, 0, 0),
-		green: combineRgb(0, 200, 0),
-	}
 
 	function createAdjustmentPresets(
 		baseKey: string,
@@ -48,7 +39,7 @@ export function UpdatePresets(self: GenelecSmartIPInstance): void {
 			name: `${namePrefix} Increase`,
 
 			style: {
-				bgcolor: Color.lightGray,
+				bgcolor: Color.genelecDarkGray,
 				color: Color.white,
 				text: displayText,
 				size: 14,
@@ -105,7 +96,7 @@ export function UpdatePresets(self: GenelecSmartIPInstance): void {
 			category,
 			name: `${namePrefix} Decrease`,
 			style: {
-				bgcolor: Color.lightGray,
+				bgcolor: Color.genelecDarkGray,
 				color: Color.white,
 				text: displayText,
 				size: 14,
@@ -154,7 +145,7 @@ export function UpdatePresets(self: GenelecSmartIPInstance): void {
 			rotaryActions: true,
 		},
 		style: {
-			bgcolor: Color.lightGray,
+			bgcolor: Color.genelecDarkGray,
 			color: Color.white,
 			text: 'Volume Adjustment Rotary',
 			size: 14,
@@ -203,7 +194,7 @@ export function UpdatePresets(self: GenelecSmartIPInstance): void {
 				rotaryActions: true,
 			},
 			style: {
-				bgcolor: Color.lightGray,
+				bgcolor: Color.genelecDarkGray,
 				color: Color.white,
 				text: `Volume\\n${value}`,
 				size: 14,
@@ -231,7 +222,7 @@ export function UpdatePresets(self: GenelecSmartIPInstance): void {
 						value: value,
 					},
 					style: {
-						bgcolor: Color.green,
+						bgcolor: Color.genelecGreen,
 					},
 				},
 			],
@@ -246,7 +237,7 @@ export function UpdatePresets(self: GenelecSmartIPInstance): void {
 			rotaryActions: true,
 		},
 		style: {
-			bgcolor: Color.lightGray,
+			bgcolor: Color.genelecDarkGray,
 			color: Color.white,
 			text: `Mute\\nToggle`,
 			size: 14,
@@ -265,7 +256,15 @@ export function UpdatePresets(self: GenelecSmartIPInstance): void {
 				up: [],
 			},
 		],
-		feedbacks: [],
+		feedbacks: [
+			{
+				feedbackId: 'mute',
+				options: {},
+				style: {
+					bgcolor: Color.red,
+				},
+			},
+		],
 	}
 	presets[`muteOn`] = {
 		type: 'button',
@@ -275,7 +274,7 @@ export function UpdatePresets(self: GenelecSmartIPInstance): void {
 			rotaryActions: true,
 		},
 		style: {
-			bgcolor: Color.lightGray,
+			bgcolor: Color.genelecDarkGray,
 			color: Color.white,
 			text: `MUTE`,
 			size: 14,
@@ -294,7 +293,15 @@ export function UpdatePresets(self: GenelecSmartIPInstance): void {
 				up: [],
 			},
 		],
-		feedbacks: [],
+		feedbacks: [
+			{
+				feedbackId: 'mute',
+				options: {},
+				style: {
+					bgcolor: Color.red,
+				},
+			},
+		],
 	}
 	presets[`muteOff`] = {
 		type: 'button',
@@ -304,7 +311,7 @@ export function UpdatePresets(self: GenelecSmartIPInstance): void {
 			rotaryActions: true,
 		},
 		style: {
-			bgcolor: Color.lightGray,
+			bgcolor: Color.genelecDarkGray,
 			color: Color.white,
 			text: `UNMUTE`,
 			size: 14,
@@ -323,7 +330,16 @@ export function UpdatePresets(self: GenelecSmartIPInstance): void {
 				up: [],
 			},
 		],
-		feedbacks: [],
+		feedbacks: [
+			{
+				feedbackId: 'mute',
+				isInverted: true,
+				options: {},
+				style: {
+					bgcolor: Color.genelecGreen,
+				},
+			},
+		],
 	}
 
 	presets[`systemInfoCPULoad`] = {
@@ -331,7 +347,7 @@ export function UpdatePresets(self: GenelecSmartIPInstance): void {
 		category: 'Diagnostics',
 		name: 'System Info',
 		style: {
-			bgcolor: Color.darkGray,
+			bgcolor: Color.genelecDarkGray,
 			color: Color.white,
 			text: 'CPU LOAD\\n$(genelec:cpu_load)%',
 			size: 14,
@@ -366,7 +382,7 @@ export function UpdatePresets(self: GenelecSmartIPInstance): void {
 				rotaryActions: true,
 			},
 			style: {
-				bgcolor: Color.lightGray,
+				bgcolor: Color.genelecDarkGray,
 				color: Color.white,
 				text: `${info.label}\n$(genelec:${info.id})${info.suffix ? ` ${info.suffix}` : ''}`,
 				size: 14,
@@ -461,7 +477,7 @@ export function UpdatePresets(self: GenelecSmartIPInstance): void {
 				rotaryActions: true,
 			},
 			style: {
-				bgcolor: Color.lightGray,
+				bgcolor: Color.genelecDarkGray,
 				color: Color.white,
 				text: `${input.label}`,
 				size: 14,
@@ -487,7 +503,7 @@ export function UpdatePresets(self: GenelecSmartIPInstance): void {
 						inputs: input.inputs,
 					},
 					style: {
-						bgcolor: Color.green,
+						bgcolor: Color.genelecGreen,
 					},
 				},
 			],
@@ -513,7 +529,7 @@ export function UpdatePresets(self: GenelecSmartIPInstance): void {
 				rotaryActions: true,
 			},
 			style: {
-				bgcolor: Color.lightGray,
+				bgcolor: Color.genelecDarkGray,
 				color: Color.white,
 				text: `${info.label}\\n$(genelec:${info.id})`,
 				size: 14,
@@ -546,7 +562,7 @@ export function UpdatePresets(self: GenelecSmartIPInstance): void {
 				rotaryActions: true,
 			},
 			style: {
-				bgcolor: Color.lightGray,
+				bgcolor: Color.genelecDarkGray,
 				color: Color.white,
 				text: `${info.label}\\n$(genelec:${info.id})`,
 				size: 14,
@@ -570,7 +586,7 @@ export function UpdatePresets(self: GenelecSmartIPInstance): void {
 			rotaryActions: true,
 		},
 		style: {
-			bgcolor: Color.lightGray,
+			bgcolor: Color.genelecDarkGray,
 			color: Color.white,
 			text: `Power\nToggle`,
 			size: 14,
@@ -596,7 +612,7 @@ export function UpdatePresets(self: GenelecSmartIPInstance): void {
 					mode: 'ACTIVE',
 				},
 				style: {
-					bgcolor: Color.green,
+					bgcolor: Color.genelecGreen,
 				},
 			},
 		],
@@ -610,7 +626,7 @@ export function UpdatePresets(self: GenelecSmartIPInstance): void {
 			rotaryActions: true,
 		},
 		style: {
-			bgcolor: Color.lightGray,
+			bgcolor: Color.genelecDarkGray,
 			color: Color.white,
 			text: `Power\nOn`,
 			size: 14,
@@ -636,7 +652,7 @@ export function UpdatePresets(self: GenelecSmartIPInstance): void {
 					mode: 'ACTIVE',
 				},
 				style: {
-					bgcolor: Color.green,
+					bgcolor: Color.genelecGreen,
 				},
 			},
 		],
@@ -650,7 +666,7 @@ export function UpdatePresets(self: GenelecSmartIPInstance): void {
 			rotaryActions: true,
 		},
 		style: {
-			bgcolor: Color.lightGray,
+			bgcolor: Color.genelecDarkGray,
 			color: Color.white,
 			text: `Standby Mode`,
 			size: 14,
@@ -691,7 +707,7 @@ export function UpdatePresets(self: GenelecSmartIPInstance): void {
 			rotaryActions: true,
 		},
 		style: {
-			bgcolor: Color.lightGray,
+			bgcolor: Color.genelecDarkGray,
 			color: Color.white,
 			text: `Zone ID\n$(genelec:zone_id)`,
 			size: 14,
@@ -714,7 +730,7 @@ export function UpdatePresets(self: GenelecSmartIPInstance): void {
 			rotaryActions: true,
 		},
 		style: {
-			bgcolor: Color.lightGray,
+			bgcolor: Color.genelecDarkGray,
 			color: Color.white,
 			text: `Zone Name\n$(genelec:zone_name)`,
 			size: 14,
@@ -737,7 +753,7 @@ export function UpdatePresets(self: GenelecSmartIPInstance): void {
 			rotaryActions: true,
 		},
 		style: {
-			bgcolor: Color.lightGray,
+			bgcolor: Color.genelecDarkGray,
 			color: Color.white,
 			text: `Blink LED`,
 			size: 14,
@@ -778,7 +794,7 @@ export function UpdatePresets(self: GenelecSmartIPInstance): void {
 			rotaryActions: true,
 		},
 		style: {
-			bgcolor: Color.lightGray,
+			bgcolor: Color.genelecDarkGray,
 			color: Color.white,
 			text: `Clip LED Toggle`,
 			size: 14,
@@ -808,7 +824,7 @@ export function UpdatePresets(self: GenelecSmartIPInstance): void {
 			rotaryActions: true,
 		},
 		style: {
-			bgcolor: Color.lightGray,
+			bgcolor: Color.genelecDarkGray,
 			color: Color.white,
 			text: `Clip LED On`,
 			size: 14,
@@ -832,7 +848,7 @@ export function UpdatePresets(self: GenelecSmartIPInstance): void {
 				feedbackId: 'clipLed',
 				options: {},
 				style: {
-					bgcolor: Color.green,
+					bgcolor: Color.genelecGreen,
 				},
 			},
 		],
@@ -846,7 +862,7 @@ export function UpdatePresets(self: GenelecSmartIPInstance): void {
 			rotaryActions: true,
 		},
 		style: {
-			bgcolor: Color.lightGray,
+			bgcolor: Color.genelecDarkGray,
 			color: Color.white,
 			text: `Clip LED Off`,
 			size: 14,
@@ -871,7 +887,7 @@ export function UpdatePresets(self: GenelecSmartIPInstance): void {
 				isInverted: true,
 				options: {},
 				style: {
-					bgcolor: Color.green,
+					bgcolor: Color.genelecGreen,
 				},
 			},
 		],
@@ -885,7 +901,7 @@ export function UpdatePresets(self: GenelecSmartIPInstance): void {
 			rotaryActions: true,
 		},
 		style: {
-			bgcolor: Color.lightGray,
+			bgcolor: Color.genelecDarkGray,
 			color: Color.white,
 			text: `RJ45 LED Toggle`,
 			size: 14,
@@ -915,7 +931,7 @@ export function UpdatePresets(self: GenelecSmartIPInstance): void {
 			rotaryActions: true,
 		},
 		style: {
-			bgcolor: Color.lightGray,
+			bgcolor: Color.genelecDarkGray,
 			color: Color.white,
 			text: `RJ45 LED On`,
 			size: 14,
@@ -939,7 +955,7 @@ export function UpdatePresets(self: GenelecSmartIPInstance): void {
 				feedbackId: 'rj45Led',
 				options: {},
 				style: {
-					bgcolor: Color.green,
+					bgcolor: Color.genelecGreen,
 				},
 			},
 		],
@@ -953,7 +969,7 @@ export function UpdatePresets(self: GenelecSmartIPInstance): void {
 			rotaryActions: true,
 		},
 		style: {
-			bgcolor: Color.lightGray,
+			bgcolor: Color.genelecDarkGray,
 			color: Color.white,
 			text: `RJ45 LED Off`,
 			size: 14,
@@ -978,7 +994,7 @@ export function UpdatePresets(self: GenelecSmartIPInstance): void {
 				isInverted: true,
 				options: {},
 				style: {
-					bgcolor: Color.green,
+					bgcolor: Color.genelecGreen,
 				},
 			},
 		],
@@ -992,7 +1008,7 @@ export function UpdatePresets(self: GenelecSmartIPInstance): void {
 			rotaryActions: true,
 		},
 		style: {
-			bgcolor: Color.lightGray,
+			bgcolor: Color.genelecDarkGray,
 			color: Color.white,
 			text: `Current Profile:\\n$(genelec:profile_selected)`,
 			size: 14,
@@ -1016,7 +1032,7 @@ export function UpdatePresets(self: GenelecSmartIPInstance): void {
 				rotaryActions: true,
 			},
 			style: {
-				bgcolor: Color.lightGray,
+				bgcolor: Color.genelecDarkGray,
 				color: Color.white,
 				text: `Profile\\n${value === 0 ? 'Default' : value}`,
 				size: 14,
@@ -1042,7 +1058,7 @@ export function UpdatePresets(self: GenelecSmartIPInstance): void {
 						profile: value,
 					},
 					style: {
-						bgcolor: Color.green,
+						bgcolor: Color.genelecGreen,
 					},
 				},
 			],
