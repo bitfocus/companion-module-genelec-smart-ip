@@ -132,6 +132,39 @@ export function UpdateActions(self: GenelecSmartIPInstance): void {
 		100,
 	)
 
+	createValueAction(
+		'sleepLedIntensity',
+		'Sleep LED Intensity',
+		() => self.speaker?.state.deviceISS?.ledIntensity,
+		async (value) => self.speaker?.setDeviceISS({ ledIntensity: value }),
+		50,
+		5,
+		0,
+		100,
+	)
+
+	createValueAction(
+		'sleepDelay',
+		'Sleep Delay',
+		() => self.speaker?.state.deviceISS?.sleepDelay,
+		async (value) => self.speaker?.setDeviceISS({ sleepDelay: value }),
+		0,
+		5,
+		0,
+		100,
+	)
+
+	createValueAction(
+		'sleepThreshold',
+		'Sleep Threshold',
+		() => self.speaker?.state.deviceISS?.threshold,
+		async (value) => self.speaker?.setDeviceISS({ threshold: value }),
+		-70,
+		5,
+		-130,
+		0,
+	)
+
 	createToggleAction(
 		'rj45Led',
 		'RJ45 LEDs',
@@ -173,7 +206,7 @@ export function UpdateActions(self: GenelecSmartIPInstance): void {
 				id: 'blink',
 			},
 		],
-		description: `Identify the device by blinking the LED yellow for 10 seconds`,
+		description: `Identify the device by blinking the LED`,
 		callback: async (action) => {
 			let data: LEDResponse = {
 				take: false,
@@ -190,30 +223,30 @@ export function UpdateActions(self: GenelecSmartIPInstance): void {
 		},
 	}
 
-	/* 	actions['zoneConfig'] = {
-			name: 'Set Zone Config',
-			options: [
-				{
-					type: 'textinput',
-					label: 'Zone Number',
-					default: '',
-					id: 'zoneNumber',
-					useVariables: true,
-				},
-				{
-					type: 'textinput',
-					label: 'Zone Name',
-					default: '',
-					id: 'zoneName',
-					useVariables: true,
-				},
-			],
-			description: `Set the zone config`,
-			callback: async (action) => {
-				const zoneNumber = action.options.zoneNumber as string
-				await self.speaker?.setZoneConfig({ zone: parseInt(zoneNumber), name: action.options.zoneName as string })
+	actions['zoneConfig'] = {
+		name: 'Set Zone Config',
+		options: [
+			{
+				type: 'textinput',
+				label: 'Zone Number',
+				default: '',
+				id: 'zoneNumber',
+				useVariables: true,
 			},
-		} */
+			{
+				type: 'textinput',
+				label: 'Zone Name',
+				default: '',
+				id: 'zoneName',
+				useVariables: true,
+			},
+		],
+		description: `Set the zone for the speaker. Warning: this will reboot the device`,
+		callback: async (action) => {
+			const zoneNumber = action.options.zoneNumber as string
+			await self.speaker?.setZoneConfig({ zone: parseInt(zoneNumber), name: action.options.zoneName as string })
+		},
+	}
 
 	actions['inputsActive'] = {
 		name: 'Set Inputs Active',

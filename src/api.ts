@@ -4,6 +4,8 @@ import {
 	AoIPIdentityResponse,
 	AoIPNetworkResponse,
 	AudioInputs,
+	AudioDelay,
+	AudioSensitivity,
 	AudioVolume,
 	DeviceInfoResponse,
 	DevicePowerResponse,
@@ -15,6 +17,7 @@ import {
 	ProfileListResponse,
 	ProfileItem,
 	SystemState,
+	DeviceISSResponse,
 } from './types.js'
 import { InstanceStatus } from '@companion-module/base'
 
@@ -59,9 +62,11 @@ export class GenelecSpeaker {
 		type: string,
 		endpoint: string,
 		content?: Record<string, unknown>,
+		apiPath?: boolean,
 	): Promise<T | void> {
 		const host = this.config.bonjourHost ?? this.config.customHost + ':9000'
-		const url = `http://${host}/public/v1/${endpoint}`
+		const publicEndpoint = apiPath !== undefined ? 'api/' : 'public/'
+		const url = `http://${host}/${publicEndpoint}v1/${endpoint}`
 		let response: Response
 		try {
 			response = await fetch(url, {
@@ -75,6 +80,7 @@ export class GenelecSpeaker {
 		} catch (error: any) {
 			const errorCode = error.cause?.code ?? 'Unknown error'
 			if (errorCode === 'EHOSTDOWN' || errorCode === 'ECONNREFUSED' || errorCode === 'ETIMEDOUT') {
+				console.log(url)
 				this.self.updateStatus(InstanceStatus.ConnectionFailure, `${errorCode}`)
 				if (this.self.lastStatus !== InstanceStatus.ConnectionFailure) {
 					this.self.log('warn', `Unable to connect to device ${errorCode}`)
@@ -139,7 +145,7 @@ export class GenelecSpeaker {
 	}
 
 	async bootDevice(): Promise<void> {
-		await this.sendRequest<void>('PUT', 'device/boot', { boot: true })
+		await this.sendRequest<void>('PUT', 'device/boot', { boot: true }, true)
 	}
 
 	async getLEDState(): Promise<LEDResponse | void> {
@@ -154,6 +160,25 @@ export class GenelecSpeaker {
 	async setLEDState(data: Partial<LEDResponse>): Promise<void> {
 		await this.sendRequest('PUT', 'device/led', data)
 		await this.getLEDState()
+	}
+
+	async getDeviceISS(): Promise<DeviceISSResponse | void> {
+		const data = await this.sendRequest<DeviceISSResponse>('GET', 'device/iss', undefined, true)
+		if (data) {
+			this.state.deviceISS = data
+		}
+		return data
+	}
+
+	async setDeviceISS(data: Partial<DeviceISSResponse>): Promise<void> {
+		const body = {
+			ledDisable: data.ledDisable ?? this.state.deviceISS?.ledDisable,
+			ledIntensity: data.ledIntensity ?? this.state.deviceISS?.ledIntensity,
+			sleepDelay: data.sleepDelay ?? this.state.deviceISS?.sleepDelay,
+			threshold: data.threshold ?? this.state.deviceISS?.threshold,
+		}
+		await this.sendRequest('PUT', 'device/iss', body, true)
+		await this.getDeviceISS()
 	}
 
 	async getNetworkConfig(): Promise<NetworkConfig | void> {
@@ -193,6 +218,22 @@ export class GenelecSpeaker {
 			this.state.audioVolume = data
 		}
 		this.self.checkFeedbacks('mute', 'volume')
+		return data
+	}
+
+	async getAudioDelay(): Promise<AudioDelay | void> {
+		const data = await this.sendRequest<AudioDelay>('GET', 'audio/delay', undefined, true)
+		if (data) {
+			this.state.audioDelay = data
+		}
+		return data
+	}
+
+	async getAudioSensitivity(): Promise<AudioSensitivity | void> {
+		const data = await this.sendRequest<AudioSensitivity>('GET', 'audio/sensitivity', undefined, true)
+		if (data) {
+			this.state.audioSensitivity = data
+		}
 		return data
 	}
 
@@ -242,7 +283,7 @@ export class GenelecSpeaker {
 	}
 
 	async setZoneConfig(data: Partial<NetworkZoneResponse>): Promise<void> {
-		await this.sendRequest('PUT', 'network/zone', data)
+		await this.sendRequest('PUT', 'network/zone', data, true)
 		await this.bootDevice()
 	}
 
@@ -273,6 +314,9 @@ export class GenelecSpeaker {
 			this.getAoipNetworkConfig(),
 			this.getZoneConfig(),
 			this.getProfileList(),
+			/* 		this.getAudioSensitivity(),
+					this.getAudioDelay(),
+					this.getDeviceISS(), */
 		])
 	}
 
@@ -289,6 +333,9 @@ export class GenelecSpeaker {
 			this.getAoipNetworkConfig(),
 			this.getZoneConfig(),
 			this.getProfileList(),
+			/* this.getAudioSensitivity(),
+			this.getAudioDelay(),
+			this.getDeviceISS(), */
 		])
 	}
 }

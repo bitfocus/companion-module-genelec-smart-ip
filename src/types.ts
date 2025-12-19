@@ -21,6 +21,16 @@ export interface AudioVolume {
 	mute?: boolean
 }
 
+export interface AudioSensitivity {
+	node?: number
+}
+
+export interface AudioDelay {
+	node?: number
+	syst?: number
+	axis?: number
+}
+
 export interface DeviceIDResponse {
 	barcode: string
 	mac: string
@@ -50,6 +60,13 @@ export interface DevicePowerResponse {
 	state?: 'STANDBY' | 'ACTIVE' | 'ISS_SLEEP' | 'PWR_FAIL'
 	poeAllocatedPwr: number
 	poePd15W: boolean
+}
+
+export interface DeviceISSResponse {
+	sleepDelay?: number
+	threshold?: number
+	ledIntensity?: number
+	ledDisable?: boolean
 }
 
 export interface EventsResponse {
@@ -120,4 +137,7 @@ export interface SystemState {
 	aoipNetwork?: AoIPNetworkResponse
 	zone?: NetworkZoneResponse
 	profiles?: ProfileListResponse
+	deviceISS?: DeviceISSResponse
+	audioDelay?: AudioDelay
+	audioSensitivity?: AudioSensitivity
 }
