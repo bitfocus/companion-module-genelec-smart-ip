@@ -144,6 +144,7 @@ export class GenelecSpeaker {
 		const data = await this.sendRequest<DeviceInfoResponse>('GET', 'device/info')
 		if (data) {
 			this.state.deviceInfo = data
+			this.self.updateVariableValues()
 		}
 		return data
 	}
@@ -153,9 +154,7 @@ export class GenelecSpeaker {
 		if (data) {
 			this.state.power = data
 		}
-		this.self.setVariableValues({
-			power: data?.state ?? '',
-		})
+		this.self.updateVariableValues()
 		this.self.checkFeedbacks('power')
 		return data
 	}
@@ -176,6 +175,7 @@ export class GenelecSpeaker {
 		if (data) {
 			this.state.led = data
 		}
+		this.self.updateVariableValues()
 		this.self.checkFeedbacks('blinkLed', 'clipLed', 'rj45Led')
 		return data
 	}
@@ -189,6 +189,7 @@ export class GenelecSpeaker {
 		const data = await this.sendRequest<DeviceISSResponse>('GET', 'device/iss', undefined, true)
 		if (data) {
 			this.state.deviceISS = data
+			this.self.updateVariableValues()
 		}
 		return data
 	}
@@ -208,6 +209,7 @@ export class GenelecSpeaker {
 		const data = await this.sendRequest<NetworkConfig>('GET', 'network/ipv4')
 		if (data) {
 			this.state.network = data
+			this.self.updateVariableValues()
 		}
 		return data
 	}
@@ -218,6 +220,7 @@ export class GenelecSpeaker {
 		if (data) {
 			this.state.events = data
 		}
+		this.self.updateVariableValues()
 		this.self.checkFeedbacks('bassLevel', 'tweeterLevel', 'inputLevel')
 		return data
 	}
@@ -227,6 +230,7 @@ export class GenelecSpeaker {
 		if (data) {
 			this.state.audioInputs = data
 		}
+		this.self.updateVariableValues()
 		this.self.checkFeedbacks('inputsActive')
 		return data
 	}
@@ -240,6 +244,7 @@ export class GenelecSpeaker {
 		if (data) {
 			this.state.audioVolume = data
 		}
+		this.self.updateVariableValues()
 		this.self.checkFeedbacks('mute', 'volume')
 		return data
 	}
@@ -248,6 +253,7 @@ export class GenelecSpeaker {
 		const data = await this.sendRequest<AudioDelay>('GET', 'audio/delay', undefined, true)
 		if (data) {
 			this.state.audioDelay = data
+			this.self.updateVariableValues()
 		}
 		return data
 	}
@@ -256,6 +262,7 @@ export class GenelecSpeaker {
 		const data = await this.sendRequest<AudioSensitivity>('GET', 'audio/sensitivity', undefined, true)
 		if (data) {
 			this.state.audioSensitivity = data
+			this.self.updateVariableValues()
 		}
 		return data
 	}
@@ -265,16 +272,11 @@ export class GenelecSpeaker {
 		//Don't wait to update variables, bypass queue would make them lag to user
 		if (this.state.audioVolume && data.level !== undefined) {
 			this.state.audioVolume.level = data.level
-			this.self.setVariableValues({
-				volume: Number(data.level.toFixed(1)),
-			})
 		}
 		if (this.state.audioVolume && data.mute !== undefined) {
 			this.state.audioVolume.mute = data.mute
-			this.self.setVariableValues({
-				mute: data.mute ? 'Muted' : 'Unmuted',
-			})
 		}
+		this.self.updateVariableValues()
 		await this.sendRequest('PUT', 'audio/volume', data)
 		this.self.checkFeedbacks('mute', 'volume')
 	}
@@ -286,6 +288,7 @@ export class GenelecSpeaker {
 				data.locked = false
 			}
 			this.state.aoipInfo = data
+			this.self.updateVariableValues()
 		}
 		return data
 	}
@@ -294,6 +297,7 @@ export class GenelecSpeaker {
 		const data = await this.sendRequest<AoIPNetworkResponse>('GET', 'aoip/ipv4')
 		if (data) {
 			this.state.aoipNetwork = data
+			this.self.updateVariableValues()
 		}
 		return data
 	}
@@ -302,6 +306,7 @@ export class GenelecSpeaker {
 		const data = await this.sendRequest<NetworkZoneResponse>('GET', 'network/zone')
 		if (data) {
 			this.state.zone = data
+			this.self.updateVariableValues()
 		}
 		return data
 	}
@@ -316,6 +321,7 @@ export class GenelecSpeaker {
 		if (data) {
 			this.state.profiles = data
 		}
+		this.self.updateVariableValues()
 		this.self.checkFeedbacks('profileSelected', 'profileStartup')
 		return data
 	}

@@ -89,6 +89,10 @@ export class GenelecSmartIPInstance extends InstanceBase<ModuleConfig, ModuleSec
 		UpdateVariableDefinitions(this)
 	}
 
+	updateVariableValues(): void {
+		UpdateVariableValues(this)
+	}
+
 	async performLogin(): Promise<void> {
 		if (!this.speaker) {
 			const password = this.secrets?.password
@@ -137,7 +141,7 @@ export class GenelecSmartIPInstance extends InstanceBase<ModuleConfig, ModuleSec
 		}
 		this.deviceStatesInterval = setInterval(() => {
 			void this.speaker?.getDeviceStates()
-			UpdateVariableValues(this)
+			this.updateVariableValues()
 		}, 10000)
 	}
 
@@ -148,7 +152,7 @@ export class GenelecSmartIPInstance extends InstanceBase<ModuleConfig, ModuleSec
 		}
 		this.eventInterval = setInterval(() => {
 			void this.speaker?.getEvents()
-			UpdateVariableValues(this)
+			this.updateVariableValues()
 		}, 1000)
 	}
 
