@@ -66,11 +66,7 @@ export class GenelecSmartIPInstance extends InstanceBase<ModuleConfig, ModuleSec
 		if (this.speaker) {
 			this.speaker = null
 		}
-		await this.performLogin()
-		this.updateActions()
-		this.updateFeedbacks()
-		this.updateVariableDefinitions()
-		this.updatePresets()
+		await this.init(config, false, secrets)
 	}
 
 	getConfigFields(): SomeCompanionConfigField[] {
