@@ -304,6 +304,9 @@ export function UpdatePresets(self: GenelecSmartIPInstance): void {
 		type: 'button',
 		category: 'Mute',
 		name: `Mute Toggle`,
+		previewStyle: {
+			text: 'MUTE TOGGLE',
+		},
 		options: {
 			rotaryActions: true,
 		},
@@ -746,6 +749,9 @@ export function UpdatePresets(self: GenelecSmartIPInstance): void {
 		type: 'button',
 		category: 'Power',
 		name: `Wake Speaker`,
+		previewStyle: {
+			text: 'STANDBY TOGGLE',
+		},
 		options: {
 			rotaryActions: true,
 		},
@@ -802,7 +808,7 @@ export function UpdatePresets(self: GenelecSmartIPInstance): void {
 		style: {
 			bgcolor: Color.genelecDarkGray,
 			color: Color.white,
-			text: `Wake`,
+			text: `WAKE`,
 			size: 14,
 			show_topbar: false,
 		},
@@ -842,7 +848,7 @@ export function UpdatePresets(self: GenelecSmartIPInstance): void {
 		style: {
 			bgcolor: Color.genelecDarkGray,
 			color: Color.white,
-			text: `Standby`,
+			text: `STANDBY`,
 			size: 14,
 			show_topbar: false,
 		},
