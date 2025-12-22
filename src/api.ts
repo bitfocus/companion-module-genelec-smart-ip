@@ -150,10 +150,16 @@ export class GenelecSpeaker {
 	}
 
 	async getPowerState(): Promise<DevicePowerResponse | void> {
+		const wasStandby = this.isStandby
 		const data = await this.sendRequest<DevicePowerResponse>('GET', 'device/pwr')
 		if (data) {
 			this.state.power = data
+			if (wasStandby && !this.isStandby) {
+				this.self.log('info', 'Device transitioned from standby to active, re-fetching initial info')
+				void this.fetchInitialInfo()
+			}
 		}
+
 		this.self.updateVariableValues()
 		this.self.checkFeedbacks('power')
 		return data
@@ -333,6 +339,7 @@ export class GenelecSpeaker {
 	}
 
 	async fetchInitialInfo(): Promise<void> {
+		console.log('Fetching initial info')
 		await Promise.allSettled([
 			this.getDeviceInfo(),
 			this.getPowerState(),
