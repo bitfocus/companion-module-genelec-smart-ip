@@ -20,8 +20,8 @@ export function UpdatePresets(self: GenelecSmartIPInstance): void {
 		},
 	): void {
 		const headerName = options?.headerName || namePrefix
-		const adjustmentValue = options?.adjustmentValue ?? '1'
-		const valueSize = options?.valueSize ?? 14
+		const adjustmentValue = options?.adjustmentValue?.toString() ?? '1'
+		const valueSize = options?.valueSize ?? '14'
 
 		// Header
 		presets[`${baseKey}Header`] = {
@@ -53,7 +53,7 @@ export function UpdatePresets(self: GenelecSmartIPInstance): void {
 								? options.actionOptions('increase')
 								: {
 										adjustment: 'increase',
-										...(adjustmentValue !== undefined && { value: adjustmentValue }),
+										...(adjustmentValue !== undefined && { value: adjustmentValue.toString() }),
 									},
 						},
 					],
@@ -106,7 +106,7 @@ export function UpdatePresets(self: GenelecSmartIPInstance): void {
 								? options.actionOptions('decrease')
 								: {
 										adjustment: 'decrease',
-										...(adjustmentValue !== undefined && { value: adjustmentValue }),
+										...(adjustmentValue !== undefined && { value: adjustmentValue.toString() }),
 									},
 						},
 					],
@@ -187,7 +187,7 @@ export function UpdatePresets(self: GenelecSmartIPInstance): void {
 						actionId: 'volume',
 						options: {
 							adjustment: 'decrease',
-							value: 1,
+							value: '1',
 						},
 					},
 				],
@@ -196,7 +196,7 @@ export function UpdatePresets(self: GenelecSmartIPInstance): void {
 						actionId: 'volume',
 						options: {
 							adjustment: 'increase',
-							value: 1,
+							value: '1',
 						},
 					},
 				],
@@ -234,7 +234,7 @@ export function UpdatePresets(self: GenelecSmartIPInstance): void {
 							actionId: 'volume',
 							options: {
 								adjustment: 'set',
-								value: value,
+								value: value.toString(),
 							},
 						},
 					],
@@ -246,7 +246,7 @@ export function UpdatePresets(self: GenelecSmartIPInstance): void {
 					feedbackId: 'volume',
 					options: {
 						comparison: 'equal',
-						value: value,
+						value: value.toString(),
 					},
 					style: {
 						bgcolor: Color.genelecGreen,
