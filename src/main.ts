@@ -95,7 +95,7 @@ export class GenelecSmartIPInstance extends InstanceBase<ModuleConfig, ModuleSec
 
 	async performLogin(): Promise<void> {
 		if (!this.speaker) {
-			const password = this.secrets?.password
+			const password = this.secrets?.password ?? this.config.password
 			this.speaker = new GenelecSpeaker(this.config, password, this)
 		}
 		const deviceInfo = await this.speaker.getDeviceInfo()

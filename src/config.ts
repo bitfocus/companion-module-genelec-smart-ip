@@ -30,11 +30,18 @@ export function GetConfigFields(): SomeCompanionConfigField[] {
 			default: 'admin',
 		},
 		{
-			type: 'secret-text',
+			type: 'textinput',
 			id: 'password',
 			label: 'Password',
 			width: 4,
 			default: 'admin',
 		},
+		/* {
+			type: 'secret-text',
+			id: 'password',
+			label: 'Password',
+			width: 4,
+			default: 'admin',
+		}, */
 	]
 }
