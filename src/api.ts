@@ -21,9 +21,9 @@ import {
 } from './types.js'
 import { InstanceStatus } from '@companion-module/base'
 
-export interface ModuleSecrets {
+/* export interface ModuleSecrets {
 	password: string
-}
+} */
 
 export class GenelecSpeaker {
 	private readonly config: ModuleConfig

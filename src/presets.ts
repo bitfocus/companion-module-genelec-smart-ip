@@ -295,7 +295,7 @@ export function UpdatePresets(self: GenelecSmartIPInstance): void {
 				isInverted: true,
 				options: {},
 				style: {
-					bgcolor: Color.genelecGreen,
+					bgcolor: Color.genelecDarkGray,
 				},
 			},
 		],
@@ -418,7 +418,7 @@ export function UpdatePresets(self: GenelecSmartIPInstance): void {
 				isInverted: true,
 				options: {},
 				style: {
-					bgcolor: Color.genelecGreen,
+					bgcolor: Color.genelecDarkGray,
 				},
 			},
 		],
