@@ -429,7 +429,7 @@ export function UpdatePresets(self: GenelecSmartIPInstance): void {
 		category: 'Levels',
 		name: 'Input',
 		style: {
-			bgcolor: Color.darkGray,
+			bgcolor: Color.genelecDarkGray,
 			color: Color.white,
 			text: 'INPUT\\n$(genelec:input_level)',
 			size: 13,
@@ -449,7 +449,7 @@ export function UpdatePresets(self: GenelecSmartIPInstance): void {
 		category: 'Levels',
 		name: 'Bass',
 		style: {
-			bgcolor: Color.darkGray,
+			bgcolor: Color.genelecDarkGray,
 			color: Color.white,
 			text: 'BASS\\n$(genelec:bass_level)',
 			size: 13,
@@ -469,7 +469,7 @@ export function UpdatePresets(self: GenelecSmartIPInstance): void {
 		category: 'Levels',
 		name: 'Tweeter',
 		style: {
-			bgcolor: Color.darkGray,
+			bgcolor: Color.genelecDarkGray,
 			color: Color.white,
 			text: 'TWEETER\\n$(genelec:tweeter_level)',
 			size: 13,
