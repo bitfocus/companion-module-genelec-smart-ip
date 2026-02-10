@@ -1,3 +1,25 @@
+export interface SpeakerEntry {
+	ip: string
+	name: string
+}
+
+export interface MulticastMessage {
+	mcast: {
+		ver: number
+		level?: number
+		mute?: boolean
+		profile?: number
+		state?: string
+	}
+}
+
+export interface MulticastState {
+	level?: number
+	mute?: boolean
+	profile?: number
+	power?: 'STANDBY' | 'BOOT'
+}
+
 export interface AoIPIdentityResponse {
 	id: string
 	name: string

@@ -4,6 +4,7 @@ import { LEDResponse } from './types.js'
 
 export function UpdateActions(self: GenelecSmartIPInstance): void {
 	const actions: CompanionActionDefinitions = {}
+	const isZoneMode = self.config.mode === 'zone'
 
 	const toggleChoices = [
 		{ id: 'toggle', label: 'Toggle' },
@@ -104,77 +105,292 @@ export function UpdateActions(self: GenelecSmartIPInstance): void {
 		}
 	}
 
-	createValueAction(
-		'volume',
-		'Volume',
-		() => self.speaker?.state.audioVolume?.level,
-		async (value) => self.speaker?.setVolume({ level: value }),
-		0,
-		5,
-		-200,
-		0,
-	)
+	if (!isZoneMode) {
+		createValueAction(
+			'volume',
+			'Volume',
+			() => self.speaker?.state.audioVolume?.level,
+			async (value) => self.speaker?.setVolume({ level: value }),
+			0,
+			5,
+			-200,
+			0,
+		)
 
-	createToggleAction(
-		'mute',
-		'Mute',
-		() => self.speaker?.state.audioVolume?.mute,
-		async (value) => self.speaker?.setVolume({ mute: value }),
-	)
+		createToggleAction(
+			'mute',
+			'Mute',
+			() => self.speaker?.state.audioVolume?.mute,
+			async (value) => self.speaker?.setVolume({ mute: value }),
+		)
 
-	createValueAction(
-		'ledIntensity',
-		'LED Intensity',
-		() => self.speaker?.state.led?.ledIntensity,
-		async (value) => self.speaker?.setLEDState({ ledIntensity: value }),
-		100,
-		5,
-		0,
-		100,
-	)
+		createValueAction(
+			'ledIntensity',
+			'LED Intensity',
+			() => self.speaker?.state.led?.ledIntensity,
+			async (value) => self.speaker?.setLEDState({ ledIntensity: value }),
+			100,
+			5,
+			0,
+			100,
+		)
 
-	createValueAction(
-		'sleepLedIntensity',
-		'Sleep LED Intensity',
-		() => self.speaker?.state.deviceISS?.ledIntensity,
-		async (value) => self.speaker?.setDeviceISS({ ledIntensity: value }),
-		50,
-		5,
-		0,
-		100,
-	)
+		createValueAction(
+			'sleepLedIntensity',
+			'Sleep LED Intensity',
+			() => self.speaker?.state.deviceISS?.ledIntensity,
+			async (value) => self.speaker?.setDeviceISS({ ledIntensity: value }),
+			50,
+			5,
+			0,
+			100,
+		)
 
-	createValueAction(
-		'sleepDelay',
-		'Sleep Delay',
-		() => self.speaker?.state.deviceISS?.sleepDelay,
-		async (value) => self.speaker?.setDeviceISS({ sleepDelay: value }),
-		0,
-		5,
-		0,
-		100,
-	)
+		createValueAction(
+			'sleepDelay',
+			'Sleep Delay',
+			() => self.speaker?.state.deviceISS?.sleepDelay,
+			async (value) => self.speaker?.setDeviceISS({ sleepDelay: value }),
+			0,
+			5,
+			0,
+			100,
+		)
 
-	createValueAction(
-		'sleepThreshold',
-		'Sleep Threshold',
-		() => self.speaker?.state.deviceISS?.threshold,
-		async (value) => self.speaker?.setDeviceISS({ threshold: value }),
-		-70,
-		5,
-		-130,
-		0,
-	)
+		createValueAction(
+			'sleepThreshold',
+			'Sleep Threshold',
+			() => self.speaker?.state.deviceISS?.threshold,
+			async (value) => self.speaker?.setDeviceISS({ threshold: value }),
+			-70,
+			5,
+			-130,
+			0,
+		)
 
-	createToggleAction(
-		'rj45Led',
-		'RJ45 LEDs',
-		() => self.speaker?.state.led?.rj45Leds,
-		async (value) => self.speaker?.setLEDState({ rj45Leds: value }),
-	)
+		createToggleAction(
+			'rj45Led',
+			'RJ45 LEDs',
+			() => self.speaker?.state.led?.rj45Leds,
+			async (value) => self.speaker?.setLEDState({ rj45Leds: value }),
+		)
 
-	actions['clipLed'] = {
-		name: 'Clip LED',
+		actions['clipLed'] = {
+			name: 'Clip LED',
+			options: [
+				{
+					type: 'dropdown',
+					label: 'Mode',
+					choices: toggleChoices,
+					default: 'toggle',
+					id: 'mode',
+				},
+			],
+			description: `Set the hide state of the clip LED`,
+			callback: async (action) => {
+				const currentValue = self.speaker?.state.led?.hideClip ?? false
+				let newValue: boolean
+				if (action.options.mode === 'toggle') {
+					newValue = !currentValue
+				} else {
+					newValue = action.options.mode === 'true' ? false : true
+				}
+				await self.speaker?.setLEDState({ hideClip: newValue })
+			},
+		}
+
+		actions['blinkLed'] = {
+			name: 'Identify / Blink LED',
+			options: [
+				{
+					type: 'checkbox',
+					label: 'Enable',
+					default: true,
+					id: 'blink',
+				},
+			],
+			description: `Identify the device by blinking the LED`,
+			callback: async (action) => {
+				let data: LEDResponse = {
+					take: false,
+					flash: false,
+				}
+				if (action.options.blink) {
+					data = {
+						take: true,
+						flash: true,
+						color: 'YELLOW',
+					}
+				}
+				await self.speaker?.setLEDState(data)
+			},
+		}
+
+		actions['zoneConfig'] = {
+			name: 'Set Zone Config',
+			options: [
+				{
+					type: 'textinput',
+					label: 'Zone Number',
+					default: '',
+					id: 'zoneNumber',
+					useVariables: true,
+				},
+				{
+					type: 'textinput',
+					label: 'Zone Name',
+					default: '',
+					id: 'zoneName',
+					useVariables: true,
+				},
+			],
+			description: `Set the zone for the speaker. Warning: this will reboot the device`,
+			callback: async (action) => {
+				const zoneNumber = action.options.zoneNumber as string
+				await self.speaker?.setZoneConfig({ zone: parseInt(zoneNumber), name: action.options.zoneName as string })
+			},
+		}
+
+		actions['inputsActive'] = {
+			name: 'Set Inputs Active',
+			options: [
+				{
+					type: 'multidropdown',
+					id: 'inputs',
+					label: 'Inputs',
+					default: ['AoIP01', 'AoIP02'],
+					choices: [
+						{ id: 'A', label: 'Analog' },
+						{ id: 'AoIP01', label: 'AoIP 01' },
+						{ id: 'AoIP02', label: 'AoIP 02' },
+					],
+				},
+			],
+			description: `Set the inputs active state`,
+			callback: async (action) => {
+				const inputs: string[] = []
+				const actionInputs: string[] = action.options.inputs as string[]
+				if (actionInputs.length > 0) {
+					actionInputs.forEach((input) => {
+						inputs.push(input)
+					})
+				}
+				await self.speaker?.setInputs({ input: inputs })
+			},
+		}
+
+		actions['power'] = {
+			name: 'Set Power State',
+			options: [
+				{
+					type: 'dropdown',
+					label: 'Mode',
+					choices: [
+						{ id: 'toggle', label: 'Toggle' },
+						{ id: 'ACTIVE', label: 'Active' },
+						{ id: 'STANDBY', label: 'Standby' },
+					],
+					default: 'toggle',
+					id: 'mode',
+				},
+			],
+			description: `Set the power state of the speaker`,
+			callback: async (action) => {
+				if (action.options.mode === 'toggle') {
+					await self.speaker?.setPowerState({
+						state: self.speaker?.state.power?.state === 'STANDBY' ? 'ACTIVE' : 'STANDBY',
+					})
+				} else {
+					await self.speaker?.setPowerState({ state: action.options.mode as 'STANDBY' | 'ACTIVE' })
+				}
+			},
+		}
+
+		actions['profileSelect'] = {
+			name: 'Select Profile',
+			options: [
+				{
+					type: 'dropdown',
+					label: 'Profile',
+					choices: [
+						{ id: 0, label: 'Default Profile' },
+						{ id: 1, label: 'Profile 1' },
+						{ id: 2, label: 'Profile 2' },
+						{ id: 3, label: 'Profile 3' },
+						{ id: 4, label: 'Profile 4' },
+						{ id: 5, label: 'Profile 5' },
+					],
+					default: 0,
+					id: 'profile',
+				},
+				{
+					type: 'checkbox',
+					label: 'Use on Startup',
+					default: false,
+					id: 'startup',
+				},
+			],
+			description: `Set the current profile for the speaker`,
+			callback: async (action) => {
+				await self.speaker?.setProfile({
+					id: action.options.profile as number,
+					startup: action.options.startup as boolean,
+				})
+			},
+		}
+	} // end if (!isZoneMode)
+
+	// Zone Multicast Actions
+	actions['zoneVolume'] = {
+		name: 'Zone Volume',
+		options: [
+			{
+				type: 'dropdown',
+				label: 'Adjustment',
+				choices: setChoices,
+				default: 'set',
+				id: 'adjustment',
+			},
+			{
+				type: 'textinput',
+				label: 'Value',
+				default: '5',
+				id: 'value',
+				useVariables: true,
+			},
+		],
+		description: `Set or adjust the volume for all speakers in the zone via multicast`,
+		callback: async (action) => {
+			if (!self.multicast) {
+				self.log('warn', 'Multicast not configured')
+				return
+			}
+			const currentValue = self.multicastState.level ?? self.speaker?.state.audioVolume?.level ?? -30
+			let newValue: number
+			const value = parseFloat(action.options.value as string)
+
+			if (isNaN(value)) return
+
+			if (action.options.adjustment === 'increase') {
+				newValue = currentValue + value
+			} else if (action.options.adjustment === 'decrease') {
+				newValue = currentValue - value
+			} else if (action.options.adjustment === 'set') {
+				newValue = value
+			} else {
+				return
+			}
+
+			newValue = Math.max(-130, Math.min(0, newValue))
+			self.multicastState.level = newValue
+			self.multicast.sendVolume(newValue)
+			self.checkFeedbacks('zoneVolume')
+			self.updateVariableValues()
+		},
+	}
+
+	actions['zoneMute'] = {
+		name: 'Zone Mute',
 		options: [
 			{
 				type: 'dropdown',
@@ -184,128 +400,28 @@ export function UpdateActions(self: GenelecSmartIPInstance): void {
 				id: 'mode',
 			},
 		],
-		description: `Set the hide state of the clip LED`,
+		description: `Set the mute state for all speakers in the zone via multicast`,
 		callback: async (action) => {
-			const currentValue = self.speaker?.state.led?.hideClip ?? false
+			if (!self.multicast) {
+				self.log('warn', 'Multicast not configured')
+				return
+			}
+			const currentValue = self.multicastState.mute ?? self.speaker?.state.audioVolume?.mute ?? false
 			let newValue: boolean
 			if (action.options.mode === 'toggle') {
 				newValue = !currentValue
 			} else {
-				newValue = action.options.mode === 'true' ? false : true
+				newValue = action.options.mode === 'true' ? true : false
 			}
-			await self.speaker?.setLEDState({ hideClip: newValue })
+			self.multicastState.mute = newValue
+			self.multicast.sendMute(newValue)
+			self.updateVariableValues()
+			self.checkFeedbacks('zoneMute')
 		},
 	}
 
-	actions['blinkLed'] = {
-		name: 'Identify / Blink LED',
-		options: [
-			{
-				type: 'checkbox',
-				label: 'Enable',
-				default: true,
-				id: 'blink',
-			},
-		],
-		description: `Identify the device by blinking the LED`,
-		callback: async (action) => {
-			let data: LEDResponse = {
-				take: false,
-				flash: false,
-			}
-			if (action.options.blink) {
-				data = {
-					take: true,
-					flash: true,
-					color: 'YELLOW',
-				}
-			}
-			await self.speaker?.setLEDState(data)
-		},
-	}
-
-	actions['zoneConfig'] = {
-		name: 'Set Zone Config',
-		options: [
-			{
-				type: 'textinput',
-				label: 'Zone Number',
-				default: '',
-				id: 'zoneNumber',
-				useVariables: true,
-			},
-			{
-				type: 'textinput',
-				label: 'Zone Name',
-				default: '',
-				id: 'zoneName',
-				useVariables: true,
-			},
-		],
-		description: `Set the zone for the speaker. Warning: this will reboot the device`,
-		callback: async (action) => {
-			const zoneNumber = action.options.zoneNumber as string
-			await self.speaker?.setZoneConfig({ zone: parseInt(zoneNumber), name: action.options.zoneName as string })
-		},
-	}
-
-	actions['inputsActive'] = {
-		name: 'Set Inputs Active',
-		options: [
-			{
-				type: 'multidropdown',
-				id: 'inputs',
-				label: 'Inputs',
-				default: ['AoIP01', 'AoIP02'],
-				choices: [
-					{ id: 'A', label: 'Analog' },
-					{ id: 'AoIP01', label: 'AoIP 01' },
-					{ id: 'AoIP02', label: 'AoIP 02' },
-				],
-			},
-		],
-		description: `Set the inputs active state`,
-		callback: async (action) => {
-			const inputs: string[] = []
-			const actionInputs: string[] = action.options.inputs as string[]
-			if (actionInputs.length > 0) {
-				actionInputs.forEach((input) => {
-					inputs.push(input)
-				})
-			}
-			await self.speaker?.setInputs({ input: inputs })
-		},
-	}
-
-	actions['power'] = {
-		name: 'Set Power State',
-		options: [
-			{
-				type: 'dropdown',
-				label: 'Mode',
-				choices: [
-					{ id: 'toggle', label: 'Toggle' },
-					{ id: 'ACTIVE', label: 'Active' },
-					{ id: 'STANDBY', label: 'Standby' },
-				],
-				default: 'toggle',
-				id: 'mode',
-			},
-		],
-		description: `Set the power state of the speaker`,
-		callback: async (action) => {
-			if (action.options.mode === 'toggle') {
-				await self.speaker?.setPowerState({
-					state: self.speaker?.state.power?.state === 'STANDBY' ? 'ACTIVE' : 'STANDBY',
-				})
-			} else {
-				await self.speaker?.setPowerState({ state: action.options.mode as 'STANDBY' | 'ACTIVE' })
-			}
-		},
-	}
-
-	actions['profileSelect'] = {
-		name: 'Select Profile',
+	actions['zoneProfile'] = {
+		name: 'Zone Profile Select',
 		options: [
 			{
 				type: 'dropdown',
@@ -321,19 +437,46 @@ export function UpdateActions(self: GenelecSmartIPInstance): void {
 				default: 0,
 				id: 'profile',
 			},
+		],
+		description: `Set the profile for all speakers in the zone via multicast`,
+		callback: async (action) => {
+			if (!self.multicast) {
+				self.log('warn', 'Multicast not configured')
+				return
+			}
+			const profile = action.options.profile as number
+			self.multicastState.profile = profile
+			self.multicast.sendProfile(profile)
+			self.updateVariableValues()
+			self.checkFeedbacks('zoneProfile')
+		},
+	}
+
+	actions['zonePower'] = {
+		name: 'Zone Power',
+		options: [
 			{
-				type: 'checkbox',
-				label: 'Use on Startup',
-				default: false,
-				id: 'startup',
+				type: 'dropdown',
+				label: 'Mode',
+				choices: [
+					{ id: 'BOOT', label: 'Wake' },
+					{ id: 'STANDBY', label: 'Standby' },
+				],
+				default: 'BOOT',
+				id: 'mode',
 			},
 		],
-		description: `Set the current profile for the speaker`,
+		description: `Set the power state for all speakers in the zone via multicast`,
 		callback: async (action) => {
-			await self.speaker?.setProfile({
-				id: action.options.profile as number,
-				startup: action.options.startup as boolean,
-			})
+			if (!self.multicast) {
+				self.log('warn', 'Multicast not configured')
+				return
+			}
+			const state = action.options.mode as 'BOOT' | 'STANDBY'
+			self.multicastState.power = state
+			self.multicast.sendPower(state)
+			self.updateVariableValues()
+			self.checkFeedbacks('zonePower')
 		},
 	}
 

@@ -8,7 +8,8 @@ import { UpdateVariableDefinitions, UpdateVariableValues } from './variables.js'
 import { UpgradeScripts } from './upgrades.js'
 
 import { GenelecSpeaker } from './api.js'
-import { SystemState } from './types.js'
+import { GenelecMulticast } from './multicast.js'
+import { MulticastState, SystemState } from './types.js'
 
 export interface ModuleSecrets {
 	password: string
@@ -17,6 +18,9 @@ export class GenelecSmartIPInstance extends InstanceBase<ModuleConfig, ModuleSec
 	config!: ModuleConfig
 	secrets!: ModuleSecrets
 	speaker!: GenelecSpeaker | null
+	speakers: Map<string, GenelecSpeaker> = new Map()
+	multicast: GenelecMulticast | null = null
+	multicastState: MulticastState = {}
 	deviceStatesInterval: NodeJS.Timeout | null = null
 	eventInterval: NodeJS.Timeout | null = null
 	reconnectInterval: NodeJS.Timeout | null = null
@@ -31,13 +35,32 @@ export class GenelecSmartIPInstance extends InstanceBase<ModuleConfig, ModuleSec
 		this.config = config
 		this.secrets = secrets
 		this.updateStatus(InstanceStatus.Connecting)
-		if (!this.config.bonjourHost && !this.config.customHost) {
-			this.updateStatus(InstanceStatus.BadConfig)
-			return
+
+		if (this.config.mode === 'zone') {
+			// Zone mode: multicast only, no unicast speaker
+			if (!this.config.multicastIp || !this.config.multicastPort) {
+				this.updateStatus(InstanceStatus.BadConfig, 'Multicast IP and Port required for zone mode')
+				return
+			}
+			this.initMulticast()
+			this.multicastState = {
+				level: -130,
+				mute: false,
+				profile: 0,
+				power: 'BOOT',
+			}
+			this.updateStatus(InstanceStatus.Ok)
+		} else {
+			// Individual mode: unicast speaker + optional multicast
+			if (!this.config.bonjourHost && !this.config.customHost) {
+				this.updateStatus(InstanceStatus.BadConfig)
+				return
+			}
+			setImmediate(() => {
+				void this.performLogin()
+			})
 		}
-		setImmediate(() => {
-			void this.performLogin()
-		})
+
 		this.updateActions()
 		this.updateFeedbacks()
 		this.updateVariableDefinitions()
@@ -48,6 +71,11 @@ export class GenelecSmartIPInstance extends InstanceBase<ModuleConfig, ModuleSec
 		this.log('debug', 'destroy')
 		if (this.speaker) {
 			this.speaker = null
+		}
+		this.speakers.clear()
+		if (this.multicast) {
+			this.multicast.destroy()
+			this.multicast = null
 		}
 		if (this.deviceStatesInterval) {
 			clearInterval(this.deviceStatesInterval)
@@ -65,6 +93,11 @@ export class GenelecSmartIPInstance extends InstanceBase<ModuleConfig, ModuleSec
 		this.secrets = secrets
 		if (this.speaker) {
 			this.speaker = null
+		}
+		this.speakers.clear()
+		if (this.multicast) {
+			this.multicast.destroy()
+			this.multicast = null
 		}
 		await this.init(config, false, secrets)
 	}
@@ -93,6 +126,40 @@ export class GenelecSmartIPInstance extends InstanceBase<ModuleConfig, ModuleSec
 		UpdateVariableValues(this)
 	}
 
+	syncMulticastStateFromSpeaker(): void {
+		if (!this.speaker) {
+			this.multicastState = { level: -130, mute: false, profile: 0, power: 'BOOT' }
+			return
+		}
+
+		const state = this.speaker.state
+		this.multicastState = {
+			level: state.audioVolume?.level ?? -130,
+			mute: state.audioVolume?.mute ?? false,
+			profile: state.profiles?.selected ?? 0,
+			power: state.power?.state === 'STANDBY' ? 'STANDBY' : 'BOOT',
+		}
+		this.log('debug', `Synced multicast state from speaker: ${JSON.stringify(this.multicastState)}`)
+		this.updateVariableValues()
+		this.checkFeedbacks('zoneMute', 'zoneProfile', 'zonePower')
+	}
+
+	initMulticast(): void {
+		if (this.multicast) {
+			this.multicast.destroy()
+		}
+
+		const multicastIp = this.config.multicastIp
+		const multicastPort = this.config.multicastPort
+
+		if (multicastIp && multicastPort) {
+			this.multicast = new GenelecMulticast(multicastIp, multicastPort, this)
+			this.log('debug', `Multicast initialized: ${multicastIp}:${multicastPort}`)
+		} else {
+			this.log('debug', 'Multicast not configured, skipping multicast init')
+		}
+	}
+
 	async performLogin(): Promise<void> {
 		if (!this.speaker) {
 			const password = this.secrets?.password ?? this.config.password
@@ -107,6 +174,21 @@ export class GenelecSmartIPInstance extends InstanceBase<ModuleConfig, ModuleSec
 			this.updateStatus(InstanceStatus.Ok)
 			await this.speaker?.fetchInitialInfo()
 
+			// Auto-populate multicast settings from speaker's network config if not set
+			if (
+				!this.config.multicastIp &&
+				this.speaker.state.network?.volIp &&
+				this.speaker.state.network.volIp !== '0.0.0.0'
+			) {
+				this.log('info', `Auto-detected multicast IP from speaker: ${this.speaker.state.network.volIp}`)
+				this.config.multicastIp = this.speaker.state.network.volIp
+				if (this.speaker.state.network.volPort) {
+					this.config.multicastPort = parseInt(this.speaker.state.network.volPort)
+				}
+			}
+
+			this.initMulticast()
+			this.syncMulticastStateFromSpeaker()
 			this.pollDeviceStates()
 			this.pollEvents()
 		} else {
