@@ -6,7 +6,6 @@ export interface ModuleConfig {
 	customHost: string
 	user: string
 	password: string
-	followMulticast: boolean
 	speakers: SpeakerConfig[]
 	multicastIp: string
 	multicastPort: number
@@ -74,22 +73,13 @@ export function GetConfigFields(): SomeCompanionConfigField[] {
 			default: 'admin',
 		}, */
 		{
-			type: 'checkbox',
-			id: 'followMulticast',
-			label: 'Follow Multicast Settings',
-			width: 4,
-			isVisibleExpression: '$(options:mode) != "zone"',
-			default: true,
-			tooltip: 'If enabled, the connection will follow the multicast settings of the primary speaker.',
-		},
-		{
 			type: 'textinput',
 			id: 'multicastIp',
 			label: 'Custom Multicast IP',
 			width: 6,
 			default: '',
 			regex: '/^$|^((22[4-9]|23[0-9])\\.(\\d{1,3}\\.){2}\\d{1,3})$/',
-			isVisibleExpression: '!$(options:followMulticast) || $(options:mode) == "zone"',
+			isVisibleExpression: '$(options:mode) == "zone"',
 		},
 		{
 			type: 'number',
@@ -99,7 +89,7 @@ export function GetConfigFields(): SomeCompanionConfigField[] {
 			default: 49152,
 			min: 1024,
 			max: 65535,
-			isVisibleExpression: '!$(options:followMulticast) || $(options:mode) == "zone"',
+			isVisibleExpression: '$(options:mode) == "zone"',
 		},
 	]
 }

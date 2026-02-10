@@ -176,7 +176,7 @@ export class GenelecSmartIPInstance extends InstanceBase<ModuleConfig, ModuleSec
 
 			// Auto-populate multicast settings from speaker's network config if not set
 			if (
-				!this.config.multicastIp &&
+				this.config.mode !== 'zone' &&
 				this.speaker.state.network?.volIp &&
 				this.speaker.state.network.volIp !== '0.0.0.0'
 			) {
@@ -224,7 +224,7 @@ export class GenelecSmartIPInstance extends InstanceBase<ModuleConfig, ModuleSec
 		this.deviceStatesInterval = setInterval(() => {
 			void this.speaker?.getDeviceStates()
 			this.updateVariableValues()
-		}, 10000)
+		}, 5000)
 	}
 
 	pollEvents(): void {

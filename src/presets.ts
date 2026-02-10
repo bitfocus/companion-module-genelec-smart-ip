@@ -1358,7 +1358,7 @@ export function UpdatePresets(self: GenelecSmartIPInstance): void {
 		'zone_volume',
 		'Zone Vol',
 		{
-			adjustmentValue: 5,
+			adjustmentValue: 1,
 			valueSize: 14,
 			headerName: 'Multicast Zone - Volume',
 		},
