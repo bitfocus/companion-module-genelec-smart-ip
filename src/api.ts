@@ -103,7 +103,7 @@ export class GenelecSpeaker {
 		} catch (error: any) {
 			const errorCode = error.cause?.code ?? 'Unknown error'
 			if (errorCode === 'EHOSTDOWN' || errorCode === 'ECONNREFUSED' || errorCode === 'ETIMEDOUT') {
-				console.log(url)
+				this.self.log('debug', url)
 				this.self.updateStatus(InstanceStatus.ConnectionFailure, `${errorCode}`)
 				if (this.self.lastStatus !== InstanceStatus.ConnectionFailure) {
 					this.self.log('warn', `Unable to connect to device ${errorCode}`)
@@ -339,7 +339,7 @@ export class GenelecSpeaker {
 	}
 
 	async fetchInitialInfo(): Promise<void> {
-		console.log('Fetching initial info')
+		this.self.log('debug', 'Fetching initial info')
 		await Promise.allSettled([
 			this.getDeviceInfo(),
 			this.getPowerState(),

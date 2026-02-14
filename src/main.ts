@@ -194,8 +194,8 @@ export class GenelecSmartIPInstance extends InstanceBase<ModuleConfig, ModuleSec
 
 	reconnectPoll(): void {
 		if (this.reconnectInterval) return
+		this.log('info', 'Starting reconnection poll...')
 		this.reconnectInterval = setInterval(() => {
-			console.log('Reconnecting...')
 			void this.performLogin()
 		}, 10000)
 	}

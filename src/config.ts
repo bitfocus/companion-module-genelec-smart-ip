@@ -78,7 +78,7 @@ export function GetConfigFields(): SomeCompanionConfigField[] {
 			label: 'Custom Multicast IP',
 			width: 6,
 			default: '',
-			regex: '/^$|^((22[4-9]|23[0-9])\\.(\\d{1,3}\\.){2}\\d{1,3})$/',
+			regex: '^$|^((22[4-9]|23[0-9])\\.(\\d{1,3}\\.){2}\\d{1,3})$',
 			isVisibleExpression: '$(options:mode) == "multicast"',
 		},
 		{
