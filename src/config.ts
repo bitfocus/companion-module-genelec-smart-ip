@@ -1,7 +1,7 @@
 import { type SomeCompanionConfigField } from '@companion-module/base'
 
 export interface ModuleConfig {
-	mode: 'individual' | 'zone'
+	mode: 'individual' | 'multicast'
 	bonjourHost: string
 	customHost: string
 	user: string
@@ -29,8 +29,8 @@ export function GetConfigFields(): SomeCompanionConfigField[] {
 					label: 'Individual Speaker',
 				},
 				{
-					id: 'zone',
-					label: 'Custom Multicast Zone',
+					id: 'multicast',
+					label: 'Custom Multicast Address',
 				},
 			],
 			default: 'individual',
@@ -40,14 +40,14 @@ export function GetConfigFields(): SomeCompanionConfigField[] {
 			id: 'bonjourHost',
 			label: 'Smart IP Speaker',
 			width: 8,
-			isVisibleExpression: '$(options:mode) != "zone"',
+			isVisibleExpression: '$(options:mode) != "multicast"',
 		},
 		{
 			type: 'textinput',
 			id: 'customHost',
 			label: 'Custom IP Address (Single Speaker)',
 			width: 8,
-			isVisibleExpression: '!$(options:bonjourHost) && $(options:mode) != "zone"',
+			isVisibleExpression: '!$(options:bonjourHost) && $(options:mode) != "multicast"',
 		},
 		{
 			type: 'textinput',
@@ -55,7 +55,7 @@ export function GetConfigFields(): SomeCompanionConfigField[] {
 			label: 'Username',
 			width: 4,
 			default: 'admin',
-			isVisibleExpression: '$(options:mode) != "zone"',
+			isVisibleExpression: '$(options:mode) != "multicast"',
 		},
 		{
 			type: 'textinput',
@@ -63,7 +63,7 @@ export function GetConfigFields(): SomeCompanionConfigField[] {
 			label: 'Password',
 			width: 4,
 			default: 'admin',
-			isVisibleExpression: '$(options:mode) != "zone"',
+			isVisibleExpression: '$(options:mode) != "multicast"',
 		},
 		/* {
 			type: 'secret-text',
@@ -79,7 +79,7 @@ export function GetConfigFields(): SomeCompanionConfigField[] {
 			width: 6,
 			default: '',
 			regex: '/^$|^((22[4-9]|23[0-9])\\.(\\d{1,3}\\.){2}\\d{1,3})$/',
-			isVisibleExpression: '$(options:mode) == "zone"',
+			isVisibleExpression: '$(options:mode) == "multicast"',
 		},
 		{
 			type: 'number',
@@ -89,7 +89,7 @@ export function GetConfigFields(): SomeCompanionConfigField[] {
 			default: 49152,
 			min: 1024,
 			max: 65535,
-			isVisibleExpression: '$(options:mode) == "zone"',
+			isVisibleExpression: '$(options:mode) == "multicast"',
 		},
 	]
 }

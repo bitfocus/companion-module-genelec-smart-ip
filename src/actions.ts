@@ -4,7 +4,7 @@ import { LEDResponse } from './types.js'
 
 export function UpdateActions(self: GenelecSmartIPInstance): void {
 	const actions: CompanionActionDefinitions = {}
-	const isZoneMode = self.config.mode === 'zone'
+	const isMulticastMode = self.config.mode === 'multicast'
 
 	const toggleChoices = [
 		{ id: 'toggle', label: 'Toggle' },
@@ -105,7 +105,7 @@ export function UpdateActions(self: GenelecSmartIPInstance): void {
 		}
 	}
 
-	if (!isZoneMode) {
+	if (!isMulticastMode) {
 		createValueAction(
 			'volume',
 			'Volume',
@@ -338,147 +338,148 @@ export function UpdateActions(self: GenelecSmartIPInstance): void {
 				})
 			},
 		}
-	} // end if (!isZoneMode)
-
-	// Zone Multicast Actions
-	actions['zoneVolume'] = {
-		name: 'Zone Volume',
-		options: [
-			{
-				type: 'dropdown',
-				label: 'Adjustment',
-				choices: setChoices,
-				default: 'set',
-				id: 'adjustment',
-			},
-			{
-				type: 'textinput',
-				label: 'Value',
-				default: '5',
-				id: 'value',
-				useVariables: true,
-			},
-		],
-		description: `Set or adjust the volume for all speakers in the zone via multicast`,
-		callback: async (action) => {
-			if (!self.multicast) {
-				self.log('warn', 'Multicast not configured')
-				return
-			}
-			const currentValue = self.multicastState.level ?? self.speaker?.state.audioVolume?.level ?? -30
-			let newValue: number
-			const value = parseFloat(action.options.value as string)
-
-			if (isNaN(value)) return
-
-			if (action.options.adjustment === 'increase') {
-				newValue = currentValue + value
-			} else if (action.options.adjustment === 'decrease') {
-				newValue = currentValue - value
-			} else if (action.options.adjustment === 'set') {
-				newValue = value
-			} else {
-				return
-			}
-
-			newValue = Math.max(-130, Math.min(0, newValue))
-			self.multicastState.level = newValue
-			self.multicast.sendVolume(newValue)
-			self.checkFeedbacks('zoneVolume')
-			self.updateVariableValues()
-		},
 	}
 
-	actions['zoneMute'] = {
-		name: 'Zone Mute',
-		options: [
-			{
-				type: 'dropdown',
-				label: 'Mode',
-				choices: toggleChoices,
-				default: 'toggle',
-				id: 'mode',
-			},
-		],
-		description: `Set the mute state for all speakers in the zone via multicast`,
-		callback: async (action) => {
-			if (!self.multicast) {
-				self.log('warn', 'Multicast not configured')
-				return
-			}
-			const currentValue = self.multicastState.mute ?? self.speaker?.state.audioVolume?.mute ?? false
-			let newValue: boolean
-			if (action.options.mode === 'toggle') {
-				newValue = !currentValue
-			} else {
-				newValue = action.options.mode === 'true' ? true : false
-			}
-			self.multicastState.mute = newValue
-			self.multicast.sendMute(newValue)
-			self.updateVariableValues()
-			self.checkFeedbacks('zoneMute')
-		},
-	}
+	if (isMulticastMode) {
+		// Zone Multicast Actions
+		actions['zoneVolume'] = {
+			name: 'Zone Volume',
+			options: [
+				{
+					type: 'dropdown',
+					label: 'Adjustment',
+					choices: setChoices,
+					default: 'set',
+					id: 'adjustment',
+				},
+				{
+					type: 'textinput',
+					label: 'Value',
+					default: '5',
+					id: 'value',
+					useVariables: true,
+				},
+			],
+			description: `Set or adjust the volume for all speakers in the zone via multicast`,
+			callback: async (action) => {
+				if (!self.multicast) {
+					self.log('warn', 'Multicast not configured')
+					return
+				}
+				const currentValue = self.multicastState.level ?? self.speaker?.state.audioVolume?.level ?? -30
+				let newValue: number
+				const value = parseFloat(action.options.value as string)
 
-	actions['zoneProfile'] = {
-		name: 'Zone Profile Select',
-		options: [
-			{
-				type: 'dropdown',
-				label: 'Profile',
-				choices: [
-					{ id: 0, label: 'Default Profile' },
-					{ id: 1, label: 'Profile 1' },
-					{ id: 2, label: 'Profile 2' },
-					{ id: 3, label: 'Profile 3' },
-					{ id: 4, label: 'Profile 4' },
-					{ id: 5, label: 'Profile 5' },
-				],
-				default: 0,
-				id: 'profile',
-			},
-		],
-		description: `Set the profile for all speakers in the zone via multicast`,
-		callback: async (action) => {
-			if (!self.multicast) {
-				self.log('warn', 'Multicast not configured')
-				return
-			}
-			const profile = action.options.profile as number
-			self.multicastState.profile = profile
-			self.multicast.sendProfile(profile)
-			self.updateVariableValues()
-			self.checkFeedbacks('zoneProfile')
-		},
-	}
+				if (isNaN(value)) return
 
-	actions['zonePower'] = {
-		name: 'Zone Power',
-		options: [
-			{
-				type: 'dropdown',
-				label: 'Mode',
-				choices: [
-					{ id: 'BOOT', label: 'Wake' },
-					{ id: 'STANDBY', label: 'Standby' },
-				],
-				default: 'BOOT',
-				id: 'mode',
-			},
-		],
-		description: `Set the power state for all speakers in the zone via multicast`,
-		callback: async (action) => {
-			if (!self.multicast) {
-				self.log('warn', 'Multicast not configured')
-				return
-			}
-			const state = action.options.mode as 'BOOT' | 'STANDBY'
-			self.multicastState.power = state
-			self.multicast.sendPower(state)
-			self.updateVariableValues()
-			self.checkFeedbacks('zonePower')
-		},
-	}
+				if (action.options.adjustment === 'increase') {
+					newValue = currentValue + value
+				} else if (action.options.adjustment === 'decrease') {
+					newValue = currentValue - value
+				} else if (action.options.adjustment === 'set') {
+					newValue = value
+				} else {
+					return
+				}
 
+				newValue = Math.max(-130, Math.min(0, newValue))
+				self.multicastState.level = newValue
+				self.multicast.sendVolume(newValue)
+				self.checkFeedbacks('zoneVolume')
+				self.updateVariableValues()
+			},
+		}
+
+		actions['zoneMute'] = {
+			name: 'Zone Mute',
+			options: [
+				{
+					type: 'dropdown',
+					label: 'Mode',
+					choices: toggleChoices,
+					default: 'toggle',
+					id: 'mode',
+				},
+			],
+			description: `Set the mute state for all speakers in the zone via multicast`,
+			callback: async (action) => {
+				if (!self.multicast) {
+					self.log('warn', 'Multicast not configured')
+					return
+				}
+				const currentValue = self.multicastState.mute ?? self.speaker?.state.audioVolume?.mute ?? false
+				let newValue: boolean
+				if (action.options.mode === 'toggle') {
+					newValue = !currentValue
+				} else {
+					newValue = action.options.mode === 'true' ? true : false
+				}
+				self.multicastState.mute = newValue
+				self.multicast.sendMute(newValue)
+				self.updateVariableValues()
+				self.checkFeedbacks('zoneMute')
+			},
+		}
+
+		actions['zoneProfile'] = {
+			name: 'Zone Profile Select',
+			options: [
+				{
+					type: 'dropdown',
+					label: 'Profile',
+					choices: [
+						{ id: 0, label: 'Default Profile' },
+						{ id: 1, label: 'Profile 1' },
+						{ id: 2, label: 'Profile 2' },
+						{ id: 3, label: 'Profile 3' },
+						{ id: 4, label: 'Profile 4' },
+						{ id: 5, label: 'Profile 5' },
+					],
+					default: 0,
+					id: 'profile',
+				},
+			],
+			description: `Set the profile for all speakers in the zone via multicast`,
+			callback: async (action) => {
+				if (!self.multicast) {
+					self.log('warn', 'Multicast not configured')
+					return
+				}
+				const profile = action.options.profile as number
+				self.multicastState.profile = profile
+				self.multicast.sendProfile(profile)
+				self.updateVariableValues()
+				self.checkFeedbacks('zoneProfile')
+			},
+		}
+
+		actions['zonePower'] = {
+			name: 'Zone Power',
+			options: [
+				{
+					type: 'dropdown',
+					label: 'Mode',
+					choices: [
+						{ id: 'BOOT', label: 'Wake' },
+						{ id: 'STANDBY', label: 'Standby' },
+					],
+					default: 'BOOT',
+					id: 'mode',
+				},
+			],
+			description: `Set the power state for all speakers in the zone via multicast`,
+			callback: async (action) => {
+				if (!self.multicast) {
+					self.log('warn', 'Multicast not configured')
+					return
+				}
+				const state = action.options.mode as 'BOOT' | 'STANDBY'
+				self.multicastState.power = state
+				self.multicast.sendPower(state)
+				self.updateVariableValues()
+				self.checkFeedbacks('zonePower')
+			},
+		}
+	}
 	self.setActionDefinitions(actions)
 }

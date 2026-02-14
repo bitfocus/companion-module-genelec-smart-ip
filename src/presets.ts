@@ -4,7 +4,7 @@ import { CompanionPresetDefinitions, type CompanionOptionValues } from '@compani
 
 export function UpdatePresets(self: GenelecSmartIPInstance): void {
 	const presets: CompanionPresetDefinitions = {}
-	const isZoneMode = self.config.mode === 'zone'
+	const isMulticastMode = self.config.mode === 'multicast'
 
 	function createAdjustmentPresets(
 		baseKey: string,
@@ -118,7 +118,7 @@ export function UpdatePresets(self: GenelecSmartIPInstance): void {
 		}
 	}
 
-	if (!isZoneMode) {
+	if (!isMulticastMode) {
 		createAdjustmentPresets('volume', 'Volume', 'Volume', 'volume', 'volume', 'Volume', {
 			adjustmentValue: 1,
 			valueSize: 14,
@@ -1347,90 +1347,138 @@ export function UpdatePresets(self: GenelecSmartIPInstance): void {
 				},
 			],
 		}
-	} // end if (!isZoneMode)
-
-	// Zone Multicast Control Presets
-	createAdjustmentPresets(
-		'zoneVolume',
-		'Multicast Zone Control',
-		'Zone Volume',
-		'zoneVolume',
-		'zone_volume',
-		'Zone Vol',
-		{
-			adjustmentValue: 1,
-			valueSize: 14,
-			headerName: 'Multicast Zone - Volume',
-		},
-	)
-
-	presets['zoneVolumeAdjustmentRotaryHeader'] = {
-		type: 'text',
-		category: 'Multicast Zone Control',
-		name: 'Zone Volume Adjustment - Dials',
-		text: '(For use on devices with rotary dials)',
 	}
 
-	presets[`zoneVolumeAdjustmentRotary`] = {
-		type: 'button',
-		category: 'Multicast Zone Control',
-		name: 'Zone Volume Dial',
-		options: {
-			rotaryActions: true,
-		},
-		style: {
-			bgcolor: Color.genelecDarkGray,
-			color: Color.white,
-			text: 'Zone Volume Dial',
-			size: 14,
-			show_topbar: false,
-		},
-		steps: [
+	// Multicast Control Presets
+	if (isMulticastMode) {
+		createAdjustmentPresets(
+			'zoneVolume',
+			'Multicast Zone Control',
+			'Zone Volume',
+			'zoneVolume',
+			'zone_volume',
+			'Zone Vol',
 			{
-				down: [],
-				up: [],
-				rotate_left: [
-					{
-						actionId: 'zoneVolume',
-						options: {
-							adjustment: 'decrease',
-							value: '1',
-						},
-					},
-				],
-				rotate_right: [
-					{
-						actionId: 'zoneVolume',
-						options: {
-							adjustment: 'increase',
-							value: '1',
-						},
-					},
-				],
+				adjustmentValue: 1,
+				valueSize: 14,
+				headerName: 'Multicast Zone - Volume',
 			},
-		],
-		feedbacks: [],
-	}
+		)
 
-	presets[`zoneVolumeSetButtons`] = {
-		type: 'text',
-		category: 'Multicast Zone Control',
-		name: 'Zone Volume Set Values',
-		text: '(Jump to a specific volume level)',
-	}
+		presets['zoneVolumeAdjustmentRotaryHeader'] = {
+			type: 'text',
+			category: 'Multicast Zone Control',
+			name: 'Zone Volume Adjustment - Dials',
+			text: '(For use on devices with rotary dials)',
+		}
 
-	for (let value = 0; value >= -130; value -= 10) {
-		presets[`zoneVolumeSet${value}`] = {
+		presets[`zoneVolumeAdjustmentRotary`] = {
 			type: 'button',
 			category: 'Multicast Zone Control',
-			name: `Zone Volume Set ${value}`,
+			name: 'Zone Volume Dial',
 			options: {
 				rotaryActions: true,
 			},
 			style: {
 				bgcolor: Color.genelecDarkGray,
 				color: Color.white,
-				text: `SET Zone Vol\n\n${value} dB`,
+				text: 'Zone Volume Dial',
+				size: 14,
+				show_topbar: false,
+			},
+			steps: [
+				{
+					down: [],
+					up: [],
+					rotate_left: [
+						{
+							actionId: 'zoneVolume',
+							options: {
+								adjustment: 'decrease',
+								value: '1',
+							},
+						},
+					],
+					rotate_right: [
+						{
+							actionId: 'zoneVolume',
+							options: {
+								adjustment: 'increase',
+								value: '1',
+							},
+						},
+					],
+				},
+			],
+			feedbacks: [],
+		}
+
+		presets[`zoneVolumeSetButtons`] = {
+			type: 'text',
+			category: 'Multicast Zone Control',
+			name: 'Zone Volume Set Values',
+			text: '(Jump to a specific volume level)',
+		}
+
+		for (let value = 0; value >= -130; value -= 10) {
+			presets[`zoneVolumeSet${value}`] = {
+				type: 'button',
+				category: 'Multicast Zone Control',
+				name: `Zone Volume Set ${value}`,
+				options: {
+					rotaryActions: true,
+				},
+				style: {
+					bgcolor: Color.genelecDarkGray,
+					color: Color.white,
+					text: `SET Zone Vol\n\n${value} dB`,
+					size: 14,
+					show_topbar: false,
+				},
+				steps: [
+					{
+						down: [
+							{
+								actionId: 'zoneVolume',
+								options: {
+									adjustment: 'set',
+									value: value.toString(),
+								},
+							},
+						],
+						up: [],
+					},
+				],
+				feedbacks: [
+					{
+						feedbackId: 'zoneVolume',
+						options: {
+							comparison: 'equal',
+							value: value.toString(),
+						},
+						style: {
+							bgcolor: Color.genelecGreen,
+						},
+					},
+				],
+			}
+		}
+
+		presets['zoneMuteHeader'] = {
+			type: 'text',
+			category: 'Multicast Zone Control',
+			name: 'Multicast Zone - Mute',
+			text: '',
+		}
+
+		presets[`zoneMuteStatus`] = {
+			type: 'button',
+			category: 'Multicast Zone Control',
+			name: `Multicast Zone - Mute Toggle`,
+			style: {
+				bgcolor: Color.genelecDarkGray,
+				color: Color.white,
+				text: `ZONE MUTE\n$(genelec:zone_mute)`,
 				size: 14,
 				show_topbar: false,
 			},
@@ -1438,10 +1486,9 @@ export function UpdatePresets(self: GenelecSmartIPInstance): void {
 				{
 					down: [
 						{
-							actionId: 'zoneVolume',
+							actionId: 'zoneMute',
 							options: {
-								adjustment: 'set',
-								value: value.toString(),
+								mode: 'toggle',
 							},
 						},
 					],
@@ -1450,234 +1497,144 @@ export function UpdatePresets(self: GenelecSmartIPInstance): void {
 			],
 			feedbacks: [
 				{
-					feedbackId: 'zoneVolume',
-					options: {
-						comparison: 'equal',
-						value: value.toString(),
+					feedbackId: 'zoneMute',
+					options: {},
+					style: {
+						bgcolor: Color.red,
 					},
+				},
+				{
+					feedbackId: 'zoneMute',
+					isInverted: true,
+					options: {},
+					style: {
+						bgcolor: Color.genelecDarkGray,
+					},
+				},
+			],
+		}
+
+		presets[`zoneMuteOn`] = {
+			type: 'button',
+			category: 'Multicast Zone Control',
+			name: `Zone Mute On`,
+			style: {
+				bgcolor: Color.genelecDarkGray,
+				color: Color.white,
+				text: `ZONE MUTE`,
+				size: 14,
+				show_topbar: false,
+			},
+			steps: [
+				{
+					down: [
+						{
+							actionId: 'zoneMute',
+							options: {
+								mode: 'true',
+							},
+						},
+					],
+					up: [],
+				},
+			],
+			feedbacks: [
+				{
+					feedbackId: 'zoneMute',
+					options: {},
+					style: {
+						bgcolor: Color.red,
+					},
+				},
+			],
+		}
+
+		presets[`zoneMuteOff`] = {
+			type: 'button',
+			category: 'Multicast Zone Control',
+			name: `Zone Unmute`,
+			style: {
+				bgcolor: Color.genelecDarkGray,
+				color: Color.white,
+				text: `ZONE UNMUTE`,
+				size: 14,
+				show_topbar: false,
+			},
+			steps: [
+				{
+					down: [
+						{
+							actionId: 'zoneMute',
+							options: {
+								mode: 'false',
+							},
+						},
+					],
+					up: [],
+				},
+			],
+			feedbacks: [
+				{
+					feedbackId: 'zoneMute',
+					isInverted: true,
+					options: {},
+					style: {
+						bgcolor: Color.genelecDarkGray,
+					},
+				},
+			],
+		}
+
+		presets['zonePowerHeader'] = {
+			type: 'text',
+			category: 'Multicast Zone Control',
+			name: 'Multicast Zone - Power',
+			text: '',
+		}
+
+		presets[`zonePowerWake`] = {
+			type: 'button',
+			category: 'Multicast Zone Control',
+			name: `Zone Wake`,
+			style: {
+				bgcolor: Color.genelecDarkGray,
+				color: Color.white,
+				text: `ZONE WAKE`,
+				size: 14,
+				show_topbar: false,
+			},
+			steps: [
+				{
+					down: [
+						{
+							actionId: 'zonePower',
+							options: {
+								mode: 'BOOT',
+							},
+						},
+					],
+					up: [],
+				},
+			],
+			feedbacks: [
+				{
+					feedbackId: 'zonePower',
+					options: {},
 					style: {
 						bgcolor: Color.genelecGreen,
 					},
 				},
 			],
 		}
-	}
 
-	presets['zoneMuteHeader'] = {
-		type: 'text',
-		category: 'Multicast Zone Control',
-		name: 'Multicast Zone - Mute',
-		text: '',
-	}
-
-	presets[`zoneMuteStatus`] = {
-		type: 'button',
-		category: 'Multicast Zone Control',
-		name: `Multicast Zone - Mute Toggle`,
-		style: {
-			bgcolor: Color.genelecDarkGray,
-			color: Color.white,
-			text: `ZONE MUTE\n$(genelec:zone_mute)`,
-			size: 14,
-			show_topbar: false,
-		},
-		steps: [
-			{
-				down: [
-					{
-						actionId: 'zoneMute',
-						options: {
-							mode: 'toggle',
-						},
-					},
-				],
-				up: [],
-			},
-		],
-		feedbacks: [
-			{
-				feedbackId: 'zoneMute',
-				options: {},
-				style: {
-					bgcolor: Color.red,
-				},
-			},
-			{
-				feedbackId: 'zoneMute',
-				isInverted: true,
-				options: {},
-				style: {
-					bgcolor: Color.genelecDarkGray,
-				},
-			},
-		],
-	}
-
-	presets[`zoneMuteOn`] = {
-		type: 'button',
-		category: 'Multicast Zone Control',
-		name: `Zone Mute On`,
-		style: {
-			bgcolor: Color.genelecDarkGray,
-			color: Color.white,
-			text: `ZONE MUTE`,
-			size: 14,
-			show_topbar: false,
-		},
-		steps: [
-			{
-				down: [
-					{
-						actionId: 'zoneMute',
-						options: {
-							mode: 'true',
-						},
-					},
-				],
-				up: [],
-			},
-		],
-		feedbacks: [
-			{
-				feedbackId: 'zoneMute',
-				options: {},
-				style: {
-					bgcolor: Color.red,
-				},
-			},
-		],
-	}
-
-	presets[`zoneMuteOff`] = {
-		type: 'button',
-		category: 'Multicast Zone Control',
-		name: `Zone Unmute`,
-		style: {
-			bgcolor: Color.genelecDarkGray,
-			color: Color.white,
-			text: `ZONE UNMUTE`,
-			size: 14,
-			show_topbar: false,
-		},
-		steps: [
-			{
-				down: [
-					{
-						actionId: 'zoneMute',
-						options: {
-							mode: 'false',
-						},
-					},
-				],
-				up: [],
-			},
-		],
-		feedbacks: [
-			{
-				feedbackId: 'zoneMute',
-				isInverted: true,
-				options: {},
-				style: {
-					bgcolor: Color.genelecDarkGray,
-				},
-			},
-		],
-	}
-
-	presets['zonePowerHeader'] = {
-		type: 'text',
-		category: 'Multicast Zone Control',
-		name: 'Multicast Zone - Power',
-		text: '',
-	}
-
-	presets[`zonePowerWake`] = {
-		type: 'button',
-		category: 'Multicast Zone Control',
-		name: `Zone Wake`,
-		style: {
-			bgcolor: Color.genelecDarkGray,
-			color: Color.white,
-			text: `ZONE WAKE`,
-			size: 14,
-			show_topbar: false,
-		},
-		steps: [
-			{
-				down: [
-					{
-						actionId: 'zonePower',
-						options: {
-							mode: 'BOOT',
-						},
-					},
-				],
-				up: [],
-			},
-		],
-		feedbacks: [
-			{
-				feedbackId: 'zonePower',
-				options: {},
-				style: {
-					bgcolor: Color.genelecGreen,
-				},
-			},
-		],
-	}
-
-	presets[`zonePowerStandby`] = {
-		type: 'button',
-		category: 'Multicast Zone Control',
-		name: `Zone Standby`,
-		style: {
-			bgcolor: Color.genelecDarkGray,
-			color: Color.white,
-			text: `ZONE STANDBY`,
-			size: 14,
-			show_topbar: false,
-		},
-		steps: [
-			{
-				down: [
-					{
-						actionId: 'zonePower',
-						options: {
-							mode: 'STANDBY',
-						},
-					},
-				],
-				up: [],
-			},
-		],
-		feedbacks: [
-			{
-				feedbackId: 'zonePower',
-				isInverted: true,
-				options: {},
-				style: {
-					bgcolor: Color.orange,
-				},
-			},
-		],
-	}
-
-	presets['zoneProfileHeader'] = {
-		type: 'text',
-		category: 'Multicast Zone Control',
-		name: 'Multicast Zone - Profile Select',
-		text: '',
-	}
-
-	for (let value = 0; value <= 5; value += 1) {
-		presets[`zoneProfileSelect${value}`] = {
+		presets[`zonePowerStandby`] = {
 			type: 'button',
 			category: 'Multicast Zone Control',
-			name: `Zone Profile ${value}`,
+			name: `Zone Standby`,
 			style: {
 				bgcolor: Color.genelecDarkGray,
 				color: Color.white,
-				text: `ZONE Profile\n${value === 0 ? 'Default' : value}`,
+				text: `ZONE STANDBY`,
 				size: 14,
 				show_topbar: false,
 			},
@@ -1685,9 +1642,9 @@ export function UpdatePresets(self: GenelecSmartIPInstance): void {
 				{
 					down: [
 						{
-							actionId: 'zoneProfile',
+							actionId: 'zonePower',
 							options: {
-								profile: value,
+								mode: 'STANDBY',
 							},
 						},
 					],
@@ -1696,15 +1653,60 @@ export function UpdatePresets(self: GenelecSmartIPInstance): void {
 			],
 			feedbacks: [
 				{
-					feedbackId: 'zoneProfile',
-					options: {
-						profile: value,
-					},
+					feedbackId: 'zonePower',
+					isInverted: true,
+					options: {},
 					style: {
-						bgcolor: Color.genelecGreen,
+						bgcolor: Color.orange,
 					},
 				},
 			],
+		}
+
+		presets['zoneProfileHeader'] = {
+			type: 'text',
+			category: 'Multicast Zone Control',
+			name: 'Multicast Zone - Profile Select',
+			text: '',
+		}
+
+		for (let value = 0; value <= 5; value += 1) {
+			presets[`zoneProfileSelect${value}`] = {
+				type: 'button',
+				category: 'Multicast Zone Control',
+				name: `Zone Profile ${value}`,
+				style: {
+					bgcolor: Color.genelecDarkGray,
+					color: Color.white,
+					text: `ZONE Profile\n${value === 0 ? 'Default' : value}`,
+					size: 14,
+					show_topbar: false,
+				},
+				steps: [
+					{
+						down: [
+							{
+								actionId: 'zoneProfile',
+								options: {
+									profile: value,
+								},
+							},
+						],
+						up: [],
+					},
+				],
+				feedbacks: [
+					{
+						feedbackId: 'zoneProfile',
+						options: {
+							profile: value,
+						},
+						style: {
+							bgcolor: Color.genelecGreen,
+						},
+					},
+				],
+			}
 		}
 	}
 

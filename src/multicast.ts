@@ -28,6 +28,14 @@ export class GenelecMulticast {
 			this.socket.bind(() => {
 				this.self.log('debug', `Multicast socket bound, sending to ${this.multicastIp}:${this.multicastPort}`)
 			})
+
+			this.socket.on('message', (message) => {
+				this.self.log('debug', `Multicast message received: ${message}`)
+			})
+
+			this.socket.on('close', () => {
+				this.self.log('debug', 'Multicast socket closed')
+			})
 		} catch (error: any) {
 			this.self.log('error', `Failed to create multicast socket: ${error.message}`)
 		}

@@ -3,9 +3,9 @@ import type { GenelecSmartIPInstance } from './main.js'
 
 export function UpdateVariableDefinitions(self: GenelecSmartIPInstance): void {
 	const variables: CompanionVariableDefinition[] = []
-	const isZoneMode = self.config.mode === 'zone'
+	const isMulticastMode = self.config.mode === 'multicast'
 
-	if (!isZoneMode) {
+	if (!isMulticastMode) {
 		variables.push(
 			// Device Info
 			{ variableId: 'fw_id', name: 'Firmware ID' },
@@ -78,24 +78,22 @@ export function UpdateVariableDefinitions(self: GenelecSmartIPInstance): void {
 			{ variableId: 'sleep_threshold', name: 'Sleep Threshold (dB)' },
 			{ variableId: 'sleep_led_intensity', name: 'Sleep LED Intensity (%)' },
 		)
-	} // end if (!isZoneMode)
-
-	// Zone Multicast
-	variables.push(
-		{ variableId: 'zone_mcast_ip', name: 'Zone Multicast IP' },
-		{ variableId: 'zone_mcast_port', name: 'Zone Multicast Port' },
-		{ variableId: 'zone_volume', name: 'Zone Volume (dB) - Multicast' },
-		{ variableId: 'zone_mute', name: 'Zone Mute State - Multicast' },
-		{ variableId: 'zone_profile', name: 'Zone Profile - Multicast' },
-		{ variableId: 'zone_power', name: 'Zone Power State - Multicast' },
-	)
+	} else {
+		// Zone Multicast
+		variables.push(
+			{ variableId: 'zone_mcast_ip', name: 'Zone Multicast IP' },
+			{ variableId: 'zone_mcast_port', name: 'Zone Multicast Port' },
+			{ variableId: 'zone_volume', name: 'Zone Volume (dB) - Multicast' },
+			{ variableId: 'zone_mute', name: 'Zone Mute State - Multicast' },
+			{ variableId: 'zone_profile', name: 'Zone Profile - Multicast' },
+			{ variableId: 'zone_power', name: 'Zone Power State - Multicast' },
+		)
+	}
 	self.setVariableDefinitions(variables)
 }
 
 export function UpdateVariableValues(self: GenelecSmartIPInstance): void {
-	const isZoneMode = self.config.mode === 'zone'
-
-	if (!isZoneMode && !self.speaker) return
+	const isMulticastMode = self.config.mode === 'multicast'
 
 	const newVariables: Record<string, string | number | boolean | undefined> = {}
 
@@ -377,22 +375,24 @@ export function UpdateVariableValues(self: GenelecSmartIPInstance): void {
 		}
 	} // end if (self.speaker)
 
-	// Zone Multicast State
-	newVariables.zone_mcast_ip = self.config.multicastIp || 'Not Set'
-	newVariables.zone_mcast_port = self.config.multicastPort || 'Not Set'
+	// Multicast State
+	if (isMulticastMode) {
+		newVariables.zone_mcast_ip = self.config.multicastIp || 'Not Set'
+		newVariables.zone_mcast_port = self.config.multicastPort || 'Not Set'
 
-	const mcastState = self.multicastState
-	if (mcastState.level !== undefined) {
-		newVariables.zone_volume = Number(mcastState.level.toFixed(1))
-	}
-	if (mcastState.mute !== undefined) {
-		newVariables.zone_mute = mcastState.mute ? 'Muted' : 'Unmuted'
-	}
-	if (mcastState.profile !== undefined) {
-		newVariables.zone_profile = mcastState.profile
-	}
-	if (mcastState.power !== undefined) {
-		newVariables.zone_power = mcastState.power === 'BOOT' ? 'Active' : 'Standby'
+		const mcastState = self.multicastState
+		if (mcastState.level !== undefined) {
+			newVariables.zone_volume = Number(mcastState.level.toFixed(1))
+		}
+		if (mcastState.mute !== undefined) {
+			newVariables.zone_mute = mcastState.mute ? 'Muted' : 'Unmuted'
+		}
+		if (mcastState.profile !== undefined) {
+			newVariables.zone_profile = mcastState.profile
+		}
+		if (mcastState.power !== undefined) {
+			newVariables.zone_power = mcastState.power === 'BOOT' ? 'Active' : 'Standby'
+		}
 	}
 
 	if (Object.keys(newVariables).length > 0) {

@@ -36,10 +36,10 @@ export class GenelecSmartIPInstance extends InstanceBase<ModuleConfig, ModuleSec
 		this.secrets = secrets
 		this.updateStatus(InstanceStatus.Connecting)
 
-		if (this.config.mode === 'zone') {
-			// Zone mode: multicast only, no unicast speaker
+		if (this.config.mode === 'multicast') {
+			// Multicast mode: multicast only, no unicast speaker
 			if (!this.config.multicastIp || !this.config.multicastPort) {
-				this.updateStatus(InstanceStatus.BadConfig, 'Multicast IP and Port required for zone mode')
+				this.updateStatus(InstanceStatus.BadConfig, 'Multicast IP and Port required for multicast mode')
 				return
 			}
 			this.initMulticast()
@@ -173,22 +173,6 @@ export class GenelecSmartIPInstance extends InstanceBase<ModuleConfig, ModuleSec
 			}
 			this.updateStatus(InstanceStatus.Ok)
 			await this.speaker?.fetchInitialInfo()
-
-			// Auto-populate multicast settings from speaker's network config if not set
-			if (
-				this.config.mode !== 'zone' &&
-				this.speaker.state.network?.volIp &&
-				this.speaker.state.network.volIp !== '0.0.0.0'
-			) {
-				this.log('info', `Auto-detected multicast IP from speaker: ${this.speaker.state.network.volIp}`)
-				this.config.multicastIp = this.speaker.state.network.volIp
-				if (this.speaker.state.network.volPort) {
-					this.config.multicastPort = parseInt(this.speaker.state.network.volPort)
-				}
-			}
-
-			this.initMulticast()
-			this.syncMulticastStateFromSpeaker()
 			this.pollDeviceStates()
 			this.pollEvents()
 		} else {

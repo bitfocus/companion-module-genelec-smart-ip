@@ -4,7 +4,7 @@ import type { GenelecSmartIPInstance } from './main.js'
 
 export function UpdateFeedbacks(self: GenelecSmartIPInstance): void {
 	const feedbacks: CompanionFeedbackDefinitions = {}
-	const isZoneMode = self.config.mode === 'zone'
+	const isMulticastMode = self.config.mode === 'multicast'
 
 	function createComparisonFeedback(feedbackId: string, name: string, getCurrentValue: () => number | undefined): void {
 		feedbacks[feedbackId] = {
@@ -49,7 +49,7 @@ export function UpdateFeedbacks(self: GenelecSmartIPInstance): void {
 		}
 	}
 
-	if (!isZoneMode) {
+	if (!isMulticastMode) {
 		feedbacks['power'] = {
 			type: 'boolean',
 			name: 'Power State',
@@ -199,64 +199,65 @@ export function UpdateFeedbacks(self: GenelecSmartIPInstance): void {
 			'Sleep LED Intensity',
 			() => self.speaker?.state.deviceISS?.ledIntensity,
 		)
-	} // end if (!isZoneMode)
-
-	// Zone Multicast Feedbacks
-	feedbacks['zoneMute'] = {
-		type: 'boolean',
-		name: 'Zone Mute State',
-		options: [],
-		description: `Enabled if the zone is currently muted (multicast)`,
-		callback: async () => {
-			return self.multicastState.mute === true
-		},
-		defaultStyle: {
-			bgcolor: Color.red,
-		},
 	}
 
-	createComparisonFeedback('zoneVolume', 'Zone Volume', () => self.multicastState.level)
-
-	feedbacks['zoneProfile'] = {
-		type: 'boolean',
-		name: 'Zone Profile Selected',
-		description: 'Enabled if the selected profile matches the last multicast profile command',
-		options: [
-			{
-				type: 'dropdown',
-				id: 'profile',
-				label: 'Profile',
-				default: 0,
-				choices: [
-					{ id: 0, label: 'Default Profile' },
-					{ id: 1, label: 'Profile 1' },
-					{ id: 2, label: 'Profile 2' },
-					{ id: 3, label: 'Profile 3' },
-					{ id: 4, label: 'Profile 4' },
-					{ id: 5, label: 'Profile 5' },
-				],
+	if (isMulticastMode) {
+		// Zone Multicast Feedbacks
+		feedbacks['zoneMute'] = {
+			type: 'boolean',
+			name: 'Zone Mute State',
+			options: [],
+			description: `Enabled if the zone is currently muted (multicast)`,
+			callback: async () => {
+				return self.multicastState.mute === true
 			},
-		],
-		callback: async (feedback) => {
-			return self.multicastState.profile === feedback.options.profile
-		},
-		defaultStyle: {
-			bgcolor: Color.genelecGreen,
-		},
-	}
+			defaultStyle: {
+				bgcolor: Color.red,
+			},
+		}
 
-	feedbacks['zonePower'] = {
-		type: 'boolean',
-		name: 'Zone Power State',
-		options: [],
-		description: `Enabled if the zone was last sent a BOOT/wake command (multicast)`,
-		callback: async () => {
-			return self.multicastState.power === 'BOOT'
-		},
-		defaultStyle: {
-			bgcolor: Color.genelecGreen,
-		},
-	}
+		createComparisonFeedback('zoneVolume', 'Zone Volume', () => self.multicastState.level)
 
+		feedbacks['zoneProfile'] = {
+			type: 'boolean',
+			name: 'Zone Profile Selected',
+			description: 'Enabled if the selected profile matches the last multicast profile command',
+			options: [
+				{
+					type: 'dropdown',
+					id: 'profile',
+					label: 'Profile',
+					default: 0,
+					choices: [
+						{ id: 0, label: 'Default Profile' },
+						{ id: 1, label: 'Profile 1' },
+						{ id: 2, label: 'Profile 2' },
+						{ id: 3, label: 'Profile 3' },
+						{ id: 4, label: 'Profile 4' },
+						{ id: 5, label: 'Profile 5' },
+					],
+				},
+			],
+			callback: async (feedback) => {
+				return self.multicastState.profile === feedback.options.profile
+			},
+			defaultStyle: {
+				bgcolor: Color.genelecGreen,
+			},
+		}
+
+		feedbacks['zonePower'] = {
+			type: 'boolean',
+			name: 'Zone Power State',
+			options: [],
+			description: `Enabled if the zone was last sent a BOOT/wake command (multicast)`,
+			callback: async () => {
+				return self.multicastState.power === 'BOOT'
+			},
+			defaultStyle: {
+				bgcolor: Color.genelecGreen,
+			},
+		}
+	}
 	self.setFeedbackDefinitions(feedbacks)
 }
