@@ -108,7 +108,7 @@ export function UpdateFeedbacks(self: GenelecSmartIPInstance): void {
 
 		feedbacks['profileSelected'] = {
 			type: 'boolean',
-			name: 'Profile Selected',
+			name: 'Current Profile',
 			description: 'Enabled if the selected profile is currently active',
 			options: [
 				{
@@ -136,7 +136,7 @@ export function UpdateFeedbacks(self: GenelecSmartIPInstance): void {
 
 		feedbacks['profileStartup'] = {
 			type: 'boolean',
-			name: 'Profile Startup',
+			name: 'Selected Startup Profile',
 			description: 'Enabled if the selected profile is set as the startup profile',
 			options: [
 				{
@@ -164,7 +164,7 @@ export function UpdateFeedbacks(self: GenelecSmartIPInstance): void {
 
 		feedbacks['clipLed'] = {
 			type: 'boolean',
-			name: 'Clip LED',
+			name: 'Clip LED Enabled',
 			options: [],
 			description: `Enabled if the clip LED is currently on`,
 			callback: async () => {
@@ -220,7 +220,7 @@ export function UpdateFeedbacks(self: GenelecSmartIPInstance): void {
 
 		feedbacks['zoneProfile'] = {
 			type: 'boolean',
-			name: 'Zone Profile Selected',
+			name: 'Zone Current Profile',
 			description: 'Enabled if the selected profile matches the last multicast profile command',
 			options: [
 				{

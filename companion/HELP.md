@@ -1,3 +1,110 @@
 ## Genelec Smart IP
 
 Control Genelec Smart IP Installation Speakers.
+
+## Getting Started
+
+There are two ways to control Smart IP speakers: as individual units, or in a multicast group.
+In the configuration, you can select your desired mode.
+If using Individual mode, speakers will be auto disocvered on your local network. If needed, you can also select "Manual" and enter an IP address of the unit as well. You can add as many instances of the module as you have speakers to get individual control and feedback of the devices.
+If using Multicast mode, you can enter the desired multicast address and port. These setting must match the configured values for the speaker(s) from Genelec's Smart IP Manager App. This is found under Settings > General > //INSERT MENU NAME
+
+## Actions
+
+- Volume
+- Mute
+- Set Power State
+- Set Inputs Active
+- Select Profile
+- Set Zone Config
+- Identify / Blink LED
+- LED Intensity
+- Clip LED
+- RJ45 LEDs
+- Sleep LED Intensity
+- Sleep Delay
+- Sleep Threshold
+
+_Multicast Mode Actions_
+
+- Zone Volume
+- Zone Mute
+- Zone Profile Select
+- Zone Power
+
+## Feedback
+
+- Power State
+- Mute State
+- Inputs Active
+- Current Profile
+- Selected Startup Profile
+- Clip LED Enabled
+- RJ45 LED
+
+_Multicast Mode Actions_
+
+- Zone Mute State
+- Zone Current Profile
+- Zone Power State
+
+## Variables
+
+- fw_id (Firmware ID)
+- build (Build Version)
+- base_id (Base ID)
+- hw_id (Hardware ID)
+- model (Model)
+- category (Category)
+- technology (Technology)
+- upgrade_id (Upgrade ID)
+- api_ver (API Version)
+- power_state (Power State)
+- poe_allocated_pwr (PoE Allocated Power (W))
+- poe_pd_limit (PoE PD Limit Status)
+- hostname (Hostname)
+- ip_mode (IP Mode)
+- ip_address (IP Address)
+- subnet_mask (Subnet Mask)
+- gateway (Network Gateway)
+- multicast_ip (Multicast Control IP)
+- multicast_port (Multicast Control Port)
+- volume (Volume (dB))
+- mute (Mute State)
+- active_inputs (Active Inputs)
+- audio_delay (Audio Delay)
+- audio_sensitivity (Audio Sensitivity)
+- aoip_id (AoIP ID)
+- aoip_name (AoIP Name)
+- aoip_fname (AoIP Friendly Name)
+- aoip_mac (AoIP MAC Address)
+- aoip_locked (AoIP Locked)
+- aoip_ip (AoIP IP Address)
+- aoip_mask (AoIP Subnet Mask)
+- aoip_gateway (AoIP Gateway)
+- zone_id (Zone ID)
+- zone_name (Zone Name)
+- profile_selected (Selected Profile Number)
+- profile_startup (Startup Profile Number)
+- bass_level (Bass Output Level (dBFS))
+- tweeter_level (Tweeter Output Level (dBFS))
+- input_level (Input Level (dBFS))
+- cpu_temp (CPU Temperature (°C))
+- cpu_load (CPU Load (%))
+- network_traffic (Network Traffic to CPU (kbps))
+- uptime (Uptime)
+- led_intensity (LED Intensity (%))
+- rj45_leds (RJ45 LEDs)
+- clip_led (Clip LED (applicable to subwoofer only))
+- sleep_delay (Sleep Delay (seconds))
+- sleep_threshold (Sleep Threshold (dB))
+- sleep_led_intensity (Sleep LED Intensity (%))
+
+_Multicast Mode Actions_
+
+- zone_mcast_ip (Zone Multicast IP)
+- zone_mcast_port (Zone Multicast Port)
+- zone_volume (Zone Volume (dB) - Multicast)
+- zone_mute (Zone Mute State - Multicast)
+- zone_profile (Zone Profile - Multicast)
+- zone_power (Zone Power State - Multicast)
