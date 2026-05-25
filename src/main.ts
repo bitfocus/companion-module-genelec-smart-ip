@@ -1,5 +1,5 @@
 import { InstanceBase, runEntrypoint, InstanceStatus, SomeCompanionConfigField } from '@companion-module/base'
-import { GetConfigFields, type ModuleConfig } from './config.js'
+import { GetConfigFields, type ModuleConfig, type ModuleSecrets } from './config.js'
 
 import { UpdateActions } from './actions.js'
 import { UpdatePresets } from './presets.js'
@@ -11,9 +11,6 @@ import { GenelecSpeaker } from './api.js'
 import { GenelecMulticast } from './multicast.js'
 import { MulticastState, SystemState } from './types.js'
 
-export interface ModuleSecrets {
-	password: string
-}
 export class GenelecSmartIPInstance extends InstanceBase<ModuleConfig, ModuleSecrets> {
 	config!: ModuleConfig
 	secrets!: ModuleSecrets
@@ -162,8 +159,7 @@ export class GenelecSmartIPInstance extends InstanceBase<ModuleConfig, ModuleSec
 
 	async performLogin(): Promise<void> {
 		if (!this.speaker) {
-			const password = this.secrets?.password ?? this.config.password
-			this.speaker = new GenelecSpeaker(this.config, password, this)
+			this.speaker = new GenelecSpeaker(this.config, this.secrets, this)
 		}
 		const deviceInfo = await this.speaker.getDeviceInfo()
 		if (deviceInfo) {

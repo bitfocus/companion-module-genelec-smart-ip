@@ -5,10 +5,13 @@ export interface ModuleConfig {
 	bonjourHost: string
 	customHost: string
 	user: string
-	password: string
 	speakers: SpeakerConfig[]
 	multicastIp: string
 	multicastPort: number
+}
+
+export interface ModuleSecrets {
+	password: string
 }
 
 export interface SpeakerConfig {
@@ -58,20 +61,13 @@ export function GetConfigFields(): SomeCompanionConfigField[] {
 			isVisibleExpression: '$(options:mode) != "multicast"',
 		},
 		{
-			type: 'textinput',
+			type: 'secret-text',
 			id: 'password',
 			label: 'Password',
 			width: 4,
 			default: 'admin',
 			isVisibleExpression: '$(options:mode) != "multicast"',
 		},
-		/* {
-			type: 'secret-text',
-			id: 'password',
-			label: 'Password',
-			width: 4,
-			default: 'admin',
-		}, */
 		{
 			type: 'textinput',
 			id: 'multicastIp',

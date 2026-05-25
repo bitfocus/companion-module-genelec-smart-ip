@@ -1,5 +1,5 @@
 import { GenelecSmartIPInstance } from './main.js'
-import type { ModuleConfig } from './config.js'
+import type { ModuleConfig, ModuleSecrets } from './config.js'
 import {
 	AoIPIdentityResponse,
 	AoIPNetworkResponse,
@@ -21,10 +21,6 @@ import {
 } from './types.js'
 import { InstanceStatus } from '@companion-module/base'
 
-/* export interface ModuleSecrets {
-	password: string
-} */
-
 export class GenelecSpeaker {
 	private readonly config: ModuleConfig
 	private readonly user: string
@@ -35,10 +31,10 @@ export class GenelecSpeaker {
 
 	public state: SystemState = {}
 
-	constructor(config: ModuleConfig, password: string, self: GenelecSmartIPInstance) {
+	constructor(config: ModuleConfig, secrets: ModuleSecrets, self: GenelecSmartIPInstance) {
 		this.config = config
 		this.user = config.user
-		this.password = password
+		this.password = secrets.password
 		this.self = self
 	}
 
