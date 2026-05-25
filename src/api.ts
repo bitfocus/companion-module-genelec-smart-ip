@@ -1,3 +1,4 @@
+import PQueue from 'p-queue'
 import { GenelecSmartIPInstance } from './main.js'
 import type { ModuleConfig, ModuleSecrets } from './config.js'
 import {
@@ -21,13 +22,19 @@ import {
 } from './types.js'
 import { InstanceStatus } from '@companion-module/base'
 
+interface RequestOptions {
+	apiPath?: boolean
+	highPriority?: boolean
+}
+
 export class GenelecSpeaker {
 	private readonly config: ModuleConfig
 	private readonly user: string
 	private readonly password: string
 	private readonly self: GenelecSmartIPInstance
 	private authHeader: string | null = null
-	private requestQueue: Promise<unknown> = Promise.resolve()
+	private queue = new PQueue({ concurrency: 1 })
+	private pendingVolumeUpdate = false
 
 	public state: SystemState = {}
 
@@ -59,23 +66,21 @@ export class GenelecSpeaker {
 		type: string,
 		endpoint: string,
 		content?: Record<string, unknown>,
-		apiPath?: boolean,
-		bypassQueue?: boolean,
+		options?: RequestOptions,
 	): Promise<T | void> {
-		if (bypassQueue) {
-			return this._executeRequest<T>(type, endpoint, content, apiPath)
-		}
-
-		// Queue the request to prevent overloading the device web server
-		const queued = this.requestQueue.then(async () => {
-			const response = await this._executeRequest<T>(type, endpoint, content, apiPath)
-			// Add a small delay between requests as requested by the user
-			await new Promise((resolve) => setTimeout(resolve, 100))
-			return response
-		})
-		this.requestQueue = queued
-
-		return queued
+		// Commands (PUT/POST/DELETE) and explicitly flagged reads jump ahead of background polls
+		const priority = options?.highPriority || type !== 'GET' ? 1 : 0
+		return this.queue.add(
+			async () => {
+				const response = await this._executeRequest<T>(type, endpoint, content, options?.apiPath)
+				// Throttle between poll requests only — commands don't need the delay
+				if (priority === 0) {
+					await new Promise((resolve) => setTimeout(resolve, 100))
+				}
+				return response
+			},
+			{ priority },
+		)
 	}
 
 	private async _executeRequest<T = GenericResponse>(
@@ -148,9 +153,9 @@ export class GenelecSpeaker {
 		return data
 	}
 
-	async getPowerState(): Promise<DevicePowerResponse | void> {
+	async getPowerState(highPriority = false): Promise<DevicePowerResponse | void> {
 		const wasStandby = this.isStandby
-		const data = await this.sendRequest<DevicePowerResponse>('GET', 'device/pwr')
+		const data = await this.sendRequest<DevicePowerResponse>('GET', 'device/pwr', undefined, { highPriority })
 		if (data) {
 			this.state.power = data
 			if (wasStandby && !this.isStandby) {
@@ -167,16 +172,16 @@ export class GenelecSpeaker {
 	async setPowerState(data: Partial<DevicePowerResponse>): Promise<void> {
 		await this.sendRequest('PUT', 'device/pwr', data)
 		setTimeout(() => {
-			void this.getPowerState()
+			void this.getPowerState(true)
 		}, 1000)
 	}
 
 	async bootDevice(): Promise<void> {
-		await this.sendRequest<void>('PUT', 'device/boot', { boot: true }, true)
+		await this.sendRequest<void>('PUT', 'device/boot', { boot: true }, { apiPath: true })
 	}
 
-	async getLEDState(): Promise<LEDResponse | void> {
-		const data = await this.sendRequest<LEDResponse>('GET', 'device/led')
+	async getLEDState(highPriority = false): Promise<LEDResponse | void> {
+		const data = await this.sendRequest<LEDResponse>('GET', 'device/led', undefined, { highPriority })
 		if (data) {
 			this.state.led = data
 		}
@@ -187,11 +192,14 @@ export class GenelecSpeaker {
 
 	async setLEDState(data: Partial<LEDResponse>): Promise<void> {
 		await this.sendRequest('PUT', 'device/led', data)
-		await this.getLEDState()
+		await this.getLEDState(true)
 	}
 
-	async getDeviceISS(): Promise<DeviceISSResponse | void> {
-		const data = await this.sendRequest<DeviceISSResponse>('GET', 'device/iss', undefined, true)
+	async getDeviceISS(highPriority = false): Promise<DeviceISSResponse | void> {
+		const data = await this.sendRequest<DeviceISSResponse>('GET', 'device/iss', undefined, {
+			apiPath: true,
+			highPriority,
+		})
 		if (data) {
 			this.state.deviceISS = data
 			this.self.updateVariableValues()
@@ -206,8 +214,8 @@ export class GenelecSpeaker {
 			sleepDelay: data.sleepDelay ?? this.state.deviceISS?.sleepDelay,
 			threshold: data.threshold ?? this.state.deviceISS?.threshold,
 		}
-		await this.sendRequest('PUT', 'device/iss', body, true)
-		await this.getDeviceISS()
+		await this.sendRequest('PUT', 'device/iss', body, { apiPath: true })
+		await this.getDeviceISS(true)
 	}
 
 	async getNetworkConfig(): Promise<NetworkConfig | void> {
@@ -230,8 +238,8 @@ export class GenelecSpeaker {
 		return data
 	}
 
-	async getInputs(): Promise<AudioInputs | void> {
-		const data = await this.sendRequest<AudioInputs>('GET', 'audio/inputs')
+	async getInputs(highPriority = false): Promise<AudioInputs | void> {
+		const data = await this.sendRequest<AudioInputs>('GET', 'audio/inputs', undefined, { highPriority })
 		if (data) {
 			this.state.audioInputs = data
 		}
@@ -242,7 +250,7 @@ export class GenelecSpeaker {
 
 	async setInputs(data: Partial<AudioInputs>): Promise<void> {
 		await this.sendRequest('PUT', 'audio/inputs', data)
-		await this.getInputs()
+		await this.getInputs(true)
 	}
 
 	async getVolume(): Promise<AudioVolume | void> {
@@ -256,7 +264,7 @@ export class GenelecSpeaker {
 	}
 
 	async getAudioDelay(): Promise<AudioDelay | void> {
-		const data = await this.sendRequest<AudioDelay>('GET', 'audio/delay', undefined, true)
+		const data = await this.sendRequest<AudioDelay>('GET', 'audio/delay', undefined, { apiPath: true })
 		if (data) {
 			this.state.audioDelay = data
 			this.self.updateVariableValues()
@@ -265,7 +273,7 @@ export class GenelecSpeaker {
 	}
 
 	async getAudioSensitivity(): Promise<AudioSensitivity | void> {
-		const data = await this.sendRequest<AudioSensitivity>('GET', 'audio/sensitivity', undefined, true)
+		const data = await this.sendRequest<AudioSensitivity>('GET', 'audio/sensitivity', undefined, { apiPath: true })
 		if (data) {
 			this.state.audioSensitivity = data
 			this.self.updateVariableValues()
@@ -275,7 +283,6 @@ export class GenelecSpeaker {
 
 	async setVolume(data: Partial<AudioVolume>): Promise<void> {
 		if (this.isStandby) return
-		//Don't wait to update variables, bypass queue would make them lag to user
 		if (this.state.audioVolume && data.level !== undefined) {
 			this.state.audioVolume.level = data.level
 		}
@@ -283,16 +290,30 @@ export class GenelecSpeaker {
 			this.state.audioVolume.mute = data.mute
 		}
 		this.self.updateVariableValues()
-		await this.sendRequest('PUT', 'audio/volume', data)
 		this.self.checkFeedbacks('mute', 'volume')
+
+		if (data.level !== undefined) {
+			// Coalesce rapid level changes: if a volume request is already queued, the
+			// optimistic state update above is enough — the pending request reads the
+			// latest level from state at execution time, so no extra request is needed.
+			if (this.pendingVolumeUpdate) return
+			this.pendingVolumeUpdate = true
+			await this.queue.add(
+				async () => {
+					await this._executeRequest('PUT', 'audio/volume', { level: this.state.audioVolume?.level })
+					this.pendingVolumeUpdate = false
+				},
+				{ priority: 1 },
+			)
+		} else {
+			await this.sendRequest('PUT', 'audio/volume', data)
+		}
 	}
 
 	async getAoipInfo(): Promise<AoIPIdentityResponse | void> {
 		const data = await this.sendRequest<AoIPIdentityResponse>('GET', 'aoip/dante/identity')
 		if (data) {
-			if (!data.locked) {
-				data.locked = false
-			}
+			data.locked ??= false
 			this.state.aoipInfo = data
 			this.self.updateVariableValues()
 		}
@@ -318,12 +339,12 @@ export class GenelecSpeaker {
 	}
 
 	async setZoneConfig(data: Partial<NetworkZoneResponse>): Promise<void> {
-		await this.sendRequest('PUT', 'network/zone', data, true)
+		await this.sendRequest('PUT', 'network/zone', data, { apiPath: true })
 		await this.bootDevice()
 	}
 
-	async getProfileList(): Promise<ProfileListResponse | void> {
-		const data = await this.sendRequest<ProfileListResponse>('GET', 'profile/list')
+	async getProfileList(highPriority = false): Promise<ProfileListResponse | void> {
+		const data = await this.sendRequest<ProfileListResponse>('GET', 'profile/list', undefined, { highPriority })
 		if (data) {
 			this.state.profiles = data
 		}
@@ -334,7 +355,7 @@ export class GenelecSpeaker {
 
 	async setProfile(data: Partial<ProfileItem>): Promise<void> {
 		await this.sendRequest('PUT', 'profile/restore', data)
-		await this.getProfileList()
+		await this.getProfileList(true)
 	}
 
 	async fetchInitialInfo(): Promise<void> {
