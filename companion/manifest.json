@@ -21,8 +21,8 @@
 	},
 	"legacyIds": [],
 	"manufacturer": "Genelec",
-	"products": ["Smart IP Installation Speakers"],
-	"keywords": ["Speakers", "Monitors", "Audio"],
+	"products": ["Smart IP"],
+	"keywords": ["Installation", "Speakers", "Monitors", "Audio"],
 	"bonjourQueries": {
 		"bonjourHost": {
 			"type": "smart_ip",

@@ -11,11 +11,11 @@ export function UpdateVariableDefinitions(self: GenelecSmartIPInstance): void {
 			{ variableId: 'fw_id', name: 'Firmware ID' },
 			{ variableId: 'build', name: 'Build Version' },
 			{ variableId: 'base_id', name: 'Base ID' },
-			{ variableId: 'hw_id', name: 'Hardware ID' },
+			//{ variableId: 'hw_id', name: 'Hardware ID' },
 			{ variableId: 'model', name: 'Model' },
 			{ variableId: 'category', name: 'Category' },
-			{ variableId: 'technology', name: 'Technology' },
-			{ variableId: 'upgrade_id', name: 'Upgrade ID' },
+			//{ variableId: 'technology', name: 'Technology' },
+			//{ variableId: 'upgrade_id', name: 'Upgrade ID' },
 			{ variableId: 'api_ver', name: 'API Version' },
 
 			// Power
@@ -115,21 +115,22 @@ export function UpdateVariableValues(self: GenelecSmartIPInstance): void {
 			if (newInfo.baseId !== oldInfo?.baseId) {
 				newVariables.base_id = newInfo.baseId
 			}
-			if (newInfo.hwId !== oldInfo?.hwId) {
+			/* if (newInfo.hwId !== oldInfo?.hwId) {
 				newVariables.hw_id = newInfo.hwId
-			}
+			} */
 			if (newInfo.model !== oldInfo?.model) {
 				newVariables.model = newInfo.model
 			}
 			if (newInfo.category !== oldInfo?.category) {
 				newVariables.category = newInfo.category
 			}
-			if (newInfo.technology !== oldInfo?.technology) {
+			/* if (newInfo.technology !== oldInfo?.technology) {
 				newVariables.technology = newInfo.technology
 			}
 			if (newInfo.upgradeId !== oldInfo?.upgradeId) {
 				newVariables.upgrade_id = newInfo.upgradeId
 			}
+				*/
 			if (newInfo.apiVer !== oldInfo?.apiVer) {
 				newVariables.api_ver = newInfo.apiVer
 			}
@@ -281,10 +282,10 @@ export function UpdateVariableValues(self: GenelecSmartIPInstance): void {
 			const oldProf = previousState.profiles
 
 			if (newProf.selected !== oldProf?.selected) {
-				newVariables.profile_selected = newProf.selected
+				newVariables.profile_selected = newProf.selected === 0 ? 'Default' : newProf.selected
 			}
 			if (newProf.startup !== oldProf?.startup) {
-				newVariables.profile_startup = newProf.startup
+				newVariables.profile_startup = newProf.startup === 0 ? 'Default' : newProf.startup
 			}
 
 			previousState.profiles = { ...newProf }

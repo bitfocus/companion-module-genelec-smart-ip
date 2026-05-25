@@ -521,7 +521,7 @@ export function UpdatePresets(self: GenelecSmartIPInstance): void {
 			name: 'Select Inputs',
 			text: '',
 		}
-		const inputs = [
+		const inputOptions = [
 			{ id: 'Analog', label: 'Analog', inputs: ['A'] },
 			{ id: 'AoIP01', label: 'AoIP 01', inputs: ['AoIP01'] },
 			{ id: 'AoIP02', label: 'AoIP 02', inputs: ['AoIP02'] },
@@ -531,7 +531,7 @@ export function UpdatePresets(self: GenelecSmartIPInstance): void {
 			{ id: 'AnalogAoIP1AoIP2', label: 'Analog + AoIP 01 + AoIP 02', inputs: ['A', 'AoIP01', 'AoIP02'] },
 			{ id: 'None', label: 'Remove All Inputs', inputs: [] },
 		]
-		for (const input of inputs) {
+		for (const input of inputOptions) {
 			presets[`inputSelection${input.id}`] = {
 				type: 'button',
 				category: 'Inputs',
