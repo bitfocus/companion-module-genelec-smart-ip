@@ -130,7 +130,7 @@ export function UpdateVariableValues(self: GenelecSmartIPInstance): void {
 			if (newInfo.upgradeId !== oldInfo?.upgradeId) {
 				newVariables.upgrade_id = newInfo.upgradeId
 			}
-				*/
+			*/
 			if (newInfo.apiVer !== oldInfo?.apiVer) {
 				newVariables.api_ver = newInfo.apiVer
 			}
