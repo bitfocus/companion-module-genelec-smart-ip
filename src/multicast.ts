@@ -36,8 +36,9 @@ export class GenelecMulticast {
 			this.socket.on('close', () => {
 				this.self.log('debug', 'Multicast socket closed')
 			})
-		} catch (error: any) {
-			this.self.log('error', `Failed to create multicast socket: ${error.message}`)
+		} catch (error: unknown) {
+			const message = error instanceof Error ? error.message : String(error)
+			this.self.log('error', `Failed to create multicast socket: ${message}`)
 		}
 	}
 
@@ -83,7 +84,7 @@ export class GenelecMulticast {
 		})
 	}
 
-	sendPower(state: string): void {
+	sendPower(state: 'BOOT' | 'STANDBY'): void {
 		this.send({
 			mcast: {
 				ver: 1,

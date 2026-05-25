@@ -15,7 +15,6 @@ export class GenelecSmartIPInstance extends InstanceBase<ModuleConfig, ModuleSec
 	config!: ModuleConfig
 	secrets!: ModuleSecrets
 	speaker!: GenelecSpeaker | null
-	speakers: Map<string, GenelecSpeaker> = new Map()
 	multicast: GenelecMulticast | null = null
 	multicastState: MulticastState = {}
 	deviceStatesInterval: NodeJS.Timeout | null = null
@@ -69,7 +68,6 @@ export class GenelecSmartIPInstance extends InstanceBase<ModuleConfig, ModuleSec
 		if (this.speaker) {
 			this.speaker = null
 		}
-		this.speakers.clear()
 		if (this.multicast) {
 			this.multicast.destroy()
 			this.multicast = null
@@ -91,7 +89,6 @@ export class GenelecSmartIPInstance extends InstanceBase<ModuleConfig, ModuleSec
 		if (this.speaker) {
 			this.speaker = null
 		}
-		this.speakers.clear()
 		if (this.multicast) {
 			this.multicast.destroy()
 			this.multicast = null

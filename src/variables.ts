@@ -364,6 +364,8 @@ export function UpdateVariableValues(self: GenelecSmartIPInstance): void {
 			if (newDelay.node !== oldDelay?.node) {
 				newVariables.audio_delay = newDelay.node
 			}
+
+			previousState.audioDelay = { ...newDelay }
 		}
 		if (state.audioSensitivity) {
 			const newSensitivity = state.audioSensitivity
@@ -372,6 +374,8 @@ export function UpdateVariableValues(self: GenelecSmartIPInstance): void {
 			if (newSensitivity.node !== oldSensitivity?.node) {
 				newVariables.audio_sensitivity = newSensitivity.node
 			}
+
+			previousState.audioSensitivity = { ...newSensitivity }
 		}
 	} // end if (self.speaker)
 

@@ -27,7 +27,7 @@ export class GenelecSpeaker {
 	private readonly password: string
 	private readonly self: GenelecSmartIPInstance
 	private authHeader: string | null = null
-	private requestQueue: Promise<any> = Promise.resolve()
+	private requestQueue: Promise<unknown> = Promise.resolve()
 
 	public state: SystemState = {}
 
@@ -67,14 +67,15 @@ export class GenelecSpeaker {
 		}
 
 		// Queue the request to prevent overloading the device web server
-		this.requestQueue = this.requestQueue.then(async () => {
+		const queued = this.requestQueue.then(async () => {
 			const response = await this._executeRequest<T>(type, endpoint, content, apiPath)
 			// Add a small delay between requests as requested by the user
 			await new Promise((resolve) => setTimeout(resolve, 100))
 			return response
 		})
+		this.requestQueue = queued
 
-		return this.requestQueue
+		return queued
 	}
 
 	private async _executeRequest<T = GenericResponse>(
@@ -96,8 +97,9 @@ export class GenelecSpeaker {
 				},
 				body: JSON.stringify(content),
 			})
-		} catch (error: any) {
-			const errorCode = error.cause?.code ?? 'Unknown error'
+		} catch (error: unknown) {
+			const errorCode =
+				(error instanceof Error ? (error.cause as { code?: string } | undefined)?.code : undefined) ?? 'Unknown error'
 			if (errorCode === 'EHOSTDOWN' || errorCode === 'ECONNREFUSED' || errorCode === 'ETIMEDOUT') {
 				this.self.log('debug', url)
 				this.self.updateStatus(InstanceStatus.ConnectionFailure, `${errorCode}`)
@@ -105,7 +107,8 @@ export class GenelecSpeaker {
 					this.self.log('warn', `Unable to connect to device ${errorCode}`)
 				}
 			} else {
-				this.self.log('debug', `Unable to connect to device: ${error.message} ${errorCode} ${url}`)
+				const message = error instanceof Error ? error.message : String(error)
+				this.self.log('debug', `Unable to connect to device: ${message} ${errorCode} ${url}`)
 			}
 			return
 		}
@@ -129,7 +132,7 @@ export class GenelecSpeaker {
 		}
 
 		const contentLength = response.headers.get('Content-Length')
-		if (contentLength && parseInt(contentLength) > 0) {
+		if (contentLength && parseInt(contentLength, 10) > 0) {
 			const data = (await response.json()) as T
 			return data
 		}

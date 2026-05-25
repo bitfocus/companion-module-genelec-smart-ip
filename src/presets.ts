@@ -1106,7 +1106,7 @@ export function UpdatePresets(self: GenelecSmartIPInstance): void {
 			style: {
 				bgcolor: Color.genelecDarkGray,
 				color: Color.white,
-				text: `CLIP LED STATUTS $(genelec:clip_led)`,
+				text: `CLIP LED STATUS $(genelec:clip_led)`,
 				size: 14,
 				show_topbar: false,
 			},

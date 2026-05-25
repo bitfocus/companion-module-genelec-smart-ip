@@ -53,14 +53,6 @@ export interface AudioDelay {
 	axis?: number
 }
 
-export interface DeviceIDResponse {
-	barcode: string
-	mac: string
-	hwId: string
-	model: string
-	modId: string
-}
-
 export interface DeviceInfoResponse {
 	fwId?: string
 	build?: string
@@ -72,10 +64,6 @@ export interface DeviceInfoResponse {
 	upgradeId?: number
 	apiVer?: string
 	confirmFwUpdate?: boolean
-}
-
-export interface DevicePower {
-	state: 'STANDBY' | 'ACTIVE' | 'BOOT' | 'AOIPBOOT'
 }
 
 export interface DevicePowerResponse {

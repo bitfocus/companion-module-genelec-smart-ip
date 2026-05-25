@@ -29,7 +29,7 @@ export function UpdateFeedbacks(self: GenelecSmartIPInstance): void {
 					default: '0',
 				},
 			],
-			description: `Enabled if the speaker is currently muted`,
+			description: `Enabled if ${name.toLowerCase()} matches the specified value comparison`,
 			callback: async (feedback) => {
 				const comparison = feedback.options.comparison
 				const value = feedback.options.value

@@ -37,7 +37,7 @@ export function UpdateActions(self: GenelecSmartIPInstance): void {
 				if (action.options.mode === 'toggle') {
 					newValue = !currentValue
 				} else {
-					newValue = action.options.mode === 'true' ? true : false
+					newValue = action.options.mode === 'true'
 				}
 				await setValue(newValue)
 			},
@@ -268,14 +268,7 @@ export function UpdateActions(self: GenelecSmartIPInstance): void {
 			],
 			description: `Set the inputs active state`,
 			callback: async (action) => {
-				const inputs: string[] = []
-				const actionInputs: string[] = action.options.inputs as string[]
-				if (actionInputs.length > 0) {
-					actionInputs.forEach((input) => {
-						inputs.push(input)
-					})
-				}
-				await self.speaker?.setInputs({ input: inputs })
+				await self.speaker?.setInputs({ input: action.options.inputs as string[] })
 			},
 		}
 
@@ -412,7 +405,7 @@ export function UpdateActions(self: GenelecSmartIPInstance): void {
 				if (action.options.mode === 'toggle') {
 					newValue = !currentValue
 				} else {
-					newValue = action.options.mode === 'true' ? true : false
+					newValue = action.options.mode === 'true'
 				}
 				self.multicastState.mute = newValue
 				self.multicast.sendMute(newValue)

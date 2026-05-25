@@ -5,18 +5,12 @@ export interface ModuleConfig {
 	bonjourHost: string
 	customHost: string
 	user: string
-	speakers: SpeakerConfig[]
 	multicastIp: string
 	multicastPort: number
 }
 
 export interface ModuleSecrets {
 	password: string
-}
-
-export interface SpeakerConfig {
-	ip: string
-	label: string
 }
 
 export function GetConfigFields(): SomeCompanionConfigField[] {
