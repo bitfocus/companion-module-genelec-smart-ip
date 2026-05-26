@@ -52,7 +52,7 @@ export function UpdateFeedbacks(self: GenelecSmartIPInstance): void {
 	if (!isMulticastMode) {
 		feedbacks['power'] = {
 			type: 'boolean',
-			name: 'Power State',
+			name: 'Active Power State',
 			options: [],
 			description: `Enabled if the speaker is currently in the active power state`,
 			callback: async () => {
