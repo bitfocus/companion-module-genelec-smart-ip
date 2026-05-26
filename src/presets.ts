@@ -125,44 +125,10 @@ export function UpdatePresets(self: GenelecSmartIPInstance): void {
 			headerName: 'Volume Adjustment - Buttons',
 		})
 
-		createAdjustmentPresets('sleepDelay', 'Sleep', 'Sleep Delay', 'sleepDelay', 'sleep_delay', 'Sleep Delay', {
-			adjustmentValue: 1,
-			valueSize: 14,
-			headerName: 'Sleep Delay Adjustment - Buttons',
-		})
-
-		createAdjustmentPresets(
-			'sleepThreshold',
-			'Sleep',
-			'Sleep Threshold',
-			'sleepThreshold',
-			'sleep_threshold',
-			'Sleep Threshold',
-			{
-				adjustmentValue: 1,
-				valueSize: 14,
-				headerName: 'Sleep Threshold Adjustment - Buttons',
-			},
-		)
-
-		createAdjustmentPresets(
-			'sleepLedIntensity',
-			'Sleep',
-			'Sleep LED Intensity',
-			'sleepLedIntensity',
-			'sleep_led_intensity',
-			'Sleep LED Intensity',
-			{
-				adjustmentValue: 1,
-				valueSize: 14,
-				headerName: 'Sleep LED Intensity Adjustment',
-			},
-		)
-
 		presets['volumeAdjustmentRotaryHeader'] = {
 			type: 'text',
 			category: 'Volume',
-			name: 'Volume Adjustment - Dials',
+			name: 'Volume Adjustment - Dial',
 			text: '(For use on devices with rotary dials)',
 		}
 
@@ -173,10 +139,13 @@ export function UpdatePresets(self: GenelecSmartIPInstance): void {
 			options: {
 				rotaryActions: true,
 			},
+			previewStyle: {
+				text: 'Volume Dial',
+			},
 			style: {
 				bgcolor: Color.genelecDarkGray,
 				color: Color.white,
-				text: 'Volume Dial',
+				text: 'Volume\\n$(genelec:volume) dB',
 				size: 14,
 				show_topbar: false,
 			},
@@ -652,52 +621,6 @@ export function UpdatePresets(self: GenelecSmartIPInstance): void {
 			}
 		}
 
-		presets[`zoneId`] = {
-			type: 'button',
-			category: 'Zone Info',
-			name: `Zone Info`,
-			options: {
-				rotaryActions: true,
-			},
-			style: {
-				bgcolor: Color.genelecDarkGray,
-				color: Color.white,
-				text: `ZONE ID\n$(genelec:zone_id)`,
-				size: 14,
-				show_topbar: false,
-			},
-			steps: [
-				{
-					down: [],
-					up: [],
-				},
-			],
-			feedbacks: [],
-		}
-
-		presets[`zoneName`] = {
-			type: 'button',
-			category: 'Zone Info',
-			name: `Zone Info`,
-			options: {
-				rotaryActions: true,
-			},
-			style: {
-				bgcolor: Color.genelecDarkGray,
-				color: Color.white,
-				text: `ZONE NAME\n$(genelec:zone_name)`,
-				size: 14,
-				show_topbar: false,
-			},
-			steps: [
-				{
-					down: [],
-					up: [],
-				},
-			],
-			feedbacks: [],
-		}
-
 		presets[`powerStatus`] = {
 			type: 'button',
 			category: 'Power',
@@ -882,15 +805,60 @@ export function UpdatePresets(self: GenelecSmartIPInstance): void {
 			],
 		}
 
+		presets[`zoneId`] = {
+			type: 'button',
+			category: 'Zone Info',
+			name: `Zone Info`,
+			options: {
+				rotaryActions: true,
+			},
+			style: {
+				bgcolor: Color.genelecDarkGray,
+				color: Color.white,
+				text: `ZONE ID\n$(genelec:zone_id)`,
+				size: 14,
+				show_topbar: false,
+			},
+			steps: [
+				{
+					down: [],
+					up: [],
+				},
+			],
+			feedbacks: [],
+		}
+
+		presets[`zoneName`] = {
+			type: 'button',
+			category: 'Zone Info',
+			name: `Zone Info`,
+			options: {
+				rotaryActions: true,
+			},
+			style: {
+				bgcolor: Color.genelecDarkGray,
+				color: Color.white,
+				text: `ZONE NAME\n$(genelec:zone_name)`,
+				size: 14,
+				show_topbar: false,
+			},
+			steps: [
+				{
+					down: [],
+					up: [],
+				},
+			],
+			feedbacks: [],
+		}
+
 		const diagnostics = [
 			{ id: 'cpu_load', label: 'CPU LOAD', suffix: '%' },
 			{ id: 'cpu_temp', label: 'CPU TEMP', suffix: '°C' },
 			{ id: 'network_traffic', label: 'NETWORK TRAFFIC', suffix: 'Kbps' },
 			{ id: 'uptime', label: 'UPTIME' },
-			{ id: 'fw_id', label: 'FIRMWARE' },
+			/* { id: 'fw_id', label: 'FIRMWARE' },
 			{ id: 'build', label: 'BUILD' },
-			{ id: 'base_id', label: 'BASE ID' },
-			{ id: 'hw_id', label: 'HW ID' },
+			{ id: 'base_id', label: 'BASE ID' }, */
 			{ id: 'model', label: 'MODEL' },
 		]
 		for (const info of diagnostics) {
@@ -1347,6 +1315,40 @@ export function UpdatePresets(self: GenelecSmartIPInstance): void {
 				},
 			],
 		}
+
+		createAdjustmentPresets('sleepDelay', 'Sleep', 'Sleep Delay', 'sleepDelay', 'sleep_delay', 'Sleep Delay', {
+			adjustmentValue: 1,
+			valueSize: 14,
+			headerName: 'Sleep Delay Adjustment - Buttons',
+		})
+
+		createAdjustmentPresets(
+			'sleepThreshold',
+			'Sleep',
+			'Sleep Threshold',
+			'sleepThreshold',
+			'sleep_threshold',
+			'Sleep Threshold',
+			{
+				adjustmentValue: 1,
+				valueSize: 14,
+				headerName: 'Sleep Threshold Adjustment - Buttons',
+			},
+		)
+
+		createAdjustmentPresets(
+			'sleepLedIntensity',
+			'Sleep',
+			'Sleep LED Intensity',
+			'sleepLedIntensity',
+			'sleep_led_intensity',
+			'Sleep LED Intensity',
+			{
+				adjustmentValue: 1,
+				valueSize: 14,
+				headerName: 'Sleep LED Intensity Adjustment',
+			},
+		)
 	}
 
 	// Multicast Control Presets
@@ -1379,10 +1381,13 @@ export function UpdatePresets(self: GenelecSmartIPInstance): void {
 			options: {
 				rotaryActions: true,
 			},
+			previewStyle: {
+				text: 'Zone Volume Dial',
+			},
 			style: {
 				bgcolor: Color.genelecDarkGray,
 				color: Color.white,
-				text: 'Zone Volume Dial',
+				text: 'Zone Volume\\n$(genelec:zone_volume) dB',
 				size: 14,
 				show_topbar: false,
 			},
