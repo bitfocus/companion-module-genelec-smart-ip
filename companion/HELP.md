@@ -4,10 +4,17 @@ Control Genelec Smart IP Installation Speakers.
 
 ## Getting Started
 
-There are two ways to control Smart IP speakers: as individual units, or in a multicast group.
-In the configuration, you can select your desired mode.
-If using Individual mode, speakers will be auto disocvered on your local network. If needed, you can also select "Manual" and enter an IP address of the unit as well. You can add as many instances of the module as you have speakers to get individual control and feedback of the devices.
-If using Multicast mode, you can enter the desired multicast address and port. These setting must match the configured values for the speaker(s) from Genelec's Smart IP Manager App. This is found under Settings > General > //INSERT MENU NAME
+There are two ways to connect to Smart IP speakers: as individual devices, or as a multicast group. In the configuration, you can select your desired mode.
+
+**Individual Mode**
+
+- Smart IP speakers will be automatically discovered on your local network and available to select via the "Smart IP Speaker" dropdown.
+- If needed, you can also select "Manual" and enter an IP address of the speaker.
+- You can add as many instances of the module as you have speakers to get individual control and feedback of the devices.
+
+**Multicast Mode**
+
+- Enter the desired multicast address and port. These setting must match the configured values for the speaker(s) from Genelec's Smart IP Manager App under the "Network" menu.
 
 ## Actions
 

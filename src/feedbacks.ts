@@ -29,7 +29,7 @@ export function UpdateFeedbacks(self: GenelecSmartIPInstance): void {
 					default: '0',
 				},
 			],
-			description: `Enabled if ${name.toLowerCase()} matches the specified value comparison`,
+			description: `Enabled if ${name.toLowerCase()} matches the selected comparison`,
 			callback: async (feedback) => {
 				const comparison = feedback.options.comparison
 				const value = feedback.options.value
@@ -207,7 +207,7 @@ export function UpdateFeedbacks(self: GenelecSmartIPInstance): void {
 			type: 'boolean',
 			name: 'Zone Mute State',
 			options: [],
-			description: `Enabled if the zone is currently muted (multicast)`,
+			description: `Enabled if the multicast zone was last sent a mute command`,
 			callback: async () => {
 				return self.multicastState.mute === true
 			},
@@ -250,7 +250,7 @@ export function UpdateFeedbacks(self: GenelecSmartIPInstance): void {
 			type: 'boolean',
 			name: 'Zone Power State',
 			options: [],
-			description: `Enabled if the zone was last sent a BOOT/wake command (multicast)`,
+			description: `Enabled if the multicast zone was last sent a wake command`,
 			callback: async () => {
 				return self.multicastState.power === 'BOOT'
 			},

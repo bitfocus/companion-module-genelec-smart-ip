@@ -30,7 +30,7 @@ export function UpdateActions(self: GenelecSmartIPInstance): void {
 					id: 'mode',
 				},
 			],
-			description: description ?? `Set the ${name.toLowerCase()}`,
+			description: description ?? `Set the ${name.toLowerCase()} of the speaker`,
 			callback: async (action) => {
 				const currentValue = getCurrentValue() ?? false
 				let newValue: boolean
@@ -79,7 +79,7 @@ export function UpdateActions(self: GenelecSmartIPInstance): void {
 					useVariables: true,
 				},
 			],
-			description: description ?? `Set or adjust the ${name.toLowerCase()}`,
+			description: description ?? `Set or adjust the ${name.toLowerCase()} of the speaker`,
 			callback: async (action) => {
 				const currentValue = getCurrentValue()
 				if (currentValue === undefined) return
@@ -186,7 +186,7 @@ export function UpdateActions(self: GenelecSmartIPInstance): void {
 					id: 'mode',
 				},
 			],
-			description: `Set the hide state of the clip LED`,
+			description: `Set the visibility of the clip LED`,
 			callback: async (action) => {
 				const currentValue = self.speaker?.state.led?.hideClip ?? false
 				let newValue: boolean
@@ -209,7 +209,7 @@ export function UpdateActions(self: GenelecSmartIPInstance): void {
 					id: 'blink',
 				},
 			],
-			description: `Identify the device by blinking the LED`,
+			description: `Identify the speaker by blinking its LED`,
 			callback: async (action) => {
 				let data: LEDResponse = {
 					take: false,
@@ -266,7 +266,7 @@ export function UpdateActions(self: GenelecSmartIPInstance): void {
 					],
 				},
 			],
-			description: `Set the inputs active state`,
+			description: `Set the currently active inputs of the speaker`,
 			callback: async (action) => {
 				await self.speaker?.setInputs({ input: action.options.inputs as string[] })
 			},
@@ -323,7 +323,7 @@ export function UpdateActions(self: GenelecSmartIPInstance): void {
 					id: 'startup',
 				},
 			],
-			description: `Set the current profile for the speaker`,
+			description: `Set the current profile of the speaker. If "Use on Startup" is enabled, the profile will be set on startup.`,
 			callback: async (action) => {
 				await self.speaker?.setProfile({
 					id: action.options.profile as number,
@@ -353,7 +353,7 @@ export function UpdateActions(self: GenelecSmartIPInstance): void {
 					useVariables: true,
 				},
 			],
-			description: `Set or adjust the volume for all speakers in the zone via multicast`,
+			description: `Set or adjust the volume for all speakers in a multicast zone`,
 			callback: async (action) => {
 				if (!self.multicast) {
 					self.log('warn', 'Multicast not configured')
@@ -394,7 +394,7 @@ export function UpdateActions(self: GenelecSmartIPInstance): void {
 					id: 'mode',
 				},
 			],
-			description: `Set the mute state for all speakers in the zone via multicast`,
+			description: `Set the mute state for all speakers in a multicast zone`,
 			callback: async (action) => {
 				if (!self.multicast) {
 					self.log('warn', 'Multicast not configured')
@@ -432,7 +432,7 @@ export function UpdateActions(self: GenelecSmartIPInstance): void {
 					id: 'profile',
 				},
 			],
-			description: `Set the profile for all speakers in the zone via multicast`,
+			description: `Set the current profile for all speakers in a multicast zone`,
 			callback: async (action) => {
 				if (!self.multicast) {
 					self.log('warn', 'Multicast not configured')
@@ -460,7 +460,7 @@ export function UpdateActions(self: GenelecSmartIPInstance): void {
 					id: 'mode',
 				},
 			],
-			description: `Set the power state for all speakers in the zone via multicast`,
+			description: `Set the power state for all speakers in a multicast zone`,
 			callback: async (action) => {
 				if (!self.multicast) {
 					self.log('warn', 'Multicast not configured')

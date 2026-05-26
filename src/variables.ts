@@ -79,14 +79,14 @@ export function UpdateVariableDefinitions(self: GenelecSmartIPInstance): void {
 			{ variableId: 'sleep_led_intensity', name: 'Sleep LED Intensity (%)' },
 		)
 	} else {
-		// Zone Multicast
+		// Multicast Zone
 		variables.push(
-			{ variableId: 'zone_mcast_ip', name: 'Zone Multicast IP' },
-			{ variableId: 'zone_mcast_port', name: 'Zone Multicast Port' },
-			{ variableId: 'zone_volume', name: 'Zone Volume (dB) - Multicast' },
-			{ variableId: 'zone_mute', name: 'Zone Mute State - Multicast' },
-			{ variableId: 'zone_profile', name: 'Zone Profile - Multicast' },
-			{ variableId: 'zone_power', name: 'Zone Power State - Multicast' },
+			{ variableId: 'zone_mcast_ip', name: 'Multicast Zone - IP' },
+			{ variableId: 'zone_mcast_port', name: 'Multicast Zone - Port' },
+			{ variableId: 'zone_volume', name: 'Multicast Zone - Volume (dB)' },
+			{ variableId: 'zone_mute', name: 'Multicast Zone - Mute State' },
+			{ variableId: 'zone_profile', name: 'Multicast Zone - Profile' },
+			{ variableId: 'zone_power', name: 'Multicast Zone - Zone Power State' },
 		)
 	}
 	self.setVariableDefinitions(variables)
