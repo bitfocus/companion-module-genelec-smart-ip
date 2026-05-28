@@ -252,7 +252,7 @@ export function UpdateActions(self: GenelecSmartIPInstance): void {
 		}
 
 		actions['inputsActive'] = {
-			name: 'Set Inputs Active',
+			name: 'Set Active Inputs',
 			options: [
 				{
 					type: 'multidropdown',
