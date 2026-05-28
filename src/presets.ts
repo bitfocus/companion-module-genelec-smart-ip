@@ -491,14 +491,14 @@ export function UpdatePresets(self: GenelecSmartIPInstance): void {
 			text: '',
 		}
 		const inputOptions = [
-			{ id: 'Analog', label: 'Analog', inputs: ['A'] },
-			{ id: 'AoIP01', label: 'AoIP 01', inputs: ['AoIP01'] },
-			{ id: 'AoIP02', label: 'AoIP 02', inputs: ['AoIP02'] },
-			{ id: 'AnalogAoIP1', label: 'Analog + AoIP 01', inputs: ['A', 'AoIP01'] },
-			{ id: 'AnalogAoIP2', label: 'Analog + AoIP 02', inputs: ['A', 'AoIP02'] },
-			{ id: 'AoIP1AoIP2', label: 'AoIP 01 + AoIP 02', inputs: ['AoIP01', 'AoIP02'] },
-			{ id: 'AnalogAoIP1AoIP2', label: 'Analog + AoIP 01 + AoIP 02', inputs: ['A', 'AoIP01', 'AoIP02'] },
-			{ id: 'None', label: 'Remove All Inputs', inputs: [] },
+			{ id: 'Analog', label: 'Analog', activeInputs: ['A'] },
+			{ id: 'AoIP01', label: 'AoIP 01', activeInputs: ['AoIP01'] },
+			{ id: 'AoIP02', label: 'AoIP 02', activeInputs: ['AoIP02'] },
+			{ id: 'AnalogAoIP1', label: 'Analog + AoIP 01', activeInputs: ['A', 'AoIP01'] },
+			{ id: 'AnalogAoIP2', label: 'Analog + AoIP 02', activeInputs: ['A', 'AoIP02'] },
+			{ id: 'AoIP1AoIP2', label: 'AoIP 01 + AoIP 02', activeInputs: ['AoIP01', 'AoIP02'] },
+			{ id: 'AnalogAoIP1AoIP2', label: 'Analog + AoIP 01 + AoIP 02', activeInputs: ['A', 'AoIP01', 'AoIP02'] },
+			{ id: 'None', label: 'Remove All Inputs', activeInputs: [] },
 		]
 		for (const input of inputOptions) {
 			presets[`inputSelection${input.id}`] = {
@@ -521,7 +521,7 @@ export function UpdatePresets(self: GenelecSmartIPInstance): void {
 							{
 								actionId: 'inputsActive',
 								options: {
-									inputs: input.inputs,
+									inputs: input.activeInputs,
 								},
 							},
 						],
@@ -532,7 +532,7 @@ export function UpdatePresets(self: GenelecSmartIPInstance): void {
 					{
 						feedbackId: 'inputsActive',
 						options: {
-							inputs: input.inputs,
+							inputs: input.activeInputs,
 						},
 						style: {
 							bgcolor: Color.genelecGreen,
