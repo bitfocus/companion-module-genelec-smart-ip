@@ -66,6 +66,7 @@ export function GetConfigFields(): SomeCompanionConfigField[] {
 			type: 'textinput',
 			id: 'multicastIp',
 			label: 'Custom Multicast IP',
+			description: 'Multicast settings must be configured in Smart IP Manager. See "Help" for more information.',
 			width: 6,
 			default: '',
 			regex: '^$|^((22[4-9]|23[0-9])\\.(\\d{1,3}\\.){2}\\d{1,3})$',
