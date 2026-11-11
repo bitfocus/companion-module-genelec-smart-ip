@@ -16,6 +16,13 @@ There are two ways to connect to Smart IP speakers: as individual devices, or as
 
 - Enter the desired multicast address and port. These setting must match the configured values for the speaker(s) from Genelec's Smart IP Manager App under the "Network" menu.
 
+**Discovering Speakers on the Network**
+
+When Wi-Fi and a wired connection are both connected, speakers on the wired network may not appear in the list.
+
+- Choose **Manual** in the Smart IP Speaker list and enter the speaker's IP address.
+- Or turn Wi-Fi off and restart the connection, then select the speaker from the list.
+
 ## Actions
 
 - Volume

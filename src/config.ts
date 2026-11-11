@@ -37,6 +37,8 @@ export function GetConfigFields(): SomeCompanionConfigField[] {
 			id: 'bonjourHost',
 			label: 'Smart IP Speaker',
 			width: 8,
+			description:
+				'If a speaker is missing while Wi-Fi and a wired connection are both connected, choose Manual and enter its IP, or turn Wi-Fi off and restart the connection.',
 			isVisibleExpression: '$(options:mode) != "multicast"',
 		},
 		{
