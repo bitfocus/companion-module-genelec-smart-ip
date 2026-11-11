@@ -19,23 +19,23 @@
 		"url": "git+https://github.com/bitfocus/companion-module-genelec-smart-ip.git"
 	},
 	"engines": {
-		"node": "^22.20",
+		"node": "^26.5",
 		"yarn": "^4"
 	},
 	"dependencies": {
-		"@companion-module/base": "~1.14.1",
-		"p-queue": "^9.3.0"
+		"@companion-module/base": "~1.15.1",
+		"p-queue": "^9.3.5"
 	},
 	"devDependencies": {
-		"@companion-module/tools": "^2.8.0",
-		"@types/node": "^22.19.20",
-		"eslint": "^9.39.4",
+		"@companion-module/tools": "^2.9.1",
+		"@types/node": "^26.6.6",
+		"eslint": "^9.39.5",
 		"husky": "^9.1.7",
 		"lint-staged": "^16.4.0",
-		"prettier": "^3.8.3",
-		"rimraf": "^6.1.3",
-		"typescript": "~5.9.3",
-		"typescript-eslint": "^8.60.1"
+		"prettier": "^3.9.10",
+		"rimraf": "^6.1.4",
+		"typescript": "~6.0.3",
+		"typescript-eslint": "^8.72.1"
 	},
 	"prettier": "@companion-module/tools/.prettierrc.json",
 	"lint-staged": {
@@ -46,5 +46,5 @@
 			"yarn lint:raw --fix"
 		]
 	},
-	"packageManager": "yarn@4.16.0"
+	"packageManager": "yarn@4.18.1"
 }
