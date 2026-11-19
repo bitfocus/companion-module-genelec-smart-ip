@@ -15,6 +15,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Update to a Node.js 26 runtime
 
+### Fixed
+
+- More reliable connection handling when reconnecting or changing the configuration
+
 ## [1.0.0] - 2026-06-09
 
 ### Added
