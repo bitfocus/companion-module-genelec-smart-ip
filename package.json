@@ -1,6 +1,6 @@
 {
 	"name": "genelec-smart-ip",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"main": "dist/main.js",
 	"type": "module",
 	"scripts": {
@@ -32,10 +32,10 @@
 		"eslint": "^9.39.5",
 		"husky": "^9.1.7",
 		"lint-staged": "^16.4.0",
-		"prettier": "^3.9.10",
+		"prettier": "^3.10.1",
 		"rimraf": "^6.1.4",
 		"typescript": "~6.0.3",
-		"typescript-eslint": "^8.72.1"
+		"typescript-eslint": "^8.73.0"
 	},
 	"prettier": "@companion-module/tools/.prettierrc.json",
 	"lint-staged": {

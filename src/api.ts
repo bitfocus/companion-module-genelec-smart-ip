@@ -22,6 +22,8 @@ import {
 } from './types.js'
 import { InstanceStatus } from '@companion-module/base'
 
+const REQUEST_TIMEOUT_MS = 5000
+
 interface RequestOptions {
 	apiPath?: boolean
 	highPriority?: boolean
@@ -35,6 +37,8 @@ export class GenelecSpeaker {
 	private authHeader: string | null = null
 	private queue = new PQueue({ concurrency: 1 })
 	private pendingVolumeUpdate = false
+	private readonly abortController = new AbortController()
+	private powerPollTimer: NodeJS.Timeout | null = null
 
 	public state: SystemState = {}
 
@@ -43,6 +47,22 @@ export class GenelecSpeaker {
 		this.user = config.user
 		this.password = secrets.password
 		this.self = self
+	}
+
+	/**
+	 * Abort in-flight requests and stop timers. Queued and later requests still settle (with no data),
+	 * so nothing awaiting them hangs.
+	 */
+	destroy(): void {
+		this.abortController.abort()
+		if (this.powerPollTimer) {
+			clearTimeout(this.powerPollTimer)
+			this.powerPollTimer = null
+		}
+	}
+
+	private get destroyed(): boolean {
+		return this.abortController.signal.aborted
 	}
 
 	get isStandby(): boolean {
@@ -74,7 +94,7 @@ export class GenelecSpeaker {
 			async () => {
 				const response = await this._executeRequest<T>(type, endpoint, content, options?.apiPath)
 				// Throttle between poll requests only — commands don't need the delay
-				if (priority === 0) {
+				if (priority === 0 && !this.destroyed) {
 					await new Promise((resolve) => setTimeout(resolve, 100))
 				}
 				return response
@@ -92,6 +112,7 @@ export class GenelecSpeaker {
 		const host = this.config.bonjourHost ?? this.config.customHost + ':9000'
 		const publicEndpoint = apiPath !== undefined ? 'api/' : 'public/'
 		const url = `http://${host}/${publicEndpoint}v1/${endpoint}`
+		if (this.destroyed) return
 		let response: Response
 		try {
 			response = await fetch(url, {
@@ -101,22 +122,42 @@ export class GenelecSpeaker {
 					Authorization: this.generateBasicAuthHeader(),
 				},
 				body: JSON.stringify(content),
+				signal: AbortSignal.any([this.abortController.signal, AbortSignal.timeout(REQUEST_TIMEOUT_MS)]),
 			})
 		} catch (error: unknown) {
+			// A request that was in flight when the connection was torn down must not touch the instance status
+			if (this.destroyed) return
 			const errorCode =
-				(error instanceof Error ? (error.cause as { code?: string } | undefined)?.code : undefined) ?? 'Unknown error'
+				error instanceof Error && error.name === 'TimeoutError'
+					? 'ETIMEDOUT'
+					: ((error instanceof Error ? (error.cause as { code?: string } | undefined)?.code : undefined) ??
+						'Unknown error')
 			if (errorCode === 'EHOSTDOWN' || errorCode === 'ECONNREFUSED' || errorCode === 'ETIMEDOUT') {
 				this.self.log('debug', url)
-				this.self.updateStatus(InstanceStatus.ConnectionFailure, `${errorCode}`)
 				if (this.self.lastStatus !== InstanceStatus.ConnectionFailure) {
 					this.self.log('warn', `Unable to connect to device ${errorCode}`)
 				}
+				this.self.updateStatus(InstanceStatus.ConnectionFailure, `${errorCode}`)
 			} else {
 				const message = error instanceof Error ? error.message : String(error)
 				this.self.log('debug', `Unable to connect to device: ${message} ${errorCode} ${url}`)
 			}
 			return
 		}
+
+		let data: T | undefined
+		const contentLength = response.headers.get('Content-Length')
+		if (response.status !== 401 && response.status !== 503 && contentLength && parseInt(contentLength, 10) > 0) {
+			try {
+				data = (await response.json()) as T
+			} catch (error: unknown) {
+				if (!this.destroyed) {
+					const message = error instanceof Error ? error.message : String(error)
+					this.self.log('debug', `Invalid response from ${url}: ${message}`)
+				}
+			}
+		}
+		if (this.destroyed) return
 
 		if (!response.ok) {
 			if (response.status === 401) {
@@ -135,13 +176,7 @@ export class GenelecSpeaker {
 				this.self.updateStatus(InstanceStatus.Ok)
 			}
 		}
-
-		const contentLength = response.headers.get('Content-Length')
-		if (contentLength && parseInt(contentLength, 10) > 0) {
-			const data = (await response.json()) as T
-			return data
-		}
-		return
+		return data
 	}
 
 	async getDeviceInfo(): Promise<DeviceInfoResponse | void> {
@@ -164,6 +199,7 @@ export class GenelecSpeaker {
 			}
 		}
 
+		if (this.destroyed) return
 		this.self.updateVariableValues()
 		this.self.checkFeedbacks('power')
 		return data
@@ -171,7 +207,10 @@ export class GenelecSpeaker {
 
 	async setPowerState(data: Partial<DevicePowerResponse>): Promise<void> {
 		await this.sendRequest('PUT', 'device/pwr', data)
-		setTimeout(() => {
+		if (this.destroyed) return
+		if (this.powerPollTimer) clearTimeout(this.powerPollTimer)
+		this.powerPollTimer = setTimeout(() => {
+			this.powerPollTimer = null
 			void this.getPowerState(true)
 		}, 1000)
 	}
@@ -185,8 +224,9 @@ export class GenelecSpeaker {
 		if (data) {
 			this.state.led = data
 		}
+		if (this.destroyed) return
 		this.self.updateVariableValues()
-		this.self.checkFeedbacks('blinkLed', 'clipLed', 'rj45Led')
+		this.self.checkFeedbacks('clipLed', 'rj45Led')
 		return data
 	}
 
@@ -203,6 +243,7 @@ export class GenelecSpeaker {
 		if (data) {
 			this.state.deviceISS = data
 			this.self.updateVariableValues()
+			this.self.checkFeedbacks('sleepDelay', 'sleepThreshold', 'sleepLedIntensity')
 		}
 		return data
 	}
@@ -233,6 +274,7 @@ export class GenelecSpeaker {
 		if (data) {
 			this.state.events = data
 		}
+		if (this.destroyed) return
 		this.self.updateVariableValues()
 		this.self.checkFeedbacks('bassLevel', 'tweeterLevel', 'inputLevel')
 		return data
@@ -243,6 +285,7 @@ export class GenelecSpeaker {
 		if (data) {
 			this.state.audioInputs = data
 		}
+		if (this.destroyed) return
 		this.self.updateVariableValues()
 		this.self.checkFeedbacks('inputsActive')
 		return data
@@ -258,6 +301,7 @@ export class GenelecSpeaker {
 		if (data) {
 			this.state.audioVolume = data
 		}
+		if (this.destroyed) return
 		this.self.updateVariableValues()
 		this.self.checkFeedbacks('mute', 'volume')
 		return data
@@ -300,8 +344,11 @@ export class GenelecSpeaker {
 			this.pendingVolumeUpdate = true
 			await this.queue.add(
 				async () => {
-					await this._executeRequest('PUT', 'audio/volume', { level: this.state.audioVolume?.level })
-					this.pendingVolumeUpdate = false
+					try {
+						await this._executeRequest('PUT', 'audio/volume', { level: this.state.audioVolume?.level })
+					} finally {
+						this.pendingVolumeUpdate = false
+					}
 				},
 				{ priority: 1 },
 			)
@@ -348,6 +395,7 @@ export class GenelecSpeaker {
 		if (data) {
 			this.state.profiles = data
 		}
+		if (this.destroyed) return
 		this.self.updateVariableValues()
 		this.self.checkFeedbacks('profileSelected', 'profileStartup')
 		return data

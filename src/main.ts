@@ -20,6 +20,9 @@ export class GenelecSmartIPInstance extends InstanceBase<ModuleConfig, ModuleSec
 	deviceStatesInterval: NodeJS.Timeout | null = null
 	eventInterval: NodeJS.Timeout | null = null
 	reconnectInterval: NodeJS.Timeout | null = null
+	loginTimer: NodeJS.Immediate | null = null
+	/** The speaker a login is currently running against, so the reconnect poll doesn't start overlapping logins */
+	private loginInProgress: GenelecSpeaker | null = null
 	previousState: SystemState = {}
 	public lastStatus: InstanceStatus = InstanceStatus.Disconnected
 
@@ -52,7 +55,8 @@ export class GenelecSmartIPInstance extends InstanceBase<ModuleConfig, ModuleSec
 				this.updateStatus(InstanceStatus.BadConfig)
 				return
 			}
-			setImmediate(() => {
+			this.loginTimer = setImmediate(() => {
+				this.loginTimer = null
 				void this.performLogin()
 			})
 		}
@@ -65,35 +69,41 @@ export class GenelecSmartIPInstance extends InstanceBase<ModuleConfig, ModuleSec
 
 	async destroy(): Promise<void> {
 		this.log('debug', 'destroy')
-		if (this.speaker) {
-			this.speaker = null
-		}
-		if (this.multicast) {
-			this.multicast.destroy()
-			this.multicast = null
-		}
-		if (this.deviceStatesInterval) {
-			clearInterval(this.deviceStatesInterval)
-		}
-		if (this.eventInterval) {
-			clearInterval(this.eventInterval)
-		}
-		if (this.reconnectInterval) {
-			clearInterval(this.reconnectInterval)
-		}
+		this.teardown()
 	}
 
 	async configUpdated(config: ModuleConfig, secrets: ModuleSecrets): Promise<void> {
 		this.config = config
 		this.secrets = secrets
+		this.teardown()
+		await this.init(config, false, secrets)
+	}
+
+	/**
+	 * Stop everything tied to the current connection: pending login, all timers, queued requests
+	 * and the multicast socket. Also resets the variable diff cache so a new connection re-publishes
+	 * every value.
+	 */
+	private teardown(): void {
+		if (this.loginTimer) {
+			clearImmediate(this.loginTimer)
+			this.loginTimer = null
+		}
+		this.stopPolling()
+		if (this.reconnectInterval) {
+			clearInterval(this.reconnectInterval)
+			this.reconnectInterval = null
+		}
 		if (this.speaker) {
+			this.speaker.destroy()
 			this.speaker = null
 		}
 		if (this.multicast) {
 			this.multicast.destroy()
 			this.multicast = null
 		}
-		await this.init(config, false, secrets)
+		this.previousState = {}
+		this.multicastState = {}
 	}
 
 	getConfigFields(): SomeCompanionConfigField[] {
@@ -120,24 +130,6 @@ export class GenelecSmartIPInstance extends InstanceBase<ModuleConfig, ModuleSec
 		UpdateVariableValues(this)
 	}
 
-	syncMulticastStateFromSpeaker(): void {
-		if (!this.speaker) {
-			this.multicastState = { level: -130, mute: false, profile: 0, power: 'BOOT' }
-			return
-		}
-
-		const state = this.speaker.state
-		this.multicastState = {
-			level: state.audioVolume?.level ?? -130,
-			mute: state.audioVolume?.mute ?? false,
-			profile: state.profiles?.selected ?? 0,
-			power: state.power?.state === 'STANDBY' ? 'STANDBY' : 'BOOT',
-		}
-		this.log('debug', `Synced multicast state from speaker: ${JSON.stringify(this.multicastState)}`)
-		this.updateVariableValues()
-		this.checkFeedbacks('zoneMute', 'zoneProfile', 'zonePower')
-	}
-
 	initMulticast(): void {
 		if (this.multicast) {
 			this.multicast.destroy()
@@ -158,19 +150,29 @@ export class GenelecSmartIPInstance extends InstanceBase<ModuleConfig, ModuleSec
 		if (!this.speaker) {
 			this.speaker = new GenelecSpeaker(this.config, this.secrets, this)
 		}
-		const deviceInfo = await this.speaker.getDeviceInfo()
-		if (deviceInfo) {
-			if (this.reconnectInterval) {
-				clearInterval(this.reconnectInterval)
-				this.reconnectInterval = null
+		const speaker = this.speaker
+		if (this.loginInProgress === speaker) return
+		this.loginInProgress = speaker
+		try {
+			const deviceInfo = await speaker.getDeviceInfo()
+			// The connection was torn down (destroy/config change) while the request was in flight
+			if (this.speaker !== speaker) return
+			if (deviceInfo) {
+				if (this.reconnectInterval) {
+					clearInterval(this.reconnectInterval)
+					this.reconnectInterval = null
+				}
+				this.updateStatus(InstanceStatus.Ok)
+				await speaker.fetchInitialInfo()
+				if (this.speaker !== speaker) return
+				this.pollDeviceStates()
+				this.pollEvents()
+			} else {
+				this.stopPolling()
+				this.reconnectPoll()
 			}
-			this.updateStatus(InstanceStatus.Ok)
-			await this.speaker?.fetchInitialInfo()
-			this.pollDeviceStates()
-			this.pollEvents()
-		} else {
-			this.stopPolling()
-			this.reconnectPoll()
+		} finally {
+			if (this.loginInProgress === speaker) this.loginInProgress = null
 		}
 	}
 
