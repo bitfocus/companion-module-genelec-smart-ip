@@ -5,11 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.0.1]
+## [1.0.1] - 2026-11-19
 
 ### Added
 
-- Note in Help and on the speaker field for macOS Bonjour discovery when Wi-Fi and Ethernet are both connected
+- Help note for macOS Bonjour discovery when Wi-Fi and Ethernet are both connected
 
 ### Changed
 
